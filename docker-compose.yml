@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15
+    container_name: beauty_server_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: beauty_server_db
+    ports:
+      - "5432:5432"
+    networks:
+      - beauty_network
+
+#  app:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    container_name: beauty_server_app
+#    environment:
+#      DATABASE_DSN: postgres://postgres:postgres@db:5432/beauty_server_db?sslmode=disable
+#      PORT: 8080
+#    ports:
+#      - "8080:8080"
+#    depends_on:
+#      - db
+#    networks:
+#      - beauty_network
+
+networks:
+  beauty_network:
+    driver: bridge
