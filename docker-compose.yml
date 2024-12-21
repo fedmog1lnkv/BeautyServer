@@ -9,24 +9,33 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: beauty_server_db
     ports:
-      - "5432:5432"
+      - "5228:5432"
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d beauty_server_db"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 5s
     networks:
       - beauty_network
 
-#  app:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    container_name: beauty_server_app
-#    environment:
-#      DATABASE_DSN: postgres://postgres:postgres@db:5432/beauty_server_db?sslmode=disable
-#      PORT: 8080
-#    ports:
-#      - "8080:8080"
-#    depends_on:
-#      - db
-#    networks:
-#      - beauty_network
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: beauty_server_app
+    environment:
+      DATABASE_DSN: postgres://postgres:postgres@beauty_server_db:5432/beauty_server_db?sslmode=disable
+      PORT: 8080
+    ports:
+      - "8228:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: on-failure
+    networks:
+      - beauty_network
 
 networks:
   beauty_network:

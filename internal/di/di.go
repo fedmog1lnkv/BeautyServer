@@ -32,5 +32,6 @@ func NewGorm() *gorm.DB {
 		log.Fatalf("Ошибка подключения к базе данных: %v", err)
 	}
 
+	log.Print("Успешное подключение к бд")
 	return db
 }

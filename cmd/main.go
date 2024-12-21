@@ -9,23 +9,23 @@ import (
 	"beauty-server/internal/api/handler/user"
 	"beauty-server/internal/api/router"
 	"beauty-server/internal/di"
+	"beauty-server/internal/infrastructure/config"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/fx"
 	"log"
 	"os"
-	"os/exec"
 )
 
 func main() {
 	if err := godotenv.Load(); err != nil {
-		log.Fatalf("Error loading .env file")
+		log.Println("No .env file found, using environment variables")
 	}
 
 	app := fx.New(
 		di.AppContainer,
+		fx.Invoke(config.MigrateEntities),
 		fx.Invoke(registerRouters),
-		fx.Invoke(generateDocs),
 		fx.Invoke(runServer),
 	)
 
@@ -52,14 +52,4 @@ func runServer(e *echo.Echo) {
 	e.Static("/swagger", "/docs")
 
 	e.Logger.Fatal(e.Start(":" + port))
-}
-
-func generateDocs() {
-	cmd := exec.Command("swag", "init", "-g", "cmd/main.go")
-	cmd.Dir = "./"
-	err := cmd.Run()
-	if err != nil {
-		log.Fatalf("Error while generating documentation: %v", err)
-	}
-	log.Println("Swagger documentation generated successfully!")
 }

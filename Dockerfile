@@ -1,19 +1,17 @@
-FROM golang:1.20 AS builder
-
-WORKDIR /app
-
+FROM golang:1.23 as builder
+WORKDIR /build
+COPY go.mod .
+COPY go.sum .
+RUN go mod download
 COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -o /main ./cmd/main.go
 
-RUN go mod tidy
+RUN go install github.com/swaggo/swag/cmd/swag@latest
+RUN swag init -g cmd/main.go
 
-RUN go build -o main .
-
-FROM alpine:latest
-
-RUN apk --no-cache add ca-certificates
-
-COPY --from=builder /app/main /app/main
-
-EXPOSE 8080
-
-CMD ["/app/main"]
+FROM alpine
+ENV PATH="/go/bin:${PATH}"
+COPY --from=builder main /bin/main
+COPY --from=builder /build/docs /docs
+RUN apk --no-cache add bash
+ENTRYPOINT ["/bin/main"]
