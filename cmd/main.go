@@ -5,6 +5,7 @@
 package main
 
 import (
+	"beauty-server/internal/api/handler/organization"
 	"beauty-server/internal/api/handler/protected"
 	"beauty-server/internal/api/handler/user"
 	"beauty-server/internal/api/router"
@@ -36,9 +37,11 @@ func registerRouters(
 	e *echo.Echo,
 	userHandler *user.UserHandler,
 	protectedHandler *protected.ProtectedHandler,
+	organizationHandler *organization.OrganizationHandler,
 ) {
 	router.RegisterUserRoutes(e, userHandler)
 	router.RegisterProtectedRoutes(e, protectedHandler)
+	router.RegisterOrganizationRoutes(e, organizationHandler)
 }
 
 func runServer(e *echo.Echo) {

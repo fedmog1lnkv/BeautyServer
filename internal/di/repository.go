@@ -7,4 +7,5 @@ import (
 
 var RepositoryContainer = fx.Provide(
 	repository.NewUserRepository,
+	repository.NewOrganizationRepository,
 )

@@ -37,7 +37,7 @@ func (r *UserRepository) GetById(id uuid.UUID) (*entity.User, error) {
 }
 
 func (r *UserRepository) Save(user *entity.User) error {
-	userModel := model.FromDomain(user)
+	userModel := model.FromDomainUser(user)
 	if err := r.DB.Create(userModel).Error; err != nil {
 		return fmt.Errorf("failed to save user: %v", err)
 	}
@@ -45,7 +45,7 @@ func (r *UserRepository) Save(user *entity.User) error {
 }
 
 func (r *UserRepository) Update(user *entity.User) error {
-	userModel := model.FromDomain(user)
+	userModel := model.FromDomainUser(user)
 	if err := r.DB.Save(userModel).Error; err != nil {
 		return fmt.Errorf("failed to update user: %v", err)
 	}

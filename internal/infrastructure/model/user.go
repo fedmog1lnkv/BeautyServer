@@ -41,7 +41,7 @@ func (m *UserModel) ToDomain() (*entity.User, error) {
 	}, nil
 }
 
-func FromDomain(user *entity.User) *UserModel {
+func FromDomainUser(user *entity.User) *UserModel {
 	return &UserModel{
 		ID:          user.Id,
 		Name:        user.Name.Value(),
