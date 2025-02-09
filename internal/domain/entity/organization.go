@@ -2,8 +2,10 @@ package entity
 
 import (
 	"beauty-server/internal/domain/enum"
+	"beauty-server/internal/domain/errors"
 	"beauty-server/internal/domain/value_object"
 	"github.com/google/uuid"
+	"os"
 )
 
 type Organization struct {
@@ -11,12 +13,17 @@ type Organization struct {
 	Name         value_object.OrganizationName
 	Description  *value_object.OrganizationDescription
 	Subscription enum.OrganizationSubscription
-	Color        *value_object.OrganizationColor
-	Photo        *value_object.OrganizationPhoto
+	Theme        value_object.OrganizationThemeConfig
+	VenueIds     []uuid.UUID
 }
 
 func NewOrganization(id uuid.UUID, name string) (*Organization, error) {
 	organizationName, err := value_object.NewOrganizationName(name)
+	if err != nil {
+		return nil, err
+	}
+
+	orgTheme, err := value_object.NewOrganizationThemeConfig(os.Getenv("DEFAULT_ORGANIZATION_COLOR"), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -26,8 +33,8 @@ func NewOrganization(id uuid.UUID, name string) (*Organization, error) {
 		Name:         organizationName,
 		Description:  nil,
 		Subscription: enum.Disabled,
-		Color:        nil,
-		Photo:        nil,
+		Theme:        orgTheme,
+		VenueIds:     []uuid.UUID{},
 	}, nil
 }
 
@@ -36,6 +43,11 @@ func (o *Organization) UpdateName(name string) error {
 	if err != nil {
 		return err
 	}
+
+	if o.Name.Equal(organizationName) {
+		return nil
+	}
+
 	o.Name = organizationName
 	return nil
 }
@@ -45,6 +57,11 @@ func (o *Organization) UpdateDescription(description string) error {
 	if err != nil {
 		return err
 	}
+
+	if o.Description != nil && o.Description.Equal(organizationDescription) {
+		return nil
+	}
+
 	o.Description = &organizationDescription
 	return nil
 }
@@ -53,20 +70,52 @@ func (o *Organization) UpdateSubscription(subscription enum.OrganizationSubscrip
 	o.Subscription = subscription
 }
 
-func (o *Organization) UpdateColor(color int) error {
-	organizationColor, err := value_object.NewOrganizationColor(color)
+func (o *Organization) UpdateColor(color string) error {
+	return o.UpdateTheme(color, o.Theme.GetPhoto())
+}
+
+func (o *Organization) UpdatePhoto(photo *string) error {
+	return o.UpdateTheme(o.Theme.GetColor(), photo)
+}
+
+func (o *Organization) UpdateTheme(color string, photo *string) error {
+	theme, err := value_object.NewOrganizationThemeConfig(color, photo)
 	if err != nil {
 		return err
 	}
-	o.Color = &organizationColor
+
+	if o.Theme.Equal(theme) {
+		return nil
+	}
+
+	o.Theme = theme
 	return nil
 }
 
-func (o *Organization) UpdatePhoto(photo string) error {
-	organizationPhoto, err := value_object.NewOrganizationPhoto(photo)
-	if err != nil {
-		return err
+func (o *Organization) AddVenueId(venueId uuid.UUID) error {
+	for _, id := range o.VenueIds {
+		if id == venueId {
+			return errors.NewErrOrganizationVenueAlreadyExists(venueId)
+		}
 	}
-	o.Photo = &organizationPhoto
+
+	o.VenueIds = append(o.VenueIds, venueId)
+	return nil
+}
+
+func (o *Organization) RemoveVenueId(venueId uuid.UUID) error {
+	index := -1
+	for i, id := range o.VenueIds {
+		if id == venueId {
+			index = i
+			break
+		}
+	}
+
+	if index == -1 {
+		return errors.NewErrOrganizationVenueNotFound(venueId)
+	}
+
+	o.VenueIds = append(o.VenueIds[:index], o.VenueIds[index+1:]...)
 	return nil
 }

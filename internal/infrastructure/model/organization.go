@@ -8,12 +8,15 @@ import (
 )
 
 type OrganizationModel struct {
-	ID           uuid.UUID                     `gorm:"type:uuid;primaryKey"`
+	Id           uuid.UUID                     `gorm:"type:uuid;primaryKey"`
 	Name         string                        `gorm:"type:varchar(255);not null"`
 	Description  *string                       `gorm:"type:varchar(1000);null"`
 	Subscription enum.OrganizationSubscription `gorm:"type:organization_subscription;not null"`
-	Color        *int                          `gorm:"type:int;null"`
-	Photo        *string                       `gorm:"type:varchar(2048);null"`
+
+	Color string  `gorm:"type:varchar(7);not null"`
+	Photo *string `gorm:"type:varchar(2048);null"`
+
+	VenueIds []uuid.UUID `gorm:"-"` // only for read
 }
 
 func (OrganizationModel) TableName() string {
@@ -35,31 +38,20 @@ func (m *OrganizationModel) ToDomain() (*entity.Organization, error) {
 		description = &d
 	}
 
-	var color *value_object.OrganizationColor
-	if m.Color != nil {
-		c, err := value_object.NewOrganizationColor(*m.Color)
-		if err != nil {
-			return nil, err
-		}
-		color = &c
-	}
+	var theme value_object.OrganizationThemeConfig
 
-	var photo *value_object.OrganizationPhoto
-	if m.Photo != nil {
-		p, err := value_object.NewOrganizationPhoto(*m.Photo)
-		if err != nil {
-			return nil, err
-		}
-		photo = &p
+	theme, err = value_object.NewOrganizationThemeConfig(m.Color, m.Photo)
+	if err != nil {
+		return nil, err
 	}
 
 	return &entity.Organization{
-		Id:           m.ID,
+		Id:           m.Id,
 		Name:         name,
 		Description:  description,
 		Subscription: m.Subscription,
-		Color:        color,
-		Photo:        photo,
+		Theme:        theme,
+		VenueIds:     m.VenueIds,
 	}, nil
 }
 
@@ -70,24 +62,13 @@ func FromDomainOrganization(org *entity.Organization) *OrganizationModel {
 		description = &desc
 	}
 
-	var color *int
-	if org.Color != nil {
-		colorVal := org.Color.Value()
-		color = &colorVal
-	}
-
-	var photo *string
-	if org.Photo != nil {
-		photoVal := org.Photo.Value()
-		photo = &photoVal
-	}
-
 	return &OrganizationModel{
-		ID:           org.Id,
+		Id:           org.Id,
 		Name:         org.Name.Value(),
 		Description:  description,
 		Subscription: org.Subscription,
-		Color:        color,
-		Photo:        photo,
+		Color:        org.Theme.GetColor(),
+		Photo:        org.Theme.GetPhoto(),
+		VenueIds:     nil,
 	}
 }

@@ -17,6 +17,7 @@ type GetOrganizationVm struct {
 	Subscription string  `json:"subscription"`
 	Color        *int    `json:"color,omitempty"`
 	Photo        *string `json:"photo,omitempty"`
+	// TODO : add VenueIds
 }
 
 func MapOrganizationToVm(organization *entity.Organization) GetOrganizationVm {
@@ -29,25 +30,21 @@ func MapOrganizationToVm(organization *entity.Organization) GetOrganizationVm {
 		desc := organization.Description.Value()
 		response.Description = &desc
 	}
-	if organization.Color != nil {
-		color := organization.Color.Value()
-		response.Color = &color
-	}
-	if organization.Photo != nil {
-		photo := organization.Photo.Value()
-		response.Photo = &photo
+	if organization.Theme.GetPhoto() != nil {
+		photo := organization.Theme.GetPhoto()
+		response.Photo = photo
 	}
 
 	return response
 }
 
-// GetById gets an organization by its unique ID.
-// @Summary Get organization by ID
+// GetById gets an organization by its unique Id.
+// @Summary Get organization by Id
 // @Description Retrieve an organization by its unique identifier
 // @Tags organization
 // @Accept json
 // @Produce json
-// @Param id path string true "Organization ID"
+// @Param id path string true "Organization Id"
 // @Success 200 {object} GetOrganizationVm "Organization details"
 // @Router /organization/{id} [get]
 func (h *OrganizationHandler) GetById(c echo.Context) error {

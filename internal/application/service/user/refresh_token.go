@@ -14,7 +14,7 @@ func (s *UserService) RefreshToken(refreshToken string) (string, string, error) 
 
 	userID, err := uuid.Parse(claims.UserID)
 	if err != nil {
-		return "", "", fmt.Errorf("invalid user ID in refresh token: %w", err)
+		return "", "", fmt.Errorf("invalid user Id in refresh token: %w", err)
 	}
 
 	user, err := s.userRepo.GetById(userID)

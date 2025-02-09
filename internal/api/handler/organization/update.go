@@ -16,7 +16,7 @@ type UpdateOrganizationRequest struct {
 	Name         *string   `json:"name,omitempty"`
 	Description  *string   `json:"description,omitempty"`
 	Subscription *string   `json:"subscription,omitempty"`
-	Color        *int      `json:"color,omitempty"`
+	Color        *string   `json:"color,omitempty"`
 	Photo        *string   `json:"photo,omitempty"`
 }
 

@@ -11,7 +11,7 @@ import (
 // GetOrganizationLookup represents the organization data in the response.
 // swagger:response GetOrganizationLookupResponse
 type GetOrganizationLookup struct {
-	ID          string  `json:"id"`
+	Id          string  `json:"id"`
 	Name        string  `json:"name"`
 	Description *string `json:"description,omitempty"`
 	Color       *int    `json:"color,omitempty"`
@@ -20,20 +20,16 @@ type GetOrganizationLookup struct {
 
 func MapOrganizationToLookup(organization *entity.Organization) GetOrganizationLookup {
 	var response GetOrganizationLookup
-	response.ID = organization.Id.String()
+	response.Id = organization.Id.String()
 	response.Name = organization.Name.Value()
 
 	if organization.Description != nil {
 		desc := organization.Description.Value()
 		response.Description = &desc
 	}
-	if organization.Color != nil {
-		color := organization.Color.Value()
-		response.Color = &color
-	}
-	if organization.Photo != nil {
-		photo := organization.Photo.Value()
-		response.Photo = &photo
+	if organization.Theme.GetPhoto() != nil {
+		photo := organization.Theme.GetPhoto()
+		response.Photo = photo
 	}
 
 	return response

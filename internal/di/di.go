@@ -1,6 +1,8 @@
 package di
 
 import (
+	"beauty-server/internal/domain/events"
+	eventbusWrapper "beauty-server/internal/infrastructure/eventbus"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/fx"
 	"gorm.io/driver/postgres"
@@ -13,8 +15,11 @@ var AppContainer = fx.Options(
 	RepositoryContainer,
 	ServiceContainer,
 	HandlerContainer,
+	EventBusContainer,
 	fx.Provide(NewEcho),
 	fx.Provide(NewGorm),
+	fx.Provide(NewEventBus),
+	fx.Invoke(RegisterEventHandlers),
 )
 
 func NewEcho() *echo.Echo {
@@ -34,4 +39,8 @@ func NewGorm() *gorm.DB {
 
 	log.Print("Успешное подключение к бд")
 	return db
+}
+
+func NewEventBus() events.EventBus {
+	return eventbusWrapper.NewEventBusWrapper()
 }

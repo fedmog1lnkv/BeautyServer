@@ -35,6 +35,32 @@ func (r *OrganizationRepository) GetById(id uuid.UUID) (*entity.Organization, er
 	return org, nil
 }
 
+func (r *OrganizationRepository) GetByIdWithVenues(id uuid.UUID) (*entity.Organization, error) {
+	var orgModel model.OrganizationModel
+	err := r.DB.Where("id = ?", id).First(&orgModel).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("error fetching organization by id: %v", err)
+	}
+
+	var venueIds []uuid.UUID
+	err = r.DB.Model(&model.VenueModel{}).Where("organization_id = ?", id).Pluck("id", &venueIds).Error
+	if err != nil {
+		return nil, fmt.Errorf("error fetching venue ids: %v", err)
+	}
+
+	org, err := orgModel.ToDomain()
+	if err != nil {
+		return nil, err
+	}
+
+	org.VenueIds = venueIds
+
+	return org, nil
+}
+
 func (r *OrganizationRepository) GetAll(limit, offset int) ([]*entity.Organization, error) {
 	var orgModels []model.OrganizationModel
 	err := r.DB.Limit(limit).Offset(offset).Find(&orgModels).Error
@@ -76,4 +102,13 @@ func (r *OrganizationRepository) Remove(organization *entity.Organization) error
 		return fmt.Errorf("failed to remove organization: %v", err)
 	}
 	return nil
+}
+
+func (r *OrganizationRepository) Exists(organizationId uuid.UUID) (bool, error) {
+	var count int64
+	err := r.DB.Model(&model.OrganizationModel{}).Where("id = ?", organizationId).Count(&count).Error
+	if err != nil {
+		return false, fmt.Errorf("error checking existence of organization by id: %v", err)
+	}
+	return count > 0, nil
 }

@@ -7,7 +7,7 @@ import (
 )
 
 func (s *OrganizationService) GetById(id uuid.UUID) (*entity.Organization, error) {
-	organization, err := s.organizationRepo.GetById(id)
+	organization, err := s.organizationRepo.GetByIdWithVenues(id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get organization with id: %w", err)
 	}
