@@ -59,17 +59,22 @@ func (r *VenueRepository) GetByLocation(location value_object.Location, limit, o
 	var venueModels []model.VenueModel
 
 	query := `
-		SELECT *, 
-			(6371 * acos(
-				cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + 
-				sin(radians(?)) * sin(radians(latitude))
-			)) AS distance 
-		FROM venue_models
-		HAVING distance <= ? 
-		ORDER BY distance 
-		LIMIT ? OFFSET ?`
+	WITH venues_with_distance AS (
+    SELECT *, 
+        (6371 * acos(
+            cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + 
+            sin(radians(?)) * sin(radians(latitude))
+        )) AS distance 
+    FROM venues
+	)
+	SELECT * 
+	FROM venues_with_distance
+	WHERE distance <= ?
+	ORDER BY distance 
+	LIMIT ? OFFSET ?;`
 
-	err := r.DB.Raw(query, location.Latitude, location.Longitude, location.Latitude, 100, limit, offset).Scan(&venueModels).Error
+	err := r.DB.Raw(query, location.Latitude, location.Longitude, location.Latitude, 100, limit, offset).
+		Scan(&venueModels).Error
 	if err != nil {
 		return nil, fmt.Errorf("error fetching venues by location: %v", err)
 	}
