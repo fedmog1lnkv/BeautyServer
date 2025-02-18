@@ -10,7 +10,6 @@ type UserModel struct {
 	ID          uuid.UUID `gorm:"type:uuid;primaryKey"`
 	Name        string    `gorm:"type:varchar(255);not null"`
 	PhoneNumber string    `gorm:"type:varchar(20);not null;unique"`
-	Password    string    `gorm:"type:varchar(255);not null"`
 }
 
 func (UserModel) TableName() string {
@@ -28,16 +27,10 @@ func (m *UserModel) ToDomain() (*entity.User, error) {
 		return nil, err
 	}
 
-	password, err := value_object.NewUserPassword(m.Password)
-	if err != nil {
-		return nil, err
-	}
-
 	return &entity.User{
 		Id:          m.ID,
 		Name:        name,
 		PhoneNumber: phoneNumber,
-		Password:    password,
 	}, nil
 }
 
@@ -46,6 +39,5 @@ func FromDomainUser(user *entity.User) *UserModel {
 		ID:          user.Id,
 		Name:        user.Name.Value(),
 		PhoneNumber: user.PhoneNumber.Value(),
-		Password:    user.Password.Value(),
 	}
 }

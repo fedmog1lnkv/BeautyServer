@@ -6,8 +6,8 @@ import (
 )
 
 func RegisterUserRoutes(e *echo.Echo, userHandler *user.UserHandler) {
-	userRoutes := e.Group("/users")
-	userRoutes.POST("/register", userHandler.RegisterUser)
-	userRoutes.POST("/login", userHandler.LoginUser)
+	userRoutes := e.Group("/user")
+	userRoutes.POST("/phone_challenge", userHandler.PhoneChallenge)
+	userRoutes.POST("/auth", userHandler.Auth)
 	userRoutes.POST("/refresh_token", userHandler.RefreshToken)
 }

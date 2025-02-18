@@ -4,10 +4,23 @@ import (
 	"beauty-server/internal/domain/value_object"
 	"beauty-server/internal/infrastructure/auth"
 	"fmt"
-	"golang.org/x/crypto/bcrypt"
+	"time"
 )
 
-func (s *UserService) Login(phoneNumber, password string) (string, string, error) {
+func (s *UserService) Auth(phoneNumber, code string) (string, string, error) {
+	phoneChallenge, err := s.phoneChallengeRepo.GetByPhoneNumber(phoneNumber)
+	if err != nil {
+		return "", "", err
+	}
+
+	if phoneChallenge.ExpiredAt.Before(time.Now()) {
+		return "", "", fmt.Errorf("Code expired")
+	}
+
+	if code != phoneChallenge.VerificationCode {
+		return "", "", fmt.Errorf("code govno!")
+	}
+
 	userPhoneNumber, err := value_object.NewUserPhoneNumber(phoneNumber)
 	if err != nil {
 		return "", "", err
@@ -15,11 +28,6 @@ func (s *UserService) Login(phoneNumber, password string) (string, string, error
 	user, err := s.userRepo.GetByPhoneNumber(userPhoneNumber)
 	if err != nil {
 		return "", "", fmt.Errorf("user not found: %w", err)
-	}
-
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password.Value()), []byte(password))
-	if err != nil {
-		return "", "", fmt.Errorf("incorrect password: %w", err)
 	}
 
 	accessToken, err := auth.GenerateToken(user.Id)
@@ -30,6 +38,11 @@ func (s *UserService) Login(phoneNumber, password string) (string, string, error
 	refreshToken, err := auth.GenerateRefreshToken(user.Id)
 	if err != nil {
 		return "", "", fmt.Errorf("error generating refresh token: %w", err)
+	}
+
+	err = s.phoneChallengeRepo.Remove(phoneChallenge)
+	if err != nil {
+		return "", "", err
 	}
 
 	return accessToken, refreshToken, nil

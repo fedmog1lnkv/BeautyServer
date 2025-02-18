@@ -12,7 +12,12 @@ func MigrateEntities(db *gorm.DB) error {
 		return err
 	}
 
-	err := db.AutoMigrate(&model.UserModel{}, &model.OrganizationModel{}, &model.VenueModel{})
+	err := db.AutoMigrate(&model.UserModel{},
+		&model.OrganizationModel{},
+		&model.VenueModel{},
+		&model.PhoneChallengeModel{},
+	)
+
 	if err != nil {
 		return err
 	}
