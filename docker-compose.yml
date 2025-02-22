@@ -28,6 +28,9 @@ services:
     environment:
       DATABASE_DSN: postgres://postgres:postgres@beauty_server_db:5432/beauty_server_db?sslmode=disable
       PORT: 8080
+      DEFAULT_ORGANIZATION_COLOR: "#FFFFFF"
+      TELEGRAM_2FA_SERVER: http://213.183.53.46:5002
+      TELEGRAM_2FA_TOKEN: 80a0c3ad4de64ebeb753604fdbb455e8
     ports:
       - "8228:8080"
     depends_on:
