@@ -7,8 +7,8 @@ import (
 
 func RegisterOrganizationRoutes(e *echo.Echo, organizationHandler *organization.OrganizationHandler) {
 	orgRoutes := e.Group("/organization")
-	orgRoutes.POST("/", organizationHandler.Create)
-	orgRoutes.GET("/", organizationHandler.GetAll)
+	orgRoutes.POST("", organizationHandler.Create)
+	orgRoutes.GET("", organizationHandler.GetAll)
 	orgRoutes.GET("/:id", organizationHandler.GetById)
-	orgRoutes.PATCH("/", organizationHandler.Update)
+	orgRoutes.PATCH("", organizationHandler.Update)
 }

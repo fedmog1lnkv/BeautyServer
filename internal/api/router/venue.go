@@ -7,8 +7,8 @@ import (
 
 func RegisterVenueRoutes(e *echo.Echo, venueHandler *venue.VenueHandler) {
 	venueRoutes := e.Group("/venue")
-	venueRoutes.POST("/", venueHandler.Create)
-	venueRoutes.GET("/", venueHandler.GetByLocation)
+	venueRoutes.POST("", venueHandler.Create)
+	venueRoutes.GET("", venueHandler.GetByLocation)
 	/*	venueRoutes.GET("/", venueHandler.GetAll)
 		venueRoutes.GET("/:id", venueHandler.GetById)
 		venueRoutes.PATCH("/", venueHandler.Update)*/
