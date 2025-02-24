@@ -7,6 +7,7 @@ package main
 import (
 	"beauty-server/internal/api/handler/organization"
 	"beauty-server/internal/api/handler/protected"
+	"beauty-server/internal/api/handler/service"
 	"beauty-server/internal/api/handler/user"
 	"beauty-server/internal/api/handler/venue"
 	"beauty-server/internal/api/router"
@@ -28,6 +29,7 @@ func main() {
 	app := fx.New(
 		di.AppContainer,
 		fx.Invoke(config.MigrateEntities),
+		fx.Invoke(configMiddleware),
 		fx.Invoke(registerRouters),
 		fx.Invoke(runServer),
 	)
@@ -41,18 +43,21 @@ func registerRouters(
 	protectedHandler *protected.ProtectedHandler,
 	organizationHandler *organization.OrganizationHandler,
 	venueHandler *venue.VenueHandler,
+	serviceHandler *service.ServiceHandler,
 ) {
-	// TODO: move to different func
+	router.RegisterUserRoutes(e, userHandler)
+	router.RegisterProtectedRoutes(e, protectedHandler)
+	router.RegisterOrganizationRoutes(e, organizationHandler)
+	router.RegisterVenueRoutes(e, venueHandler)
+	router.RegisterServiceRoutes(e, serviceHandler)
+}
+
+func configMiddleware(e *echo.Echo) {
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
 		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.DELETE},
 		AllowHeaders: []string{echo.HeaderContentType, echo.HeaderAuthorization},
 	}))
-
-	router.RegisterUserRoutes(e, userHandler)
-	router.RegisterProtectedRoutes(e, protectedHandler)
-	router.RegisterOrganizationRoutes(e, organizationHandler)
-	router.RegisterVenueRoutes(e, venueHandler)
 }
 
 func runServer(e *echo.Echo) {

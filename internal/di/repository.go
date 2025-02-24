@@ -10,4 +10,5 @@ var RepositoryContainer = fx.Provide(
 	repository.NewOrganizationRepository,
 	repository.NewVenueRepository,
 	repository.NewPhoneChallengeRepository,
+	repository.NewServiceRepository,
 )

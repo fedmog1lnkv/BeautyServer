@@ -9,6 +9,8 @@ import (
 	"strconv"
 )
 
+// GetVenueLookup represents the venue lookup response.
+// swagger:model GetVenueLookup
 type GetVenueLookup struct {
 	Id          string             `json:"id"`
 	Name        string             `json:"name"`
@@ -40,6 +42,18 @@ func MapVenueToLookup(venue *entity.Venue) GetVenueLookup {
 	return response
 }
 
+// GetByLocation retrieves venues based on location.
+// @Summary Get venues by location
+// @Description This endpoint retrieves venues filtered by latitude and longitude.
+// @Tags venue
+// @Accept json
+// @Produce json
+// @Param latitude query float64 true "Latitude"
+// @Param longitude query float64 true "Longitude"
+// @Param limit query int false "Limit of results (default: 10)"
+// @Param offset query int false "Offset for pagination (default: 0)"
+// @Success 200 {array} GetVenueLookup "List of venues"
+// @Router /venue/by-location [get]
 func (h *VenueHandler) GetByLocation(c echo.Context) error {
 	latitudeParam := c.QueryParam("latitude")
 	longitudeParam := c.QueryParam("longitude")

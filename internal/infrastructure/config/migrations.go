@@ -16,6 +16,7 @@ func MigrateEntities(db *gorm.DB) error {
 		&model.OrganizationModel{},
 		&model.VenueModel{},
 		&model.PhoneChallengeModel{},
+		&model.ServiceModel{},
 	)
 
 	if err != nil {

@@ -17,6 +17,15 @@ type CreateVenueRequest struct {
 	Longitude      float64   `json:"longitude" example:"-74.0060"`
 }
 
+// Create creates a new venue with the provided details.
+// @Summary Create a venue
+// @Description This endpoint allows the creation of a new venue for an organization.
+// @Tags venue
+// @Accept json
+// @Produce json
+// @Param request body CreateVenueRequest true "Venue creation request parameters"
+// @Success 201 "Venue created successfully"
+// @Router /venue [post]
 func (h *VenueHandler) Create(c echo.Context) error {
 	var request CreateVenueRequest
 
