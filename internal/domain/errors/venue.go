@@ -1,6 +1,9 @@
 package errors
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/google/uuid"
+)
 
 const (
 	ErrVenueNameTooShort = "venue name must be at least %d characters long"
@@ -10,6 +13,8 @@ const (
 	ErrVenueDescriptionTooLong  = "venue description must not exceed %d characters"
 
 	ErrVenueColorInvalidFormat = "organization color must be a valid HEX format (e.g. #RRGGBB)"
+
+	ErrVenueNotFound = "venue id %s not found"
 )
 
 func NewErrVenueNameTooShort(minLength int) *CustomError {
@@ -30,4 +35,8 @@ func NewErrVenueDescriptionTooLong(maxLength int) *CustomError {
 
 func NewErrVenueColorInvalidFormat() *CustomError {
 	return Validation(ErrVenueColorInvalidFormat)
+}
+
+func NewErrVenueNotFound(venueId uuid.UUID) *CustomError {
+	return NotFound(fmt.Sprintf(ErrVenueNotFound, venueId.String()))
 }

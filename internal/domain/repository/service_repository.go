@@ -10,4 +10,5 @@ type ServiceRepository interface {
 	Update(service *entity.Service) error
 	Remove(service *entity.Service) error
 	GetByOrganizationId(organizationId uuid.UUID) ([]*entity.Service, error)
+	ExistsService(id uuid.UUID) bool
 }

@@ -17,6 +17,15 @@ func NewServiceRepository(db *gorm.DB) repository.ServiceRepository {
 	return &ServiceRepository{DB: db}
 }
 
+func (s *ServiceRepository) ExistsService(id uuid.UUID) bool {
+	var count int64
+	err := s.DB.Model(&model.ServiceModel{}).Where("id = ?", id).Count(&count).Error
+	if err != nil {
+		return false
+	}
+	return count > 0
+}
+
 func (s ServiceRepository) Save(service *entity.Service) error {
 	serviceModel := model.FromDomainService(service)
 	if err := s.DB.Create(serviceModel).Error; err != nil {

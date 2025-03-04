@@ -12,12 +12,16 @@ import (
 // GetVenueLookup represents the venue lookup response.
 // swagger:model GetVenueLookup
 type GetVenueLookup struct {
-	Id          string             `json:"id"`
-	Name        string             `json:"name"`
-	Description *string            `json:"description,omitempty"`
-	Color       *int               `json:"color,omitempty"`
-	Photo       *string            `json:"photo,omitempty"`
-	Location    models.LocationDto `json:"location"`
+	Id          string                 `json:"id"`
+	Name        string                 `json:"name"`
+	Description *string                `json:"description,omitempty"`
+	Location    models.LocationDto     `json:"location"`
+	Theme       VenueThemeConfigLookup `json:"theme"`
+}
+
+type VenueThemeConfigLookup struct {
+	Color string  `json:"color"`
+	Photo *string `json:"photo,omitempty"`
 }
 
 func MapVenueToLookup(venue *entity.Venue) GetVenueLookup {
@@ -36,8 +40,9 @@ func MapVenueToLookup(venue *entity.Venue) GetVenueLookup {
 	}
 	if venue.Theme.GetPhoto() != nil {
 		photo := venue.Theme.GetPhoto()
-		response.Photo = photo
+		response.Theme.Photo = photo
 	}
+	response.Theme.Color = venue.Theme.GetColor()
 
 	return response
 }

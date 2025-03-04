@@ -1,6 +1,9 @@
 package errors
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/google/uuid"
+)
 
 const (
 	ErrServiceNameTooShort = "service name must be at least %d characters long"
@@ -8,6 +11,8 @@ const (
 
 	ErrServiceDescriptionTooShort = "service description must be at least %d characters long"
 	ErrServiceDescriptionTooLong  = "service description must not exceed %d characters"
+
+	ErrServiceNotFound = "service id %s not found"
 )
 
 func NewErrServiceNameTooShort(minLength int) *CustomError {
@@ -24,4 +29,8 @@ func NewErrServiceDescriptionTooShort(minLength int) *CustomError {
 
 func NewErrServiceDescriptionTooLong(maxLength int) *CustomError {
 	return Validation(fmt.Sprintf(ErrServiceDescriptionTooLong, maxLength))
+}
+
+func NewErrServiceNotFound(serviceId uuid.UUID) *CustomError {
+	return NotFound(fmt.Sprintf(ErrServiceNotFound, serviceId.String()))
 }
