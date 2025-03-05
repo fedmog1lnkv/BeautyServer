@@ -10,6 +10,8 @@ type StaffRepository interface {
 	Save(staff *entity.Staff) error
 	Update(staff *entity.Staff) error
 	Remove(staff *entity.Staff) error
+	GetById(id uuid.UUID) (*entity.Staff, error)
 	GetByOrganizationId(staffId uuid.UUID) ([]*entity.Staff, error)
 	GetByPhoneNumber(phoneNumber value_object.StaffPhoneNumber) (*entity.Staff, error)
+	IsPhoneNumberUnique(phoneNumber value_object.StaffPhoneNumber) (bool, error)
 }

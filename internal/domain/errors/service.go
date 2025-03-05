@@ -13,6 +13,8 @@ const (
 	ErrServiceDescriptionTooLong  = "service description must not exceed %d characters"
 
 	ErrServiceNotFound = "service id %s not found"
+
+	ErrServicePriceInvalid = "service price must be greater than zero"
 )
 
 func NewErrServiceNameTooShort(minLength int) *CustomError {
@@ -33,4 +35,8 @@ func NewErrServiceDescriptionTooLong(maxLength int) *CustomError {
 
 func NewErrServiceNotFound(serviceId uuid.UUID) *CustomError {
 	return NotFound(fmt.Sprintf(ErrServiceNotFound, serviceId.String()))
+}
+
+func NewErrServicePriceInvalid() *CustomError {
+	return Validation(ErrServicePriceInvalid)
 }

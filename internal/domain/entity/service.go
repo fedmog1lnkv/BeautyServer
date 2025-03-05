@@ -3,7 +3,9 @@ package entity
 import (
 	"beauty-server/internal/domain/errors"
 	"beauty-server/internal/domain/value_object"
+	"fmt"
 	"github.com/google/uuid"
+	"time"
 )
 
 type Service struct {
@@ -11,8 +13,8 @@ type Service struct {
 	OrganizationId uuid.UUID
 	Name           value_object.ServiceName
 	Description    *value_object.ServiceDescription
-	Duration       *int // minutes // TODO : add value object
-	Price          *float64
+	Duration       *time.Duration // minutes
+	Price          *value_object.ServicePrice
 }
 
 func NewService(id, organizationId uuid.UUID, name string, orgRepository OrganizationRepository) (*Service, error) {
@@ -65,21 +67,30 @@ func (s *Service) UpdateDescription(description string) error {
 }
 
 func (s *Service) UpdateDuration(duration int) error {
-	// TODO : add check <= 0
-	if s.Duration != nil && *s.Duration == duration {
+	if duration <= 0 {
+		return fmt.Errorf("duration must be greater than zero")
+	}
+
+	dur := time.Duration(duration) * time.Minute
+
+	if s.Duration != nil && *s.Duration == dur {
 		return nil
 	}
 
-	s.Duration = &duration
+	s.Duration = &dur
 	return nil
 }
 
 func (s *Service) UpdatePrice(price float64) error {
-	// TODO : add check <= 0
-	if s.Price != nil && *s.Price == price {
+	servicePrice, err := value_object.NewServicePrice(price)
+	if err != nil {
+		return err
+	}
+
+	if s.Price != nil && s.Price.Equal(servicePrice) {
 		return nil
 	}
 
-	s.Price = &price
+	s.Price = &servicePrice
 	return nil
 }
