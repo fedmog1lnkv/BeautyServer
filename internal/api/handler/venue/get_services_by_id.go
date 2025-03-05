@@ -8,6 +8,8 @@ import (
 	"net/http"
 )
 
+// GetServiceByVenueVm represents the view model for a service in a venue.
+// swagger:model GetServiceByVenueVm
 type GetServiceByVenueVm struct {
 	Id          string   `json:"id"`
 	Name        string   `json:"name"`
@@ -31,9 +33,23 @@ func MapServiceToServiceByVenueVm(service *entity.Service) GetServiceByVenueVm {
 		response.Duration = &minutes
 	}
 
+	if service.Price != nil {
+		price := service.Price.Value()
+		response.Price = &price
+	}
+
 	return response
 }
 
+// GetServicesById retrieves services by venue ID.
+// @Summary Get services by venue ID
+// @Description This endpoint retrieves services associated with a specific venue identified by its ID.
+// @Tags venue
+// @Accept json
+// @Produce json
+// @Param id query string true "Venue ID"
+// @Success 200 {array} GetServiceByVenueVm "List of services for the venue"
+// @Router /venue/services [get]
 func (h *VenueHandler) GetServicesById(c echo.Context) error {
 	idParam := c.QueryParam("id")
 
