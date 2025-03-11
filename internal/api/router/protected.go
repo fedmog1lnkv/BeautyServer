@@ -8,6 +8,6 @@ import (
 
 func RegisterProtectedRoutes(e *echo.Echo, protectedHandler *protected.ProtectedHandler) {
 	protectedRoutes := e.Group("/protected")
-	protectedRoutes.Use(middleware.JWTMiddleware)
+	protectedRoutes.Use(middleware.UserMiddleware)
 	protectedRoutes.POST("", protectedHandler.ProtectedRoute)
 }

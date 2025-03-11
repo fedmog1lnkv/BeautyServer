@@ -36,6 +36,11 @@ func (h *OrganizationHandler) Update(c echo.Context) error {
 		return nil
 	}
 
+	isAdmin := c.Get("is_admin").(bool)
+	if !isAdmin {
+		request.Subscription = nil
+	}
+
 	updateModel := orgApplication.UpdateOrganizationModel{
 		Id:           request.Id,
 		Name:         request.Name,

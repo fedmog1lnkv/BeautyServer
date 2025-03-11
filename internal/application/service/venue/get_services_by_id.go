@@ -8,7 +8,12 @@ import (
 
 func (s *VenueService) GetServicesById(venueId uuid.UUID) ([]*entity.Service, error) {
 	// TODO : change to venue id, when timeslots
-	services, err := s.serviceRepo.GetByOrganizationId(venueId)
+	venue, err := s.venueRepo.GetById(venueId)
+	if err != nil {
+		return nil, err
+	}
+
+	services, err := s.serviceRepo.GetByOrganizationId(venue.OrganizationId)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get services by venue id: %w", err)
 	}

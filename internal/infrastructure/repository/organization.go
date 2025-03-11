@@ -2,6 +2,7 @@ package repository
 
 import (
 	"beauty-server/internal/domain/entity"
+	"beauty-server/internal/domain/enum"
 	"beauty-server/internal/domain/repository"
 	"beauty-server/internal/infrastructure/model"
 	"fmt"
@@ -64,6 +65,25 @@ func (r *OrganizationRepository) GetByIdWithVenues(id uuid.UUID) (*entity.Organi
 func (r *OrganizationRepository) GetAll(limit, offset int) ([]*entity.Organization, error) {
 	var orgModels []model.OrganizationModel
 	err := r.DB.Limit(limit).Offset(offset).Find(&orgModels).Error
+	if err != nil {
+		return nil, fmt.Errorf("error fetching organizations with pagination: %v", err)
+	}
+
+	var organizations []*entity.Organization
+	for _, orgModel := range orgModels {
+		org, err := orgModel.ToDomain()
+		if err != nil {
+			return nil, fmt.Errorf("error converting organization model to domain: %v", err)
+		}
+		organizations = append(organizations, org)
+	}
+
+	return organizations, nil
+}
+
+func (r *OrganizationRepository) GetBySubscription(limit, offset int, subscriptionType enum.OrganizationSubscription) ([]*entity.Organization, error) {
+	var orgModels []model.OrganizationModel
+	err := r.DB.Where("subscription = ?", subscriptionType.String()).Limit(limit).Offset(offset).Find(&orgModels).Error
 	if err != nil {
 		return nil, fmt.Errorf("error fetching organizations with pagination: %v", err)
 	}

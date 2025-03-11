@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func JWTMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+func AdminMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		tokenString := c.Request().Header.Get("Authorization")
 		if tokenString == "" {
@@ -28,7 +28,12 @@ func JWTMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid or expired token, you need to use refresh token or authorize again"})
 		}
 
+		if !claims.IsAdmin {
+			return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Access denied: admin privileges required"})
+		}
+
 		c.Set("user_id", claims.UserID)
+		c.Set("is_admin", claims.IsAdmin)
 
 		return next(c)
 	}

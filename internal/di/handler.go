@@ -1,6 +1,7 @@
 package di
 
 import (
+	"beauty-server/internal/api/handler/admin"
 	"beauty-server/internal/api/handler/organization"
 	"beauty-server/internal/api/handler/protected"
 	"beauty-server/internal/api/handler/service"
@@ -11,6 +12,7 @@ import (
 
 var (
 	HandlerContainer = fx.Provide(
+		admin.NewAdminHandler,
 		user.NewUserHandler,
 		organization.NewOrganizationHandler,
 		venue.NewVenueHandler,

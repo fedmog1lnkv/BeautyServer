@@ -6,9 +6,10 @@ import (
 	"time"
 )
 
-func GenerateToken(userID uuid.UUID) (string, error) {
+func GenerateToken(userID uuid.UUID, isAdmin bool) (string, error) {
 	claims := Claims{
 		userID.String(),
+		isAdmin,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Minute * 15).Unix(),
 			Issuer:    "beauty-server",
@@ -19,9 +20,10 @@ func GenerateToken(userID uuid.UUID) (string, error) {
 	return token.SignedString(secretKey)
 }
 
-func GenerateRefreshToken(userID uuid.UUID) (string, error) {
+func GenerateRefreshToken(userID uuid.UUID, isAdmin bool) (string, error) {
 	claims := Claims{
 		userID.String(),
+		isAdmin,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 24 * 30).Unix(),
 			Issuer:    "beauty-server",

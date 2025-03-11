@@ -3,6 +3,7 @@ package organization
 import (
 	"beauty-server/internal/api/common"
 	"beauty-server/internal/domain/entity"
+	"beauty-server/internal/domain/enum"
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"strconv"
@@ -59,7 +60,13 @@ func (h *OrganizationHandler) GetAll(c echo.Context) error {
 		offset = 0
 	}
 
-	organizations, err := h.organizationService.GetAll(limit, offset)
+	isAdmin := c.Get("is_admin").(bool)
+	subscriptionType := enum.Active
+	if isAdmin {
+		subscriptionType = enum.All
+	}
+
+	organizations, err := h.organizationService.GetBySubscription(limit, offset, subscriptionType)
 	if err != nil {
 		common.HandleFailure(err, c)
 		return nil

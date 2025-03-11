@@ -51,17 +51,7 @@ func MapServiceToServiceByVenueVm(service *entity.Service) GetServiceByVenueVm {
 // @Success 200 {array} GetServiceByVenueVm "List of services for the venue"
 // @Router /venue/services [get]
 func (h *VenueHandler) GetServicesById(c echo.Context) error {
-	idParam := c.QueryParam("id")
-
-	if idParam == "" {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "id is required"})
-	}
-
-	id, err := uuid.Parse(idParam)
-	if err != nil {
-		common.HandleFailure(err, c)
-		return nil
-	}
+	id, err := uuid.Parse(c.Param("id"))
 
 	services, err := h.venueService.GetServicesById(id)
 	if err != nil {

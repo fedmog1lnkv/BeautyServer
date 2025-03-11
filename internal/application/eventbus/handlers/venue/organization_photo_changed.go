@@ -27,8 +27,11 @@ func (h *OrganizationPhotoChangedEventHandler) Handle(event domainEvents.Event) 
 	}
 
 	for _, venue := range venues {
-		if *venue.Theme.GetPhoto() != *PhotoChangedEvent.OldPhoto {
-			continue
+		venuePhoto := venue.Theme.GetPhoto()
+		if venuePhoto != nil {
+			if *venuePhoto != *PhotoChangedEvent.OldPhoto {
+				continue
+			}
 		}
 
 		if err := venue.UpdatePhoto(&PhotoChangedEvent.NewPhoto); err != nil {

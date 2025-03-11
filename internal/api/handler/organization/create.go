@@ -16,7 +16,7 @@ type CreateOrganizationRequest struct {
 // Create creates a new organization.
 // @Summary Create an organization
 // @Description Creates a new organization with the provided name
-// @Tags organization
+// @Tags admin
 // @Accept json
 // @Produce json
 // @Param createOrganization body CreateOrganizationRequest true "Organization data to create"

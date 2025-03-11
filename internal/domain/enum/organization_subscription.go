@@ -9,6 +9,7 @@ import (
 type OrganizationSubscription int
 
 const (
+	All                               = -1   // Просмотр всех подписок
 	Active   OrganizationSubscription = iota // Активная подписка
 	Disabled                                 // Отключённая подписка
 )
