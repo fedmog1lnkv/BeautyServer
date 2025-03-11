@@ -17,10 +17,14 @@ type StaffPhoneNumber struct {
 func NewStaffPhoneNumber(number string) (StaffPhoneNumber, error) {
 	number = strings.TrimSpace(number)
 
-	match, err := regexp.MatchString(StaffPhoneNumberRegex, number)
-	if err != nil {
-		return StaffPhoneNumber{}, err
+	re := regexp.MustCompile(`\D`)
+	number = re.ReplaceAllString(number, "")
+
+	if strings.HasPrefix(number, "8") {
+		number = "7" + number[1:]
 	}
+
+	match, _ := regexp.MatchString(UserPhoneNumberRegex, number)
 	if !match {
 		return StaffPhoneNumber{}, errors.NewErrStaffPhoneNumberInvalidFormat()
 	}

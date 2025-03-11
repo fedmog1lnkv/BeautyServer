@@ -28,6 +28,8 @@ func (s StaffRole) String() string {
 func (s *StaffRole) Scan(value interface{}) error {
 	if v, ok := value.(string); ok {
 		switch v {
+		case "Unknown":
+			*s = Unknown
 		case "Manager":
 			*s = Manager
 		case "Master":
@@ -42,6 +44,8 @@ func (s *StaffRole) Scan(value interface{}) error {
 
 func ParseStaffRole(value string) (StaffRole, error) {
 	switch strings.ToLower(value) {
+	case "unknown":
+		return Unknown, nil
 	case "manager":
 		return Manager, nil
 	case "master":

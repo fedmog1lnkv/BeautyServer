@@ -22,12 +22,12 @@ func (s *StaffService) RefreshToken(refreshToken string) (string, string, error)
 		return "", "", fmt.Errorf("user not found: %w", err)
 	}
 
-	accessToken, err := auth.GenerateToken(user.Id)
+	accessToken, err := auth.GenerateToken(user.Id, false)
 	if err != nil {
 		return "", "", fmt.Errorf("error generating access token: %w", err)
 	}
 
-	newRefreshToken, err := auth.GenerateRefreshToken(user.Id)
+	newRefreshToken, err := auth.GenerateRefreshToken(user.Id, false)
 	if err != nil {
 		return "", "", fmt.Errorf("error generating refresh token: %w", err)
 	}

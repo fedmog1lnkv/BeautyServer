@@ -2,6 +2,8 @@ package repository
 
 import (
 	"beauty-server/internal/domain/entity"
+	"beauty-server/internal/domain/repository"
+	"beauty-server/internal/domain/value_object"
 	"beauty-server/internal/infrastructure/model"
 	"fmt"
 	"github.com/google/uuid"
@@ -12,7 +14,7 @@ type StaffRepository struct {
 	DB *gorm.DB
 }
 
-func NewStaffRepository(db *gorm.DB) *StaffRepository {
+func NewStaffRepository(db *gorm.DB) repository.StaffRepository {
 	return &StaffRepository{DB: db}
 }
 
@@ -96,4 +98,34 @@ func (r *StaffRepository) GetById(staffId uuid.UUID) (*entity.Staff, error) {
 	}
 
 	return staff, nil
+}
+
+func (r *StaffRepository) GetByPhoneNumber(phoneNumber value_object.StaffPhoneNumber) (*entity.Staff, error) {
+	var staffModel model.StaffModel
+	err := r.DB.Where("phone_number = ?", phoneNumber.Value()).First(&staffModel).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("error fetching staff by phone number: %v", err)
+	}
+
+	staff, err := staffModel.ToDomain()
+	if err != nil {
+		return nil, err
+	}
+
+	return staff, nil
+}
+
+func (r *StaffRepository) IsPhoneNumberUnique(phoneNumber value_object.StaffPhoneNumber) (bool, error) {
+	var staff model.StaffModel
+	err := r.DB.Where("phone_number = ?", phoneNumber.Value()).First(&staff).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return true, nil
+		}
+		return false, err
+	}
+	return false, nil
 }

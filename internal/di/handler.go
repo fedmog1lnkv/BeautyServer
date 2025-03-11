@@ -5,6 +5,7 @@ import (
 	"beauty-server/internal/api/handler/organization"
 	"beauty-server/internal/api/handler/protected"
 	"beauty-server/internal/api/handler/service"
+	"beauty-server/internal/api/handler/staff"
 	"beauty-server/internal/api/handler/user"
 	"beauty-server/internal/api/handler/venue"
 	"go.uber.org/fx"
@@ -13,6 +14,7 @@ import (
 var (
 	HandlerContainer = fx.Provide(
 		admin.NewAdminHandler,
+		staff.NewStaffHandler,
 		user.NewUserHandler,
 		organization.NewOrganizationHandler,
 		venue.NewVenueHandler,

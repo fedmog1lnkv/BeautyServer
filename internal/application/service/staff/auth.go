@@ -8,7 +8,11 @@ import (
 )
 
 func (s *StaffService) Auth(phoneNumber, code string) (string, string, error) {
-	phoneChallenge, err := s.phoneChallengeRepo.GetByPhoneNumber(phoneNumber)
+	staffNumber, err := value_object.NewStaffPhoneNumber(phoneNumber)
+	if err != nil {
+		return "", "", err
+	}
+	phoneChallenge, err := s.phoneChallengeRepo.GetByPhoneNumber(staffNumber.Value())
 	if err != nil {
 		return "", "", err
 	}
@@ -30,12 +34,12 @@ func (s *StaffService) Auth(phoneNumber, code string) (string, string, error) {
 		return "", "", fmt.Errorf("staff not found: %w", err)
 	}
 
-	accessToken, err := auth.GenerateToken(staff.Id)
+	accessToken, err := auth.GenerateToken(staff.Id, false)
 	if err != nil {
 		return "", "", fmt.Errorf("error generating access token: %w", err)
 	}
 
-	refreshToken, err := auth.GenerateRefreshToken(staff.Id)
+	refreshToken, err := auth.GenerateRefreshToken(staff.Id, false)
 	if err != nil {
 		return "", "", fmt.Errorf("error generating refresh token: %w", err)
 	}

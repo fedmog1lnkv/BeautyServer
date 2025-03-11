@@ -7,9 +7,9 @@ import (
 
 var RepositoryContainer = fx.Provide(
 	repository.NewUserRepository,
+	repository.NewStaffRepository,
 	repository.NewOrganizationRepository,
 	repository.NewVenueRepository,
 	repository.NewPhoneChallengeRepository,
 	repository.NewServiceRepository,
-	repository.NewStaffRepository,
 )
