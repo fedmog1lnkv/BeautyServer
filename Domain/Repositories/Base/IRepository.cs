@@ -2,4 +2,4 @@
 
 namespace Domain.Repositories.Base;
 
-public interface IRepository<T> where T : AggregateRoot { }
+public interface IRepository<T> { }

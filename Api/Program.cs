@@ -1,11 +1,9 @@
 using Api.OptionsSetup;
 using Application.Common.Mappings;
 using Application.Configurations;
+using Domain.Entities;
 using Infrastructure;
 using Infrastructure.Configurations;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
 using System.Reflection;
@@ -19,13 +17,16 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.ConfigureOptions<JwtOptionsSetup>();
+builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
+builder.Services.Configure<TwoFaSettings>(builder.Configuration.GetSection("2fa"));
+
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddApplication();
 
+
 #region Logging
 
-builder.Services.ConfigureOptions<JwtOptionsSetup>();
-builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)

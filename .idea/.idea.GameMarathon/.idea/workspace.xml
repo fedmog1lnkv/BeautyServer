@@ -8,14 +8,59 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="79d85523-5c37-4b47-9eea-329cfe9c1f69" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Api/Api.csproj" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Domain/Repositories/IUnitOfWork.cs" afterDir="false" />
+    <list default="true" id="79d85523-5c37-4b47-9eea-329cfe9c1f69" name="Changes" comment="feat: Initialize project structure">
+      <change afterPath="$PROJECT_DIR$/Api/Controllers/User/Models/AuthDto.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Api/Controllers/User/Models/PhoneChallengeDto.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Api/Controllers/User/UserController.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Api/docker-compose.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Application/Features/User/Commands/Auth/AuthCommand.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Application/Features/User/Commands/Auth/AuthCommandHandler.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Application/Features/User/Commands/Auth/Dto/AuthVm.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Application/Features/User/Commands/GeneratePhoneChallenge/GeneratePhoneChallengeCommand.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Application/Features/User/Commands/GeneratePhoneChallenge/GeneratePhoneChallengeCommandHandler.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Domain/Entities/PhoneChallenge.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Domain/Entities/TwoFaSettings.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Domain/Entities/User.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Domain/Repositories/PhoneChallenges/IPhoneChallengeRepository.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Domain/Repositories/Users/IUserReadOnlyRepository.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Domain/Repositories/Users/IUserRepository.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Domain/ValueObjects/UserName.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Domain/ValueObjects/UserPhoneNumber.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Infrastructure/EntityTypeConfigurations/PhoneChallengeConfiguration.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Infrastructure/EntityTypeConfigurations/UserConfiguration.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Infrastructure/Repositories/PhoneChallenge/PhoneChallengeRepository.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Infrastructure/Repositories/User/UserReadOnlyRepository.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Infrastructure/Repositories/User/UserRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.GameMarathon/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.GameMarathon/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Api/Api.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Api/Api.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Api/Controllers/Authorization/AuthorizationController.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Api/Controllers/Authorization/Models/LoginRequestVm.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Api/Controllers/Authorization/Models/RegisterDto.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Api/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Api/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Api/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/Api/appsettings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application/Abstractions/IJwtProvider.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/Abstractions/IJwtProvider.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application/Features/Authorization/Commands/Register/RegisterCommand.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application/Features/Authorization/Commands/Register/RegisterCommandHandler.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application/Features/Authorization/Commands/Register/RegisterCommandValidator.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BeautyServer.sln" beforeDir="false" afterPath="$PROJECT_DIR$/BeautyServer.sln" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BeautyServer.sln.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/BeautyServer.sln.DotSettings.user" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Domain/Domain.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Domain/Domain.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Domain/Errors/DomainErrors.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Domain/Errors/DomainErrors.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Domain/Repositories/Base/IRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Domain/Repositories/Base/IRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Infrastructure/Authentication/CustomClaims.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Infrastructure/Authentication/CustomClaims.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Infrastructure/Authentication/JwtProvider.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Infrastructure/Authentication/JwtProvider.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Infrastructure/Configurations/DependencyInjection.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Infrastructure/Configurations/DependencyInjection.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Infrastructure/Infrastructure.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Infrastructure/Infrastructure.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Infrastructure/TableNames.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Infrastructure/TableNames.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compose.yaml" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DpaMonitoringSettings">
+    <option name="autoShow" value="false" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -32,6 +77,19 @@
     &quot;accountId&quot;: &quot;78628448-a870-486b-8f75-a2882f527af6&quot;
   }
 }</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0b7856b364e04283a10bb924825b197f28f228/78/84198a73/PropertyBuilder`1.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c73b3c6c598640c592fd3c6fa226c286e90908/48/abcd65c8/String.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/dd038ea9e11c410ba2cc20723c0c0fc818938/55/3168b14f/Claim.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/ce37be1a06b16c6faa02038d2cc477dd3bca5b217ceeb41c5f2ad45c1bf9/ServiceProvider.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Domain/Repositories/PhoneChallenges/IPhoneChallengeRepository.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Domain/Repositories/Users/IUserReadOnlyRepository.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Domain/Repositories/Users/IUserRepository.cs" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 4
@@ -43,13 +101,15 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;.NET Launch Settings Profile.Api: http.executor&quot;: &quot;Debug&quot;,
+    &quot;Docker.Api.db: Compose Deployment.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;last_opened_file_path&quot;: &quot;C:/Users/kuzne/Рабочий стол/BeautyServer/GameMarathon.sln&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
   }
 }</component>
-  <component name="RunManager" selected=".NET Launch Settings Profile.Api: https">
+  <component name="RunManager" selected=".NET Launch Settings Profile.Api: http">
     <configuration name="Api: http" type="LaunchSettings" factoryName=".NET Launch Settings Profile">
       <option name="LAUNCH_PROFILE_PROJECT_FILE_PATH" value="$PROJECT_DIR$/Api/Api.csproj" />
       <option name="LAUNCH_PROFILE_TFM" value="net9.0" />
@@ -80,10 +140,57 @@
         <option name="Build" />
       </method>
     </configuration>
+    <configuration name="Api.db: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="services">
+            <list>
+              <option value="db" />
+            </list>
+          </option>
+          <option name="sourceFilePath" value="Api/docker-compose.yml" />
+        </settings>
+      </deployment>
+      <EXTENSION ID="com.jetbrains.rider.docker.debug" isFastModeEnabled="true" isSslEnabled="false" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
+      <deployment type="docker-compose.yml">
+        <settings />
+      </deployment>
+      <EXTENSION ID="com.jetbrains.rider.docker.debug" isFastModeEnabled="true" isSslEnabled="false" />
+      <method v="2" />
+    </configuration>
+    <configuration name="compose.yaml: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="sourceFilePath" value="compose.yaml" />
+        </settings>
+      </deployment>
+      <EXTENSION ID="com.jetbrains.rider.docker.debug" isFastModeEnabled="true" isSslEnabled="false" />
+      <method v="2" />
+    </configuration>
+    <configuration name="docker-compose.yml: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="sourceFilePath" value="docker-compose.yml" />
+        </settings>
+      </deployment>
+      <EXTENSION ID="com.jetbrains.rider.docker.debug" isFastModeEnabled="true" isSslEnabled="false" />
+      <method v="2" />
+    </configuration>
     <list>
       <item itemvalue=".NET Launch Settings Profile.Api: http" />
       <item itemvalue=".NET Launch Settings Profile.Api: https" />
+      <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
+      <item itemvalue="Docker.compose.yaml: Compose Deployment" />
+      <item itemvalue="Docker.Api.db: Compose Deployment" />
     </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Docker.Api.db: Compose Deployment" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -93,13 +200,43 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1720689376894</updated>
-      <workItem from="1741703988135" duration="327000" />
+      <workItem from="1741703988135" duration="9273000" />
     </task>
+    <task id="LOCAL-00001" summary="feat: Initialize project structure">
+      <option name="closed" value="true" />
+      <created>1741704414477</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1741704414477</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
   <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+    <MESSAGE value="feat: Initialize project structure" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: Initialize project structure" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Application/Features/User/Commands/GeneratePhoneChallenge/GeneratePhoneChallengeCommandHandler.cs</url>
+          <line>45</line>
+          <properties documentPath="C:\Users\kuzne\Рабочий стол\BeautyServer\Application\Features\User\Commands\GeneratePhoneChallenge\GeneratePhoneChallengeCommandHandler.cs" containingFunctionPresentation="Method 'Handle'">
+            <startOffsets>
+              <option value="1728" />
+            </startOffsets>
+            <endOffsets>
+              <option value="1828" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="7" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

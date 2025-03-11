@@ -2,5 +2,6 @@
 
 public interface IJwtProvider
 {
-    // string Generate(User user);
+    string GenerateToken(Guid id, bool isAdmin);
+    string GenerateRefreshToken(Guid id, bool isAdmin);
 }
