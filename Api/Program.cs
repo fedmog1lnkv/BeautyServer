@@ -10,21 +10,19 @@ using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddControllers();
+# region DI
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.ConfigureOptions<JwtOptionsSetup>();
 builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
 builder.Services.Configure<TwoFaSettings>(builder.Configuration.GetSection("2fa"));
-
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddApplication();
 
-
+#endregion
 #region Logging
 
 Log.Logger = new LoggerConfiguration()

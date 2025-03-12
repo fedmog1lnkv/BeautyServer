@@ -43,7 +43,7 @@ public class GeneratePhoneChallengeCommandHandler(
             user = createUserResult.Value;
         }
 
-        var oldPhoneChallenge = await phoneChallengeRepository.GetByPhoneNumberAsync(userPhoneNumber.Value);
+        var oldPhoneChallenge = await phoneChallengeRepository.GetByPhoneNumberAsync(userPhoneNumber.Value, cancellationToken);
         if (oldPhoneChallenge is not null)
             phoneChallengeRepository.Remove(oldPhoneChallenge);
 

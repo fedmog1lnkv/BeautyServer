@@ -10,7 +10,6 @@ namespace Api.Controllers.User;
 public class UserController(IMapper mapper) : BaseController
 {
     [HttpPost]
-    [Route("phone_challenge")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PhoneChallenge([FromBody] PhoneChallengeDto request)
@@ -25,7 +24,6 @@ public class UserController(IMapper mapper) : BaseController
     }
 
     [HttpPost]
-    [Route("auth")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Auth([FromBody] AuthDto request)
