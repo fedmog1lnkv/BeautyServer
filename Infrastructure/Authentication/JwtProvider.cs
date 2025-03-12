@@ -62,4 +62,41 @@ public sealed class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
 
         return tokenValue;
     }
+    
+    public (Guid UserId, bool IsAdmin)? ParseToken(string token)
+    {
+        try
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var validationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = _options.Issuer,
+                ValidAudience = _options.Audience,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SecretKey))
+            };
+
+            var principal = tokenHandler.ValidateToken(token, validationParameters, out var validatedToken);
+
+            if (validatedToken is not JwtSecurityToken jwtToken)
+                return null;
+
+            var userIdClaim = principal.FindFirst(CustomClaims.UserId);
+            var isAdminClaim = principal.FindFirst(CustomClaims.IsAdmin);
+
+            if (userIdClaim == null || isAdminClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
+                return null;
+
+            var isAdmin = bool.TryParse(isAdminClaim.Value, out var parsedIsAdmin) && parsedIsAdmin;
+
+            return (userId, isAdmin);
+        }
+        catch
+        {
+            return null;
+        }
+    }
 }

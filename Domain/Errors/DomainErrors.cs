@@ -17,6 +17,12 @@ public class DomainErrors
         
         public static readonly Error RejectAuthRequest = Error.Failure(
             "User.PhoneNumberNotUnique", "User rejected auth request..");
+        
+        public static readonly Error InvalidRefreshToken = Error.Failure(
+            "User.InvalidRefreshToken", "User refresh token is invalid.");
+        
+        public static readonly Error InvalidUserIdRefreshToken = Error.Failure(
+            "User.PhoneNumberNotUnique", "Invalid user ID in refresh token.");
     }
     
     public static class PhoneChallenge
