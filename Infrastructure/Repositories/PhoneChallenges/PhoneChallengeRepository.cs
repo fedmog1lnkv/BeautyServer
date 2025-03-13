@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.Text;
 
-namespace Infrastructure.Repositories.PhoneChallenge;
+namespace Infrastructure.Repositories.PhoneChallenges;
 
 internal sealed class PhoneChallengeRepository(ApplicationDbContext dbContext, IOptions<TwoFaSettings> twoFaSettings)
     : IPhoneChallengeRepository

@@ -2,7 +2,7 @@ using Domain.Repositories.Users;
 using Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Repositories.User;
+namespace Infrastructure.Repositories.Users;
 
 internal sealed class UserReadOnlyRepository(ApplicationDbContext dbContext) : IUserReadOnlyRepository
 {

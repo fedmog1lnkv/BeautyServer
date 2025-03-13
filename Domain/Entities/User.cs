@@ -8,9 +8,6 @@ namespace Domain.Entities;
 
 public sealed class User : AggregateRoot
 {
-    public UserName Name { get; private set; }
-    public UserPhoneNumber PhoneNumber { get; private set; }
-
     private User(
         Guid id,
         UserName name,
@@ -19,6 +16,9 @@ public sealed class User : AggregateRoot
         Name = name;
         PhoneNumber = phoneNumber;
     }
+
+    public UserName Name { get; private set; }
+    public UserPhoneNumber PhoneNumber { get; private set; }
 
     public static async Task<Result<User>> CreateAsync(
         Guid id,

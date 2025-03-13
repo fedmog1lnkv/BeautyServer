@@ -4,6 +4,7 @@ using Application.Configurations;
 using Domain.Entities;
 using Infrastructure;
 using Infrastructure.Configurations;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
 using System.Reflection;
