@@ -14,13 +14,21 @@ public class OrganizationPhotoChangedEventHandler(IVenueRepository venueReposito
 
         foreach (var venue in venues)
         {
-            if (venue.Theme.Photo is not null)
-                if (venue.Theme.Color != notification.OrganizationPhotoOld)
-                    continue;
+            if (venue.Theme.Photo is not null && venue.Theme.Photo != notification.OrganizationPhotoOld)
+            {
+                continue;
+            }
 
             var setVenuePhotoResult = venue.SetPhoto(notification.OrganizationPhotoNew);
+        
             if (setVenuePhotoResult.IsFailure)
-                Log.Error($"Notification failure {nameof(OrganizationPhotoChangedEvent)}");
+            {
+                Log.Error($"Notification failure {nameof(OrganizationPhotoChangedEvent)} for venue {venue.Id}. Old photo: {notification.OrganizationPhotoOld}, New photo: {notification.OrganizationPhotoNew}");
+            }
+            else
+            {
+                Log.Information($"Successfully updated photo for venue {venue.Id}. New photo: {notification.OrganizationPhotoNew}");
+            }
         }
     }
 }

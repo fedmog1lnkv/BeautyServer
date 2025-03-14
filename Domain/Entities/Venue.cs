@@ -15,11 +15,13 @@ public class Venue : AggregateRoot
         Guid organizationId,
         VenueName name,
         VenueTheme theme,
+        Location location,
         VenueDescription? description) : base(id)
     {
         OrganizationId = organizationId;
         Name = name;
         Theme = theme;
+        Location = location;
         Description = description;
     }
 
@@ -31,13 +33,16 @@ public class Venue : AggregateRoot
     public VenueName Name { get; private set; }
     public VenueDescription? Description { get; private set; }
     public VenueTheme Theme { get; private set; }
+    public Location Location { get; private set; }
     public IReadOnlyCollection<Service> Services => _services.AsReadOnly();
 
-    public static async Task<Result<Venue>> Create(
+    public static async Task<Result<Venue>> CreateAsync(
         Guid id,
         Guid organizationId,
         string name,
         string defaultColor,
+        double latitude,
+        double longitude,
         IOrganizationReadOnlyRepository repository)
     {
         if (organizationId == Guid.Empty)
@@ -55,11 +60,16 @@ public class Venue : AggregateRoot
         if (themeResult.IsFailure)
             return Result.Failure<Venue>(themeResult.Error);
 
+        var locationResult = Location.Create(latitude, longitude);
+        if (locationResult.IsFailure)
+            return Result.Failure<Venue>(locationResult.Error);
+
         return new Venue(
             id,
             organizationId,
             nameResult.Value,
             themeResult.Value,
+            locationResult.Value,
             null);
     }
 
@@ -89,6 +99,19 @@ public class Venue : AggregateRoot
         return Result.Success();
     }
 
+    private Result SetLocation(double latitude, double longitude)
+    {
+        var locationResult = Location.Create(latitude, longitude);
+        if (locationResult.IsFailure)
+            return Result.Failure<Venue>(locationResult.Error);
+
+        if (Location.Equals(locationResult.Value))
+            return Result.Success();
+
+        Location = locationResult.Value;
+        return Result.Success();
+    }
+
     public Result SetColor(string color)
     {
         return SetTheme(color, Theme.Photo);
@@ -111,7 +134,7 @@ public class Venue : AggregateRoot
         Theme = themeResult.Value;
         return Result.Success();
     }
-    
+
     public Result AddService(Service service)
     {
         if (_services.Any(s => s.Id == service.Id))
@@ -120,7 +143,7 @@ public class Venue : AggregateRoot
         _services.Add(service);
         return Result.Success();
     }
-    
+
     public Result RemoveService(Service service)
     {
         var existingService = _services.FirstOrDefault(s => s.Id == service.Id);

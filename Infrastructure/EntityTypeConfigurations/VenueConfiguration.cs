@@ -26,7 +26,20 @@ public class VenueConfiguration : IEntityTypeConfiguration<Venue>
                 value => value == null ? null : VenueDescription.Create(value).Value)
             .HasMaxLength(VenueName.MaxLength)
             .IsRequired(false);
-        
+
+        builder.OwnsOne(
+            o => o.Location,
+            theme =>
+            {
+                theme.Property(l => l.Latitude)
+                    .HasColumnName("Latitude")
+                    .IsRequired();
+
+                theme.Property(l => l.Longitude)
+                    .HasColumnName("Longitude")
+                    .IsRequired();
+            });
+
         builder.OwnsOne(
             o => o.Theme,
             theme =>

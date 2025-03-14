@@ -25,7 +25,7 @@ public class UserValidationFilter : ActionFilterAttribute
             var isAdmin = jwtToken.Claims.FirstOrDefault(c => c.Type == "is_admin")?.Value;
 
             var isAdminHeader = context.HttpContext.Request.Headers["IsAdmin"].FirstOrDefault();
-            if (isAdminHeader != "true")
+            if (isAdminHeader != "True")
                 isAdmin = "false";
 
             context.HttpContext.Items["user_id"] = userId;

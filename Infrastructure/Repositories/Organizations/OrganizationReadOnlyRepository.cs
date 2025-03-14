@@ -6,6 +6,11 @@ namespace Infrastructure.Repositories.Organizations;
 
 public class OrganizationReadOnlyRepository(ApplicationDbContext dbContext) : IOrganizationReadOnlyRepository
 {
+    public async Task<Organization?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
+        await dbContext.Set<Organization>()
+            .AsNoTracking()
+            .FirstOrDefaultAsync(o => o.Id == id, cancellationToken);
+
     public async Task<bool> ExistsAsync(Guid organizationId, CancellationToken cancellationToken = default) =>
         await dbContext.Set<Organization>()
             .AsNoTracking()

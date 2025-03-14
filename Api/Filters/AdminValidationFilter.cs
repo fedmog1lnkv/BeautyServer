@@ -27,7 +27,7 @@ public class AdminValidationFilter : ActionFilterAttribute
             var isAdmin = jwtToken.Claims.FirstOrDefault(c => c.Type == "is_admin")?.Value;
 
             // Если пользователь не администратор, возвращаем ошибку
-            if (isAdmin != "true")
+            if (isAdmin != "True")
             {
                 context.Result = new UnauthorizedObjectResult(new { error = "Access denied: admin privileges required" });
                 return;

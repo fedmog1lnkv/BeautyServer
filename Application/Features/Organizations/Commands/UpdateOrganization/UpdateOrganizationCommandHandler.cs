@@ -70,12 +70,12 @@ public class UpdateOrganizationCommandHandler(IOrganizationRepository organizati
                 return result;
 
             await eventBus.SendAsync(
-                new OrganizationPhotoChangedEvent(
-                    Guid.NewGuid(),
-                    organization.Id,
-                    organizationPhotoOld,
-                    organization.Theme.Photo!),
-                cancellationToken);
+               new OrganizationPhotoChangedEvent(
+                           Guid.NewGuid(),
+                           organization.Id,
+                           organizationPhotoOld,
+                           organization.Theme.Photo!),
+                       cancellationToken); 
         }
 
 

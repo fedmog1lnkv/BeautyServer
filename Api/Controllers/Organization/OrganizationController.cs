@@ -33,7 +33,7 @@ public class OrganizationController(IMapper mapper) : BaseController
     public async Task<IActionResult> Update([FromBody] UpdateOrganizationDto request)
     {
         var isAdmin = HttpContext.Items["is_admin"] as string;
-        if (isAdmin != "true")
+        if (isAdmin != "True")
             request.Subscription = null;
         
         var command = mapper.Map<UpdateOrganizationCommand>(request);

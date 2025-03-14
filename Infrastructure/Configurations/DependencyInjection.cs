@@ -45,16 +45,20 @@ public static class DependencyInjection
         services.AddScoped<IOrganizationReadOnlyRepository, OrganizationReadOnlyRepository>();
 
         // Venue
+        services.AddScoped<IVenueRepository, VenueRepository>();
         services.AddScoped<IVenueReadOnlyRepository, VenueReadOnlyRepository>();
 
         // Staff
         services.AddScoped<IStaffRepository, StaffRepository>();
         services.AddScoped<IStaffReadOnlyRepository, StaffReadOnlyRepository>();
-        
+
         // Service
         services.AddScoped<IServiceRepository, ServiceRepository>();
-
-
+        
+        services.AddSingleton<InMemoryDomainEventsQueue>();
+        services.AddSingleton<IDomainEventBus, DomainEventBus>();
+        services.AddHostedService<DomainEventQueueListener>();
+        
         return services;
     }
 }

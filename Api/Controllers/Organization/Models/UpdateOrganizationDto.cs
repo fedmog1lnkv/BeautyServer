@@ -15,7 +15,7 @@ public class UpdateOrganizationDto : IMapWith<UpdateOrganizationCommand>
 
     public void Mapping(Profile profile)
     {
-        profile.CreateMap<UpdateOrganizationCommand, UpdateOrganizationDto>()
+        profile.CreateMap<UpdateOrganizationDto, UpdateOrganizationCommand>()
             .ForMember(d => d.Id, opt => opt.MapFrom(s => s.Id))
             .ForMember(d => d.Name, opt => opt.MapFrom(s => s.Name))
             .ForMember(d => d.Description, opt => opt.MapFrom(s => s.Description))

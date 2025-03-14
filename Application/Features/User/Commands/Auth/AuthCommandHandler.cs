@@ -56,7 +56,7 @@ public class AuthCommandHandler(
             try
             {
                 var normalizedAdminPhone = UserPhoneNumber.Create(adminPhone);
-                return userPhoneNumber.Equals(normalizedAdminPhone);
+                return userPhoneNumber.Equals(normalizedAdminPhone.Value);
             }
             catch
             {
