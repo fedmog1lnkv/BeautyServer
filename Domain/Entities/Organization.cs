@@ -80,9 +80,10 @@ public sealed class Organization : AggregateRoot
         return Result.Success();
     }
 
-    public void SetSubscription(OrganizationSubscription subscription)
+    public Result SetSubscription(OrganizationSubscription subscription)
     {
         Subscription = subscription;
+        return Result.Success();
     }
 
     public Result SetColor(string color)

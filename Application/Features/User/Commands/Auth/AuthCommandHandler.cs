@@ -6,13 +6,15 @@ using Domain.Repositories.PhoneChallenges;
 using Domain.Repositories.Users;
 using Domain.Shared;
 using Domain.ValueObjects;
+using Microsoft.Extensions.Configuration;
 
 namespace Application.Features.User.Commands.Auth;
 
 public class AuthCommandHandler(
     IJwtProvider jwtProvider,
     IUserRepository userRepository,
-    IPhoneChallengeRepository phoneChallengeRepository)
+    IPhoneChallengeRepository phoneChallengeRepository,
+    IConfiguration configuration)
     : ICommandHandler<AuthCommand, Result<AuthVm>>
 {
     public async Task<Result<AuthVm>> Handle(
@@ -45,22 +47,23 @@ public class AuthCommandHandler(
             return Result.Failure<AuthVm>(DomainErrors.User.NotFoundByPhone(userPhoneNumber));
         }
 
-        // var adminPhones = configuration["ADMIN_PHONE_NUMBERS"]?.Split(',') ?? [];
-        // bool isAdmin = adminPhones.Any(
-        //     adminPhone =>
-        //     {
-        //         try
-        //         {
-        //             var normalizedAdminPhone = UserPhoneNumber.Create(adminPhone);
-        //             return userPhoneNumber.Equals(normalizedAdminPhone);
-        //         }
-        //         catch
-        //         {
-        //             return false;
-        //         }
-        //     });
+        // Читаем список администраторов из конфигурации
+        var adminPhones = configuration["AdminPhoneNumbers"]?.Split(',') ?? Array.Empty<string>();
 
-        var isAdmin = false;
+        // Проверка, является ли пользователь администратором
+        var isAdmin = adminPhones.Any(adminPhone =>
+        {
+            try
+            {
+                var normalizedAdminPhone = UserPhoneNumber.Create(adminPhone);
+                return userPhoneNumber.Equals(normalizedAdminPhone);
+            }
+            catch
+            {
+                return false;
+            }
+        });
+
         var accessToken = jwtProvider.GenerateToken(user.Id, isAdmin);
         var refreshToken = jwtProvider.GenerateRefreshToken(user.Id, isAdmin);
 

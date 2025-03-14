@@ -29,8 +29,12 @@ public class OrganizationConfiguration : IEntityTypeConfiguration<Organization>
             .IsRequired(false);
 
         builder.Property(o => o.Subscription)
-            .HasColumnType("subscription")
-            .IsRequired();
+            .HasConversion(
+                v => v.ToString(),
+                v => (OrganizationSubscription)Enum.Parse(typeof(OrganizationSubscription), v, true)
+            )
+            .HasColumnType("varchar(10)")
+            .IsRequired(); 
 
         builder.OwnsOne(
             o => o.Theme,

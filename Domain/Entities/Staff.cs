@@ -112,4 +112,23 @@ public class Staff : AggregateRoot
         _timeSlots[index] = updatedSlot;
         return Result.Success();
     }
+    
+    public Result AddService(Service service)
+    {
+        if (_services.Any(s => s.Id == service.Id))
+            return Result.Success();
+
+        _services.Add(service);
+        return Result.Success();
+    }
+    
+    public Result RemoveService(Service service)
+    {
+        var existingService = _services.FirstOrDefault(s => s.Id == service.Id);
+        if (existingService is null)
+            return Result.Success();
+
+        _services.Remove(existingService);
+        return Result.Success();
+    }
 }

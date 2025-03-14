@@ -2,9 +2,11 @@ using Api.OptionsSetup;
 using Application.Common.Mappings;
 using Application.Configurations;
 using Domain.Entities;
+using Domain.Repositories.Organizations;
+using Domain.Repositories.Services;
+using Domain.Repositories.Staffs;
 using Infrastructure;
 using Infrastructure.Configurations;
-using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
 using System.Reflection;
@@ -64,6 +66,47 @@ using (var scope = app.Services.CreateScope())
     db.Database.EnsureDeleted();
     db.Database.EnsureCreated();
 }
+
+// using (var scope = app.Services.CreateScope())
+// {
+//     var staffReadOnlyRepository = scope.ServiceProvider.GetRequiredService<IStaffReadOnlyRepository>();
+//     var staffRepository = scope.ServiceProvider.GetRequiredService<IStaffRepository>();
+//     var organizationRepo = scope.ServiceProvider.GetRequiredService<IOrganizationRepository>();
+//     var organizationReadOnlyRepo = scope.ServiceProvider.GetRequiredService<IOrganizationReadOnlyRepository>();
+//     var serviceRepo = scope.ServiceProvider.GetRequiredService<IServiceRepository>();
+//     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+//
+//     var orgId = Guid.NewGuid();
+//     var organization = Organization.Create(
+//         orgId,
+//         "test org 1",
+//         "#FFFFFF");
+//     organizationRepo.Add(organization.Value);
+//     await dbContext.SaveChangesAsync();
+//
+//     var serviceId = Guid.NewGuid();
+//     var service = await Service.Create(serviceId, orgId, "service 1", organizationReadOnlyRepo);
+//     serviceRepo.Add(service.Value);
+//     await dbContext.SaveChangesAsync();
+//
+//     var staffId = Guid.NewGuid();
+//     var staff = await Staff.Create(
+//         staffId,
+//         orgId,
+//         "staffchik",
+//         "7904122342",
+//         staffReadOnlyRepository,
+//         organizationReadOnlyRepo);
+//     staffRepository.Add(staff.Value);
+//     await dbContext.SaveChangesAsync();
+//
+//     var staffFromDb = await staffReadOnlyRepository.GetByIdWithServices(staffId);
+//     
+//     staffFromDb?.AddService(service.Value);
+//     await dbContext.SaveChangesAsync();
+//
+//     staffFromDb = await staffReadOnlyRepository.GetByIdWithServices(staffId);
+// }
 
 //// Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())

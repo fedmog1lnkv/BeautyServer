@@ -8,6 +8,9 @@ namespace Domain.Entities;
 
 public class Service : AggregateRoot
 {
+    private readonly List<Staff> _staffs = [];
+    private readonly List<Venue> _venues = [];
+
     private Service(
         Guid id,
         Guid organizationId,
@@ -32,6 +35,9 @@ public class Service : AggregateRoot
     public ServiceDescription? Description { get; private set; }
     public TimeSpan? Duration { get; private set; }
     public ServicePrice? Price { get; private set; }
+    public IReadOnlyCollection<Staff> Staffs => _staffs.AsReadOnly();
+    public IReadOnlyCollection<Venue> Venues => _venues.AsReadOnly();
+
 
     public static async Task<Result<Service>> Create(
         Guid id,

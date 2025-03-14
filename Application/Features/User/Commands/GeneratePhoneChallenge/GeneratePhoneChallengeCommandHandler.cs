@@ -25,7 +25,7 @@ public class GeneratePhoneChallengeCommandHandler(
         var user = await userRepository.GetByPhoneNumberAsync(userPhoneNumber, cancellationToken);
         if (user is null)
         {
-            var userName = await phoneChallengeRepository.SendAuthRequestAsync(userPhoneNumber.Value);
+            var userName = await phoneChallengeRepository.SendAuthRequestAsync(userPhoneNumber.Value, cancellationToken);
             if (userName == null)
                 return Result.Failure(DomainErrors.User.RejectAuthRequest);
 

@@ -2,12 +2,14 @@ using Application.Abstractions;
 using Domain.Repositories;
 using Domain.Repositories.Organizations;
 using Domain.Repositories.PhoneChallenges;
+using Domain.Repositories.Services;
 using Domain.Repositories.Staffs;
 using Domain.Repositories.Users;
 using Domain.Repositories.Venues;
 using Infrastructure.Authentication;
 using Infrastructure.Repositories.Organizations;
 using Infrastructure.Repositories.PhoneChallenges;
+using Infrastructure.Repositories.Services;
 using Infrastructure.Repositories.Staffs;
 using Infrastructure.Repositories.Users;
 using Infrastructure.Repositories.Venues;
@@ -25,7 +27,8 @@ public static class DependencyInjection
     {
         services.AddDbContextFactory<ApplicationDbContext>(
             options => options
-                .UseNpgsql(configuration.GetConnectionString("DatabaseConnectionString") ?? string.Empty));
+                .UseNpgsql(configuration.GetConnectionString("DatabaseConnectionString") ?? string.Empty)
+                .EnableSensitiveDataLogging());
 
         services.AddTransient<IJwtProvider, JwtProvider>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -45,7 +48,11 @@ public static class DependencyInjection
         services.AddScoped<IVenueReadOnlyRepository, VenueReadOnlyRepository>();
 
         // Staff
+        services.AddScoped<IStaffRepository, StaffRepository>();
         services.AddScoped<IStaffReadOnlyRepository, StaffReadOnlyRepository>();
+        
+        // Service
+        services.AddScoped<IServiceRepository, ServiceRepository>();
 
 
         return services;

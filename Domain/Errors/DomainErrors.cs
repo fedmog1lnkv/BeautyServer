@@ -100,6 +100,12 @@ public class DomainErrors
             "OrganizationTheme.InvalidColorFormat", "Organization theme color must be in HEX format (e.g., #FFAABB).");
     }
     
+    public static class OrganizationSubscription
+    {
+        public static Error NotFound(string value) => Error.NotFound(
+            "OrganizationSubscription.NotFound", $"Invalid subscription value {value}.");
+    }
+    
     public static class Venue
     {
         public static readonly Error OrganizationIdEmpty = Error.Validation(

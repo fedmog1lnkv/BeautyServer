@@ -16,7 +16,7 @@ internal sealed class CreateOrganizationCommandHandler(IOrganizationRepository o
         var orgColor = request.Color ?? _defaultColor;
 
         var createOrganizationResult = Organization.Create(
-            request.Id,
+            Guid.NewGuid(),
             request.Name,
             orgColor);
 

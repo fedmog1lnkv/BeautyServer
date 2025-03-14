@@ -8,6 +8,8 @@ namespace Domain.Entities;
 
 public class Venue : AggregateRoot
 {
+    private readonly List<Service> _services = [];
+
     private Venue(
         Guid id,
         Guid organizationId,
@@ -29,6 +31,7 @@ public class Venue : AggregateRoot
     public VenueName Name { get; private set; }
     public VenueDescription? Description { get; private set; }
     public VenueTheme Theme { get; private set; }
+    public IReadOnlyCollection<Service> Services => _services.AsReadOnly();
 
     public static async Task<Result<Venue>> Create(
         Guid id,
@@ -106,6 +109,25 @@ public class Venue : AggregateRoot
             return Result.Success();
 
         Theme = themeResult.Value;
+        return Result.Success();
+    }
+    
+    public Result AddService(Service service)
+    {
+        if (_services.Any(s => s.Id == service.Id))
+            return Result.Success();
+
+        _services.Add(service);
+        return Result.Success();
+    }
+    
+    public Result RemoveService(Service service)
+    {
+        var existingService = _services.FirstOrDefault(s => s.Id == service.Id);
+        if (existingService is null)
+            return Result.Success();
+
+        _services.Remove(existingService);
         return Result.Success();
     }
 }

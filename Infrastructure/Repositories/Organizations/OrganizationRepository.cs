@@ -3,10 +3,16 @@ using Domain.Repositories.Organizations;
 
 namespace Infrastructure.Repositories.Organizations;
 
-public class OrganizationRepository : IOrganizationRepository
+public class OrganizationRepository(ApplicationDbContext dbContext) : IOrganizationRepository
 {
-    public void Add(Organization organization)
+    public async Task<Organization?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
+    }
+
+    public void Add(Organization organization)
+    {
+        dbContext.Set<Organization>().Add(organization);
+        dbContext.SaveChanges();
     }
 }

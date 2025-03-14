@@ -8,9 +8,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers.User;
 
+[Route("api/user")]
 public class UserController(IMapper mapper) : BaseController
 {
-    [HttpPost]
+    [HttpPost("phone_challenge")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PhoneChallenge([FromBody] PhoneChallengeDto request)
@@ -24,7 +25,7 @@ public class UserController(IMapper mapper) : BaseController
             : NoContent();
     }
 
-    [HttpPost]
+    [HttpPost("auth")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Auth([FromBody] AuthDto request)
@@ -38,7 +39,7 @@ public class UserController(IMapper mapper) : BaseController
             : Ok(result.Value);
     }
     
-    [HttpPost]
+    [HttpPost("refresh_token")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenDto request)
