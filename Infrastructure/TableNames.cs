@@ -7,4 +7,6 @@ public static class TableNames
     internal const string Organizations = nameof(Organizations);
     internal const string Venues = nameof(Venues);
     internal const string Services = nameof(Services);
+    internal const string Staffs = nameof(Staffs);
+    internal const string TimeSlots = nameof(TimeSlots);
 }

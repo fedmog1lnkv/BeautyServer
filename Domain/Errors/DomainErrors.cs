@@ -56,6 +56,9 @@ public class DomainErrors
     {
         public static readonly Error Empty = Error.Validation(
             "UserPhoneNumber.Empty", "User phone number cannot be empty.");
+        
+        public static readonly Error InvalidFormat = Error.Validation(
+            "UserPhoneNumber.InvalidFormat", "Invalid user phone number format.");
     }
     
     public static class Organization
@@ -101,6 +104,9 @@ public class DomainErrors
     {
         public static readonly Error OrganizationIdEmpty = Error.Validation(
             "Venue.OrganizationIdEmpty", "Organization Id cannot be empty.");
+        
+        public static Error NotFound(Guid id) => Error.NotFound(
+            "Venue.NotFound", $"Venue with the Id '{id}' was not found.");
     }
     
     public static class VenueName
@@ -188,5 +194,43 @@ public class DomainErrors
     {
         public static readonly Error TooLow = Error.Validation(
             "ServicePrice.TooLow", "The service price must be greater than zero.");
+    }
+    
+    public static class Staff
+    {
+        public static readonly Error OrganizationIdEmpty = Error.Validation(
+            "Staff.OrganizationIdEmpty", "Organization ID cannot be empty.");
+        public static readonly Error PhoneNumberNotUnique = Error.Conflict(
+            "Staff.PhoneNumberNotUnique", "Phone number must be unique.");
+    }
+    
+    public static class StaffName
+    {
+        public static readonly Error Empty = Error.Validation(
+            "StaffName.Empty", "Staff name is empty.");
+
+        public static readonly Error TooLong = Error.Validation(
+            "StaffName.TooLong", "Staff name is too long.");
+
+        public static readonly Error TooShort = Error.Validation(
+            "StaffName.TooShort", "Staff name is too short.");
+    }
+    
+    public static class StaffPhoneNumber
+    {
+        public static readonly Error Empty = Error.Validation(
+            "StaffPhoneNumber.Empty", "Staff phone number cannot be empty.");
+        
+        public static readonly Error InvalidFormat = Error.Validation(
+            "StaffPhoneNumber.InvalidFormat", "Invalid staff phone number format.");
+    }
+    
+    public static class TimeSlot
+    {
+        public static Error NotFound(Guid id) => Error.NotFound(
+            "TimeSlot.NotFound", "Time slot not found.");
+        
+        public static readonly Error IntervalsOverlap = Error.Validation(
+            "TimeSlot.IntervalsOverlap", "Intervals cannot overlap.");
     }
 }

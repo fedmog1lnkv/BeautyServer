@@ -35,5 +35,10 @@ public class ServiceConfiguration : IEntityTypeConfiguration<Service>
                 price => price == null ? (double?)null : price.Value,
                 value => value == null ? null : ServicePrice.Create((double)value).Value)
             .IsRequired(false);
+        
+        builder.HasOne<Organization>()
+            .WithMany()
+            .HasForeignKey(s => s.OrganizationId)
+            .IsRequired();
     }
 }

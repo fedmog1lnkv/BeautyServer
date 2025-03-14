@@ -5,18 +5,18 @@ using System.Text.RegularExpressions;
 
 namespace Domain.ValueObjects;
 
-public class UserPhoneNumber : ValueObject
+public class StaffPhoneNumber : ValueObject
 {
-    private const string UserPhoneNumberRegex = @"^\+?[1-9]\d{1,14}$";
+    private const string PhoneNumberRegex = @"^\+?[1-9]\d{1,14}$";
 
     public string Value { get; }
 
-    private UserPhoneNumber(string value) => Value = value;
+    private StaffPhoneNumber(string value) => Value = value;
 
-    public static Result<UserPhoneNumber> Create(string number)
+    public static Result<StaffPhoneNumber> Create(string number)
     {
         if (string.IsNullOrWhiteSpace(number))
-            return Result.Failure<UserPhoneNumber>(DomainErrors.UserPhoneNumber.Empty);
+            return Result.Failure<StaffPhoneNumber>(DomainErrors.StaffPhoneNumber.Empty);
 
         number = number.Trim();
         number = Regex.Replace(number, @"\D", "");
@@ -24,10 +24,10 @@ public class UserPhoneNumber : ValueObject
         if (number.StartsWith("8"))
             number = "7" + number.Substring(1);
 
-        if (!Regex.IsMatch(number, UserPhoneNumberRegex))
-            return Result.Failure<UserPhoneNumber>(DomainErrors.UserPhoneNumber.InvalidFormat);
+        if (!Regex.IsMatch(number, PhoneNumberRegex))
+            return Result.Failure<StaffPhoneNumber>(DomainErrors.StaffPhoneNumber.InvalidFormat);
 
-        return Result.Success(new UserPhoneNumber(number));
+        return Result.Success(new StaffPhoneNumber(number));
     }
 
     public override IEnumerable<object> GetAtomicValues()
