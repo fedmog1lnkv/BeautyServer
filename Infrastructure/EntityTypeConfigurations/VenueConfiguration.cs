@@ -41,7 +41,5 @@ public class VenueConfiguration : IEntityTypeConfiguration<Venue>
                     .HasMaxLength(2048)
                     .IsRequired(false);
             });
-        
-
     }
 }

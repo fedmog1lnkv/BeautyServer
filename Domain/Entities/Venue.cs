@@ -60,7 +60,7 @@ public class Venue : AggregateRoot
             null);
     }
 
-    public Result UpdateName(string name)
+    public Result SetName(string name)
     {
         var nameResult = VenueName.Create(name);
         if (nameResult.IsFailure)
@@ -73,7 +73,7 @@ public class Venue : AggregateRoot
         return Result.Success();
     }
 
-    public Result UpdateDescription(string description)
+    public Result SetDescription(string description)
     {
         var descriptionResult = VenueDescription.Create(description);
         if (descriptionResult.IsFailure)
@@ -86,17 +86,17 @@ public class Venue : AggregateRoot
         return Result.Success();
     }
 
-    public Result UpdateColor(string color)
+    public Result SetColor(string color)
     {
-        return UpdateTheme(color, Theme.Photo);
+        return SetTheme(color, Theme.Photo);
     }
 
-    public Result UpdatePhoto(string? photo)
+    public Result SetPhoto(string? photo)
     {
-        return UpdateTheme(Theme.Color, photo);
+        return SetTheme(Theme.Color, photo);
     }
 
-    private Result UpdateTheme(string color, string? photo)
+    private Result SetTheme(string color, string? photo)
     {
         var themeResult = VenueTheme.Create(color, photo);
         if (themeResult.IsFailure)

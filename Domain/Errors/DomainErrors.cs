@@ -150,4 +150,43 @@ public class DomainErrors
         public static readonly Error LongitudeOutOfRange = Error.Validation(
             "Location.LongitudeOutOfRange", "Longitude must be between -180 and 180 degrees.");
     }
+    
+    public static class Service
+    {
+        public static readonly Error OrganizationIdEmpty = Error.Validation(
+            "Service.OrganizationIdEmpty", "Organization Id cannot be empty.");
+        
+        public static readonly Error InvalidDuration = Error.Validation(
+            "Service.InvalidDuration", "Service duration must be greater than zero.");
+    }
+    
+    public static class ServiceName
+    {
+        public static readonly Error Empty = Error.Validation(
+            "ServiceName.Empty", "Service name is empty.");
+
+        public static readonly Error TooLong = Error.Validation(
+            "ServiceName.TooLong", "Service name is too long.");
+
+        public static readonly Error TooShort = Error.Validation(
+            "ServiceName.TooShort", "Service name is too short.");
+    }
+    
+    public static class ServiceDescription
+    {
+        public static readonly Error Empty = Error.Validation(
+            "ServiceDescription.Empty", "Service description is empty.");
+
+        public static readonly Error TooLong = Error.Validation(
+            "ServiceDescription.TooLong", "Service description is too long.");
+
+        public static readonly Error TooShort = Error.Validation(
+            "ServiceDescription.TooShort", "Service description is too short.");
+    }
+    
+    public static class ServicePrice
+    {
+        public static readonly Error TooLow = Error.Validation(
+            "ServicePrice.TooLow", "The service price must be greater than zero.");
+    }
 }
