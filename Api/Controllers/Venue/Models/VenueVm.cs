@@ -3,9 +3,10 @@ using AutoMapper;
 
 namespace Api.Controllers.Venue.Models;
 
-public class VenueLookupDto : IMapWith<Domain.Entities.Venue>
+public class VenueVm : IMapWith<Domain.Entities.Venue>
 {
     public Guid Id { get; set; }
+    public Guid OrganizationId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
     public ThemeVm Theme { get; set; } = new ThemeVm();
@@ -13,8 +14,9 @@ public class VenueLookupDto : IMapWith<Domain.Entities.Venue>
 
     public void Mapping(Profile profile)
     {
-        profile.CreateMap<Domain.Entities.Venue, VenueLookupDto>()
+        profile.CreateMap<Domain.Entities.Venue, VenueVm>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.OrganizationId, opt => opt.MapFrom(src => src.OrganizationId))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.Value))
             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
             .ForMember(

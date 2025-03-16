@@ -1,7 +1,6 @@
 using Domain.Entities;
 using Domain.Repositories.Venues;
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
 
 namespace Infrastructure.Repositories.Venues;
 
@@ -22,15 +21,15 @@ public class VenueReadOnlyRepository(ApplicationDbContext dbContext) : IVenueRea
             .ToListAsync(cancellationToken);
 
         var result = venues
-            .Select(v => new
-            {
-                Venue = v,
-                Distance = 6371 * Math.Acos(
-                    Math.Cos(DegToRad(latitude)) * Math.Cos(DegToRad(v.Location.Latitude)) *
-                    Math.Cos(DegToRad(v.Location.Longitude) - DegToRad(longitude)) +
-                    Math.Sin(DegToRad(latitude)) * Math.Sin(DegToRad(v.Location.Latitude))
-                )
-            })
+            .Select(
+                v => new
+                {
+                    Venue = v,
+                    Distance = 6371 * Math.Acos(
+                        Math.Cos(DegToRad(latitude)) * Math.Cos(DegToRad(v.Location.Latitude)) *
+                        Math.Cos(DegToRad(v.Location.Longitude) - DegToRad(longitude)) +
+                        Math.Sin(DegToRad(latitude)) * Math.Sin(DegToRad(v.Location.Latitude)))
+                })
             .OrderBy(v => v.Distance)
             .Skip(offset)
             .Take(limit)
@@ -49,6 +48,11 @@ public class VenueReadOnlyRepository(ApplicationDbContext dbContext) : IVenueRea
             .Skip(offset)
             .Take(limit)
             .ToListAsync(cancellationToken);
-    
+
+    public async Task<Venue?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
+        await dbContext.Set<Venue>()
+            .AsNoTracking()
+            .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
+
     private static double DegToRad(double deg) => deg * (Math.PI / 180);
 }

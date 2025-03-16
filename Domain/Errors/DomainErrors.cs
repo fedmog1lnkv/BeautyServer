@@ -113,6 +113,10 @@ public class DomainErrors
         
         public static Error NotFound(Guid id) => Error.NotFound(
             "Venue.NotFound", $"Venue with the Id '{id}' was not found.");
+        
+        public static Error ServiceNotFoundInOrganization(Guid venueId, Guid serviceId) => Error.NotFound(
+            "Venue.ServiceNotFoundInOrganization",
+            $"Service with Id '{serviceId}' was not found in Venue with Id '{venueId}'.");
     }
     
     public static class VenueName
