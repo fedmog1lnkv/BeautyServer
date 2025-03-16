@@ -8,4 +8,5 @@ public interface IStaffReadOnlyRepository : IReadOnlyRepository<Staff>
 {
     Task<bool> IsPhoneNumberUnique(StaffPhoneNumber phoneNumber, CancellationToken cancellationToken = default);
     Task<Staff?> GetByIdWithServices(Guid id, CancellationToken cancellationToken = default);
+    Task<Staff?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 }

@@ -11,7 +11,7 @@ using Microsoft.Extensions.Configuration;
 namespace Application.Features.User.Commands.Auth;
 
 public class AuthCommandHandler(
-    IJwtProvider jwtProvider,
+    IUserJwtProvider jwtProvider,
     IUserRepository userRepository,
     IPhoneChallengeRepository phoneChallengeRepository,
     IConfiguration configuration)

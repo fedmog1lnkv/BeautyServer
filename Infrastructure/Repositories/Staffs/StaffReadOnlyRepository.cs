@@ -25,4 +25,9 @@ public class StaffReadOnlyRepository(ApplicationDbContext dbContext) : IStaffRea
             .AsNoTracking()
             .Include(s => s.Services)
             .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
+
+    public async Task<Staff?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
+        await dbContext.Set<Staff>()
+            .AsNoTracking()
+            .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
 }

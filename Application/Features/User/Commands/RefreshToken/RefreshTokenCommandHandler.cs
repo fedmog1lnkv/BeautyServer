@@ -8,13 +8,13 @@ using Domain.Shared;
 namespace Application.Features.User.Commands.RefreshToken;
 
 public class RefreshTokenCommandHandler(
-    IJwtProvider jwtProvider,
+    IUserJwtProvider jwtProvider,
     IUserRepository userRepository)
     : ICommandHandler<RefreshTokenCommand, Result<TokensVm>>
 {
     public async Task<Result<TokensVm>> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
     {
-        var claims = jwtProvider.ParseToken(request.RefreshToken);
+        var claims = jwtProvider.ParseUserToken(request.RefreshToken);
         if (claims == null)
         {
             return Result.Failure<TokensVm>(DomainErrors.User.InvalidRefreshToken);

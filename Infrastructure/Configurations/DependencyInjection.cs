@@ -6,7 +6,8 @@ using Domain.Repositories.Services;
 using Domain.Repositories.Staffs;
 using Domain.Repositories.Users;
 using Domain.Repositories.Venues;
-using Infrastructure.Authentication;
+using Infrastructure.Authentication.Staff;
+using Infrastructure.Authentication.User;
 using Infrastructure.Repositories.Organizations;
 using Infrastructure.Repositories.PhoneChallenges;
 using Infrastructure.Repositories.Services;
@@ -30,7 +31,8 @@ public static class DependencyInjection
                 .UseNpgsql(configuration.GetConnectionString("DatabaseConnectionString") ?? string.Empty)
                 .EnableSensitiveDataLogging());
 
-        services.AddTransient<IJwtProvider, JwtProvider>();
+        services.AddTransient<IUserJwtProvider, UserJwtProvider>();
+        services.AddTransient<IStaffJwtProvider, StaffJwtProvider>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         // User
@@ -54,11 +56,12 @@ public static class DependencyInjection
 
         // Service
         services.AddScoped<IServiceRepository, ServiceRepository>();
-        
+        services.AddScoped<IServiceReadOnlyRepository, ServiceReadOnlyRepository>();
+
         services.AddSingleton<InMemoryDomainEventsQueue>();
         services.AddSingleton<IDomainEventBus, DomainEventBus>();
         services.AddHostedService<DomainEventQueueListener>();
-        
+
         return services;
     }
 }

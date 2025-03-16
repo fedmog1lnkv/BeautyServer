@@ -6,6 +6,19 @@ namespace Infrastructure.Repositories.Venues;
 
 public class VenueRepository(ApplicationDbContext dbContext) : IVenueRepository
 {
+    public async Task<Venue?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Set<Venue>()
+            .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
+    }
+
+    public async Task<Venue?> GetByIdWithServicesAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Set<Venue>()
+            .Include(v => v.Services)
+            .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
+    }
+
     public async Task<List<Venue>> GetByOrganizationId(
         Guid organizationId,
         CancellationToken cancellationToken = default) =>

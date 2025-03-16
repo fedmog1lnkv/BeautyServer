@@ -37,13 +37,14 @@ public class Staff : AggregateRoot
     public IReadOnlyCollection<Service> Services => _services.AsReadOnly();
     public IReadOnlyCollection<TimeSlot> TimeSlots => _timeSlots.AsReadOnly();
 
-    public static async Task<Result<Staff>> Create(
+    public static async Task<Result<Staff>> CreateAsync(
         Guid id,
         Guid organizationId,
         string name,
         string phoneNumber,
         IStaffReadOnlyRepository staffRepository,
-        IOrganizationReadOnlyRepository organizationRepository)
+        IOrganizationReadOnlyRepository organizationRepository,
+        CancellationToken cancellationToken)
     {
         if (organizationId == Guid.Empty)
             return Result.Failure<Staff>(DomainErrors.Staff.OrganizationIdEmpty);

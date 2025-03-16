@@ -15,9 +15,17 @@ public class VenueController(IMapper mapper) : BaseController
 {
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [UserValidationFilter]
+    [StaffValidationFilter]
     public async Task<IActionResult> Create([FromBody] CreateVenueDto request)
     {
+        var staffOrganizationId = HttpContext.Items["organization_id"] as Guid?;
+        if (staffOrganizationId != request.OrganizationId)
+            return Unauthorized("staffOrganizationId != request.OrganizationId");
+        
+        var isManager = HttpContext.Items["is_manager"] as bool?;
+        if (!isManager!.Value)
+            return Unauthorized("Not manager");
+        
         var command = mapper.Map<CreateVenueCommand>(request);
 
         var result = await Sender.Send(command);
@@ -68,11 +76,20 @@ public class VenueController(IMapper mapper) : BaseController
         return Ok(venueDto);
     }
 
-    [HttpGet("{id}")]
+    [HttpPatch]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [StaffValidationFilter]
     public async Task<IActionResult> Update([FromBody] UpdateVenueDto request)
     {
+        var staffOrganizationId = HttpContext.Items["organization_id"] as Guid?;
+        if (staffOrganizationId != request.OrganizationId)
+            return Unauthorized();
+        
+        var isManager = HttpContext.Items["is_manager"] as bool?;
+        if (!isManager!.Value)
+            return Unauthorized();
+
         var command = mapper.Map<UpdateVenueCommand>(request);
         var result = await Sender.Send(command);
 

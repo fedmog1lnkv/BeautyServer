@@ -1,13 +1,13 @@
-﻿using Application.Abstractions;
+using Application.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Infrastructure.Authentication;
+namespace Infrastructure.Authentication.User;
 
-public sealed class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
+public class UserJwtProvider(IOptions<JwtOptions> options) : IUserJwtProvider
 {
     private readonly JwtOptions _options = options.Value;
 
@@ -15,8 +15,8 @@ public sealed class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
     {
         var claims = new Claim[]
         {
-            new(CustomClaims.UserId, id.ToString()),
-            new(CustomClaims.IsAdmin, isAdmin.ToString())
+            new(UserClaims.UserId, id.ToString()),
+            new(UserClaims.IsAdmin, isAdmin.ToString())
         };
 
         var signingCredentials = new SigningCredentials(
@@ -41,8 +41,8 @@ public sealed class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
     {
         var claims = new Claim[]
         {
-            new(CustomClaims.UserId, id.ToString()),
-            new(CustomClaims.IsAdmin, isAdmin.ToString())
+            new(UserClaims.UserId, id.ToString()),
+            new(UserClaims.IsAdmin, isAdmin.ToString())
         };
 
         var signingCredentials = new SigningCredentials(
@@ -62,8 +62,8 @@ public sealed class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
 
         return tokenValue;
     }
-    
-    public (Guid UserId, bool IsAdmin)? ParseToken(string token)
+
+    public (Guid UserId, bool IsAdmin)? ParseUserToken(string token)
     {
         try
         {
@@ -84,8 +84,8 @@ public sealed class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
             if (validatedToken is not JwtSecurityToken jwtToken)
                 return null;
 
-            var userIdClaim = principal.FindFirst(CustomClaims.UserId);
-            var isAdminClaim = principal.FindFirst(CustomClaims.IsAdmin);
+            var userIdClaim = principal.FindFirst(UserClaims.UserId);
+            var isAdminClaim = principal.FindFirst(UserClaims.IsAdmin);
 
             if (userIdClaim == null || isAdminClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
                 return null;

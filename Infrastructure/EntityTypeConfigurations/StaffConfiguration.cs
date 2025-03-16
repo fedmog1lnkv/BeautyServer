@@ -1,4 +1,5 @@
 using Domain.Entities;
+using Domain.Enums;
 using Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -31,7 +32,12 @@ public class StaffConfiguration : IEntityTypeConfiguration<Staff>
             .IsRequired();
 
         builder.Property(s => s.Role)
-            .IsRequired();
+            .HasConversion(
+                v => v.ToString(),
+                v => (StaffRole)Enum.Parse(typeof(StaffRole), v, true)
+            )
+            .HasColumnType("varchar(10)")
+            .IsRequired(); 
 
         builder.HasMany(s => s.TimeSlots)
             .WithOne()

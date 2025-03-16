@@ -16,13 +16,13 @@ public class DomainErrors
             "User.PhoneNumberNotUnique", "User phone number must be unique.");
         
         public static readonly Error RejectAuthRequest = Error.Failure(
-            "User.PhoneNumberNotUnique", "User rejected auth request..");
+            "User.RejectAuthRequest", "User rejected auth request..");
         
         public static readonly Error InvalidRefreshToken = Error.Failure(
             "User.InvalidRefreshToken", "User refresh token is invalid.");
         
         public static readonly Error InvalidUserIdRefreshToken = Error.Failure(
-            "User.PhoneNumberNotUnique", "Invalid user ID in refresh token.");
+            "User.InvalidUserIdRefreshToken", "Invalid user ID in refresh token.");
     }
     
     public static class PhoneChallenge
@@ -212,6 +212,10 @@ public class DomainErrors
             "Staff.OrganizationIdEmpty", "Organization ID cannot be empty.");
         public static readonly Error PhoneNumberNotUnique = Error.Conflict(
             "Staff.PhoneNumberNotUnique", "Phone number must be unique.");
+        public static Error NotFoundByPhone(ValueObjects.StaffPhoneNumber phoneNumber) => Error.NotFound(
+            "Staff.NotFound", $"Staff with the phone number '{phoneNumber}' was not found.");
+        public static readonly Error InvalidStaffIdRefreshToken = Error.Failure(
+            "Staff.InvalidStaffIdRefreshToken", "Invalid user ID in refresh token.");
     }
     
     public static class StaffName
