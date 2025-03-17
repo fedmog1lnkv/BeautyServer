@@ -1,6 +1,7 @@
 using Api.Controllers.Base;
 using Api.Controllers.Venue.Models;
 using Api.Filters;
+using Application.Features.Services.Queries.GetServicesByVenueId;
 using Application.Features.Venues.Commands.CreateVenue;
 using Application.Features.Venues.Commands.UpdateVenue;
 using Application.Features.Venues.Queries.GetAllVenues;
@@ -73,6 +74,21 @@ public class VenueController(IMapper mapper) : BaseController
             return HandleFailure(result);
 
         var venueDto = mapper.Map<VenueVm>(result.Value);
+        return Ok(venueDto);
+    }
+    
+    [HttpGet("{id}/services")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetServicesByVenueId(Guid id)
+    {
+        var query = new GetServicesByVenueIdQuery(id);
+        var result = await Sender.Send(query);
+
+        if (result.IsFailure)
+            return HandleFailure(result);
+
+        var venueDto = mapper.Map<List<VenueServiceVm>>(result.Value);
         return Ok(venueDto);
     }
 

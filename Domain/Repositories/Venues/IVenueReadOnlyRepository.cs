@@ -22,4 +22,5 @@ public interface IVenueReadOnlyRepository : IReadOnlyRepository<Venue>
         CancellationToken cancellationToken = default);
 
     Task<Venue?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<Venue?> GetByIdWithServicesAsync(Guid id, CancellationToken cancellationToken = default);
 }

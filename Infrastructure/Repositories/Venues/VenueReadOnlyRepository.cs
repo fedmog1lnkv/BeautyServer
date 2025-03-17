@@ -54,5 +54,11 @@ public class VenueReadOnlyRepository(ApplicationDbContext dbContext) : IVenueRea
             .AsNoTracking()
             .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
 
+    public async Task<Venue?> GetByIdWithServicesAsync(Guid id, CancellationToken cancellationToken = default) =>
+        await dbContext.Set<Venue>()
+            .AsNoTracking()
+            .Include(v => v.Services)
+            .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
+
     private static double DegToRad(double deg) => deg * (Math.PI / 180);
 }
