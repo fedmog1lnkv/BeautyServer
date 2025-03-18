@@ -7,6 +7,7 @@ using Domain.Repositories.Services;
 using Domain.Repositories.Staffs;
 using Infrastructure;
 using Infrastructure.Configurations;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
 using System.Reflection;
@@ -65,6 +66,7 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     // db.Database.EnsureDeleted();
     db.Database.EnsureCreated();
+    // db.Database.Migrate();
 }
 
 // using (var scope = app.Services.CreateScope())

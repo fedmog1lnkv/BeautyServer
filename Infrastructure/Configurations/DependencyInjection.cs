@@ -2,6 +2,7 @@ using Application.Abstractions;
 using Domain.Repositories;
 using Domain.Repositories.Organizations;
 using Domain.Repositories.PhoneChallenges;
+using Domain.Repositories.Records;
 using Domain.Repositories.Services;
 using Domain.Repositories.Staffs;
 using Domain.Repositories.Users;
@@ -10,6 +11,7 @@ using Infrastructure.Authentication.Staff;
 using Infrastructure.Authentication.User;
 using Infrastructure.Repositories.Organizations;
 using Infrastructure.Repositories.PhoneChallenges;
+using Infrastructure.Repositories.Records;
 using Infrastructure.Repositories.Services;
 using Infrastructure.Repositories.Staffs;
 using Infrastructure.Repositories.Users;
@@ -57,6 +59,10 @@ public static class DependencyInjection
         // Service
         services.AddScoped<IServiceRepository, ServiceRepository>();
         services.AddScoped<IServiceReadOnlyRepository, ServiceReadOnlyRepository>();
+        
+        // Record
+        services.AddScoped<IRecordRepository, RecordRepository>();
+        services.AddScoped<IRecordReadOnlyRepository, RecordReadOnlyRepository>();
 
         services.AddSingleton<InMemoryDomainEventsQueue>();
         services.AddSingleton<IDomainEventBus, DomainEventBus>();

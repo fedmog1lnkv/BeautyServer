@@ -7,6 +7,11 @@ namespace Infrastructure.Repositories.Staffs;
 
 public class StaffReadOnlyRepository(ApplicationDbContext dbContext) : IStaffReadOnlyRepository
 {
+    public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default) =>
+        await dbContext.Set<Staff>()
+            .AsNoTracking()
+            .AnyAsync(s => s.Id == id, cancellationToken);
+    
     public async Task<bool> IsPhoneNumberUnique(
         StaffPhoneNumber phoneNumber,
         CancellationToken cancellationToken = default)

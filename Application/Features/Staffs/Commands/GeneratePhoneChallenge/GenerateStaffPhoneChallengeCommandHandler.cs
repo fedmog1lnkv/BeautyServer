@@ -48,6 +48,8 @@ public class GenerateStaffPhoneChallengeCommandHandler(
                 request.OrganizationId,
                 staffName,
                 staffPhoneNumber.Value,
+                DateTime.UtcNow,
+                null,
                 staffReadOnlyRepository,
                 organizationReadOnlyRepository,
                 cancellationToken);

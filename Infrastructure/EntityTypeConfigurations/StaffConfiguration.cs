@@ -44,6 +44,12 @@ public class StaffConfiguration : IEntityTypeConfiguration<Staff>
             .HasForeignKey(ts => ts.StaffId)
             .OnDelete(DeleteBehavior.Cascade);
         
+        builder.Property(s => s.CreatedOnUtc)
+            .IsRequired();
+
+        builder.Property(s => s.ModifiedOnUtc)
+            .IsRequired(false);
+        
         builder.HasOne<Organization>()
             .WithMany()
             .HasForeignKey(s => s.OrganizationId)

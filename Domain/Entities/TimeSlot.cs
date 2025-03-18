@@ -12,12 +12,12 @@ public class TimeSlot : Entity
         Guid id,
         Guid staffId,
         Guid venueId,
-        DayOfWeek weekday,
+        DateOnly date,
         List<Interval> intervals) : base(id)
     {
         StaffId = staffId;
         VenueId = venueId;
-        Weekday = weekday;
+        Date = date;
         Intervals = intervals;
     }
     
@@ -27,23 +27,44 @@ public class TimeSlot : Entity
 
     public Guid StaffId { get; private set; }
     public Guid VenueId { get; private set; }
-    public DayOfWeek Weekday { get; private set; }
+    public DateOnly Date { get; private set; }
     public List<Interval> Intervals { get; private set; }
-    public Venue Venue { get; private set; }
 
-    public static async Task<Result<TimeSlot>> Create(
+    public static async Task<Result<TimeSlot>> CreateAsync(
         Guid id,
         Guid staffId,
         Guid venueId,
-        DayOfWeek weekday,
-        IVenueReadOnlyRepository venueRepository)
+        DateOnly date,
+        IVenueReadOnlyRepository venueRepository,
+        CancellationToken cancellationToken = default)
     {
-        var venueExists = await venueRepository.ExistsAsync(venueId);
+        var venueExists = await venueRepository.ExistsAsync(venueId, cancellationToken);
         if (!venueExists)
             return Result.Failure<TimeSlot>(DomainErrors.Venue.NotFound(venueId));
 
-        return new TimeSlot(id, staffId, venueId, weekday, new List<Interval>());
+        return new TimeSlot(id, staffId, venueId, date, new List<Interval>());
     }
+    
+    public Result AddInterval(TimeSpan start, TimeSpan end)
+    {
+        var intervalResult = Interval.Create(start, end);
+        if (intervalResult.IsFailure)
+            return intervalResult;
+
+        var newInterval = intervalResult.Value;
+
+        foreach (var existingInterval in Intervals)
+        {
+            if (existingInterval.Overlaps(newInterval))
+            {
+                return Result.Failure(DomainErrors.TimeSlot.IntervalsOverlap);
+            }
+        }
+
+        Intervals.Add(newInterval);
+        return Result.Success();
+    }
+
 
     public Result UpdateIntervals(List<Interval> intervals)
     {

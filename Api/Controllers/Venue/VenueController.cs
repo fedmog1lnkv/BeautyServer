@@ -113,22 +113,4 @@ public class VenueController(IMapper mapper) : BaseController
             ? HandleFailure(result)
             : Ok();
     }
-
-    // [HttpPatch]
-    // [ProducesResponseType(StatusCodes.Status204NoContent)]
-    // [UserValidationFilter]
-    // public async Task<IActionResult> Update([FromBody] UpdateOrganizationDto request)
-    // {
-    //     var isAdmin = HttpContext.Items["is_admin"] as string;
-    //     if (isAdmin != "True")
-    //         request.Subscription = null;
-    //
-    //     var command = mapper.Map<UpdateOrganizationCommand>(request);
-    //
-    //     var result = await Sender.Send(command);
-    //
-    //     return result.IsFailure
-    //         ? HandleFailure(result)
-    //         : NoContent();
-    // }
 }

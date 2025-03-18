@@ -7,11 +7,22 @@ namespace Infrastructure.Repositories.Staffs;
 
 public class StaffRepository(ApplicationDbContext dbContext) : IStaffRepository
 {
-    public async Task<Staff?> GetByIdWithServices(
+    public async Task<Staff?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
+        await dbContext.Set<Staff>()
+            .Include(s => s.Services)
+            .Include(s => s.TimeSlots)
+            .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
+
+    public async Task<Staff?> GetByIdWithServicesAsync(
         Guid id,
         CancellationToken cancellationToken = default) =>
         await dbContext.Set<Staff>()
             .Include(s => s.Services)
+            .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
+
+    public async Task<Staff?> GetByIdWithTimeSlotsAsync(Guid id, CancellationToken cancellationToken = default) =>
+        await dbContext.Set<Staff>()
+            .Include(s => s.TimeSlots)
             .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
 
     public async Task<Staff?> GetByPhoneNumberAsync(
@@ -20,9 +31,6 @@ public class StaffRepository(ApplicationDbContext dbContext) : IStaffRepository
         await dbContext.Set<Staff>()
             .FirstOrDefaultAsync(s => s.PhoneNumber == phoneNumber, cancellationToken);
 
-    public void Add(Staff staff)
-    {
+    public void Add(Staff staff) =>
         dbContext.Set<Staff>().Add(staff);
-        dbContext.SaveChanges();
-    }
 }

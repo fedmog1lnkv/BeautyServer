@@ -174,6 +174,9 @@ public class DomainErrors
         
         public static readonly Error InvalidDuration = Error.Validation(
             "Service.InvalidDuration", "Service duration must be greater than zero.");
+        
+        public static Error NotFound(Guid id) => Error.NotFound(
+            "Service.NotFound", $"Service with the Id '{id}' was not found.");
     }
     
     public static class ServiceName
@@ -210,12 +213,18 @@ public class DomainErrors
     {
         public static readonly Error OrganizationIdEmpty = Error.Validation(
             "Staff.OrganizationIdEmpty", "Organization ID cannot be empty.");
+        
         public static readonly Error PhoneNumberNotUnique = Error.Conflict(
             "Staff.PhoneNumberNotUnique", "Phone number must be unique.");
+        
         public static Error NotFoundByPhone(ValueObjects.StaffPhoneNumber phoneNumber) => Error.NotFound(
             "Staff.NotFound", $"Staff with the phone number '{phoneNumber}' was not found.");
+        
         public static readonly Error InvalidStaffIdRefreshToken = Error.Failure(
             "Staff.InvalidStaffIdRefreshToken", "Invalid user ID in refresh token.");
+        
+        public static Error NotFound(Guid id) => Error.NotFound(
+            "Staff.NotFound", $"Staff with the Id '{id}' was not found.");
     }
     
     public static class StaffName
@@ -244,7 +253,40 @@ public class DomainErrors
         public static Error NotFound(Guid id) => Error.NotFound(
             "TimeSlot.NotFound", "Time slot not found.");
         
+        public static readonly Error NotFoundByTime = Error.NotFound(
+            "TimeSlot.NotFound", "Time slot not found by time.");
+        
         public static readonly Error IntervalsOverlap = Error.Validation(
             "TimeSlot.IntervalsOverlap", "Intervals cannot overlap.");
+    }
+    
+    public static class Record
+    {
+        public static readonly Error UserIdEmpty = Error.Validation(
+            "Record.UserIdEmpty", "User ID cannot be empty.");
+        
+        public static readonly Error StaffIdEmpty = Error.Validation(
+            "Record.StaffIdEmpty", "Staff ID cannot be empty.");
+        
+        public static readonly Error OrganizationIdEmpty = Error.Validation(
+            "Record.OrganizationIdEmpty", "Organization ID cannot be empty.");
+        
+        public static readonly Error VenueIdEmpty = Error.Validation(
+            "Record.VenueIdEmpty", "Venue ID cannot be empty.");
+        
+        public static readonly Error ServiceIdEmpty = Error.Validation(
+            "Record.ServiceIdEmpty", "Service ID cannot be empty.");
+    }
+    
+    public static class RecordComment
+    {
+        public static readonly Error Empty = Error.Validation(
+            "RecordComment.Empty", "Comment is empty.");
+
+        public static readonly Error TooLong = Error.Validation(
+            "RecordComment.TooLong", "Comment is too long.");
+
+        public static readonly Error TooShort = Error.Validation(
+            "RecordComment.TooShort", "Comment is too short.");
     }
 }

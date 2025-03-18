@@ -24,9 +24,6 @@ public class VenueRepository(ApplicationDbContext dbContext) : IVenueRepository
             .Where(v => v.OrganizationId == organizationId)
             .ToListAsync(cancellationToken);
 
-    public void Add(Venue venue)
-    {
+    public void Add(Venue venue) =>
         dbContext.Set<Venue>().Add(venue);
-        dbContext.SaveChanges();
-    }
 }

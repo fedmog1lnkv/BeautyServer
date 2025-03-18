@@ -1,6 +1,7 @@
 using Domain.Errors;
 using Domain.Primitives;
 using Domain.Shared;
+using System.Text.Json.Serialization;
 
 namespace Domain.ValueObjects;
 

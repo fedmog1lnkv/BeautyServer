@@ -6,7 +6,9 @@ namespace Domain.Repositories.Staffs;
 
 public interface IStaffRepository : IRepository<Staff>
 {
-    Task<Staff?> GetByIdWithServices(Guid id, CancellationToken cancellationToken = default);
+    Task<Staff?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<Staff?> GetByIdWithServicesAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<Staff?> GetByIdWithTimeSlotsAsync(Guid id, CancellationToken cancellationToken = default);
     Task<Staff?> GetByPhoneNumberAsync(StaffPhoneNumber phoneNumber, CancellationToken cancellationToken = default);
     void Add(Staff staff);
 }

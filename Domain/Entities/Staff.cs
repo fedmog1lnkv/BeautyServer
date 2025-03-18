@@ -3,12 +3,13 @@ using Domain.Errors;
 using Domain.Primitives;
 using Domain.Repositories.Organizations;
 using Domain.Repositories.Staffs;
+using Domain.Repositories.Venues;
 using Domain.Shared;
 using Domain.ValueObjects;
 
 namespace Domain.Entities;
 
-public class Staff : AggregateRoot
+public class Staff : AggregateRoot, IAuditableEntity
 {
     private readonly List<Service> _services = [];
     private readonly List<TimeSlot> _timeSlots = [];
@@ -18,12 +19,17 @@ public class Staff : AggregateRoot
         Guid organizationId,
         StaffName name,
         StaffPhoneNumber phoneNumber,
-        StaffRole role) : base(id)
+        StaffRole role,
+        DateTime createdOnUtc,
+        DateTime? modifiedOnUtc) : base(id)
     {
         OrganizationId = organizationId;
         Name = name;
         PhoneNumber = phoneNumber;
         Role = role;
+
+        CreatedOnUtc = createdOnUtc;
+        ModifiedOnUtc = modifiedOnUtc;
     }
 
 #pragma warning disable CS8618
@@ -34,6 +40,8 @@ public class Staff : AggregateRoot
     public StaffName Name { get; private set; }
     public StaffPhoneNumber PhoneNumber { get; private set; }
     public StaffRole Role { get; private set; }
+    public DateTime CreatedOnUtc { get; set; }
+    public DateTime? ModifiedOnUtc { get; set; }
     public IReadOnlyCollection<Service> Services => _services.AsReadOnly();
     public IReadOnlyCollection<TimeSlot> TimeSlots => _timeSlots.AsReadOnly();
 
@@ -42,6 +50,8 @@ public class Staff : AggregateRoot
         Guid organizationId,
         string name,
         string phoneNumber,
+        DateTime createdOnUtc,
+        DateTime? modifiedOnUtc,
         IStaffReadOnlyRepository staffRepository,
         IOrganizationReadOnlyRepository organizationRepository,
         CancellationToken cancellationToken)
@@ -49,7 +59,7 @@ public class Staff : AggregateRoot
         if (organizationId == Guid.Empty)
             return Result.Failure<Staff>(DomainErrors.Staff.OrganizationIdEmpty);
 
-        var organizationExists = await organizationRepository.ExistsAsync(organizationId);
+        var organizationExists = await organizationRepository.ExistsAsync(organizationId, cancellationToken);
         if (!organizationExists)
             return Result.Failure<Staff>(DomainErrors.Organization.NotFound(organizationId));
 
@@ -57,7 +67,7 @@ public class Staff : AggregateRoot
         if (staffPhoneResult.IsFailure)
             return Result.Failure<Staff>(staffPhoneResult.Error);
 
-        var isUniquePhone = await staffRepository.IsPhoneNumberUnique(staffPhoneResult.Value);
+        var isUniquePhone = await staffRepository.IsPhoneNumberUnique(staffPhoneResult.Value, cancellationToken);
         if (!isUniquePhone)
             return Result.Failure<Staff>(DomainErrors.Staff.PhoneNumberNotUnique);
 
@@ -70,7 +80,9 @@ public class Staff : AggregateRoot
             organizationId,
             staffNameResult.Value,
             staffPhoneResult.Value,
-            StaffRole.Unknown);
+            StaffRole.Unknown,
+            createdOnUtc,
+            modifiedOnUtc);
     }
 
     public Result SetName(string name)
@@ -95,25 +107,63 @@ public class Staff : AggregateRoot
         return Result.Success();
     }
 
-    public Result AddTimeSlot(TimeSlot timeSlot)
+    public async Task<Result> AddTimeSlotAsync(
+        Guid id,
+        Guid venueId,
+        DateOnly date,
+        IVenueReadOnlyRepository venueReadOnlyRepository,
+        CancellationToken cancellationToken)
     {
-        if (TimeSlots.Any(ts => ts.Id == timeSlot.Id))
-            return Result.Success();
+        // TODO : found
+        if (TimeSlots.Any(ts => ts.Id == id || ts.Date == date))
+            return Result.Failure(DomainErrors.TimeSlot.NotFound(id));
+        
+        var createTimeSlotResult = await TimeSlot.CreateAsync(
+            id,
+            Id,
+            venueId,
+            date,
+            venueReadOnlyRepository,
+            cancellationToken);
+
+        if (createTimeSlotResult.IsFailure)
+            return createTimeSlotResult;
+
+        var timeSlot = createTimeSlotResult.Value;
 
         _timeSlots.Add(timeSlot);
+
         return Result.Success();
     }
 
-    public Result UpdateTimeSlot(TimeSlot updatedSlot)
+    public Result AddTimeSlotInterval(
+        Guid timeSlotId,
+        TimeSpan start,
+        TimeSpan end)
     {
-        var index = _timeSlots.FindIndex(ts => ts.Id == updatedSlot.Id);
-        if (index == -1)
-            return Result.Failure(DomainErrors.TimeSlot.NotFound(updatedSlot.Id));
+        var timeSlot = _timeSlots.FirstOrDefault(ts => ts.Id == timeSlotId);
+        if (timeSlot == null)
+            return Result.Failure(DomainErrors.TimeSlot.NotFound(timeSlotId));
 
-        _timeSlots[index] = updatedSlot;
+        var addIntervalResult = timeSlot.AddInterval(start, end);
+        return addIntervalResult.IsFailure
+            ? addIntervalResult
+            : Result.Success();
+    }
+
+    public Result UpdateTimeSlotIntervals(Guid timeSlotId, List<Interval> intervals)
+    {
+        var index = _timeSlots.FindIndex(ts => ts.Id == timeSlotId);
+        if (index == -1)
+            return Result.Failure(DomainErrors.TimeSlot.NotFound(timeSlotId));
+
+        var updateIntervalsResult = _timeSlots[index].UpdateIntervals(intervals);
+        if (updateIntervalsResult.IsFailure)
+            return updateIntervalsResult;
+
         return Result.Success();
     }
-    
+
     public Result AddService(Service service)
     {
         if (_services.Any(s => s.Id == service.Id))
@@ -122,7 +172,7 @@ public class Staff : AggregateRoot
         _services.Add(service);
         return Result.Success();
     }
-    
+
     public Result RemoveService(Service service)
     {
         var existingService = _services.FirstOrDefault(s => s.Id == service.Id);
