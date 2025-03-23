@@ -32,4 +32,6 @@ public class RecordController(IMapper mapper) : BaseController
             ? HandleFailure(result)
             : NoContent();
     }
+    
+    // get record/{id}
 }

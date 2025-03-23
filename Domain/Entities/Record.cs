@@ -11,7 +11,7 @@ using Domain.ValueObjects;
 
 namespace Domain.Entities;
 
-public class Record : AggregateRoot
+public sealed class Record : AggregateRoot
 {
     private Record(
         Guid id,

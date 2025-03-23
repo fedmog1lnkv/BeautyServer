@@ -2,7 +2,7 @@ using Application.Common.Mappings;
 using Application.Features.Staffs.Commands.GeneratePhoneChallenge;
 using AutoMapper;
 
-namespace Api.Controllers.Staff.Models;
+namespace Api.Controllers.Staffs.Models;
 
 public class StaffPhoneChallengeDto : IMapWith<GenerateStaffPhoneChallengeCommand>
 {

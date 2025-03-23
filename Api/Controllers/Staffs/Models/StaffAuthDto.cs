@@ -1,9 +1,8 @@
 using Application.Common.Mappings;
 using Application.Features.Staffs.Commands.Auth;
-using Application.Features.User.Commands.Auth;
 using AutoMapper;
 
-namespace Api.Controllers.Staff.Models;
+namespace Api.Controllers.Staffs.Models;
 
 public class StaffAuthDto : IMapWith<AuthStaffCommand>
 {

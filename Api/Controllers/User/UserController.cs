@@ -52,4 +52,10 @@ public class UserController(IMapper mapper) : BaseController
             ? HandleFailure(result)
             : Ok(result.Value);
     }
+    
+    // TODO : get records first active (repo) with pagination
+    
+    // TODO : get user
+    
+    // TODO : update name
 }

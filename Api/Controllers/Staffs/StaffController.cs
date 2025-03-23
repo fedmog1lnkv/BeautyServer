@@ -1,16 +1,17 @@
 using Api.Controllers.Base;
-using Api.Controllers.Staff.Models;
+using Api.Controllers.Staffs.Models;
 using Api.Filters;
 using Application.Features.Records.Queries.GetRecordsByStaffId;
 using Application.Features.Staffs.Commands.AddTimeSlot;
 using Application.Features.Staffs.Commands.Auth;
 using Application.Features.Staffs.Commands.GeneratePhoneChallenge;
 using Application.Features.Staffs.Commands.RefreshToken;
+using Application.Features.Staffs.Queries.GetStaffWithServicesById;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using TimeSlotDto = Api.Controllers.Staff.Models.TimeSlotDto;
+using TimeSlotDto = Api.Controllers.Staffs.Models.TimeSlotDto;
 
-namespace Api.Controllers.Staff;
+namespace Api.Controllers.Staffs;
 
 [Route("api/staff")]
 public class StaffController(IMapper mapper) : BaseController
@@ -98,5 +99,25 @@ public class StaffController(IMapper mapper) : BaseController
         // var venues = mapper.Map<List<StaffRecordLookupDto>>(result.Value);
 
         return Ok(result.Value);
+    }
+    
+    // TODO : get staff with service ids {"services" : []}
+    [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        if (id == Guid.Empty)
+            return BadRequest();
+        
+        var query = new GetStaffWithServicesByIdQuery(id);
+
+        var result = await Sender.Send(query);
+        if (result.IsFailure)
+            return HandleFailure(result);
+        
+        var staff = mapper.Map<StaffVm>(result.Value);
+
+        return Ok(staff);
     }
 }

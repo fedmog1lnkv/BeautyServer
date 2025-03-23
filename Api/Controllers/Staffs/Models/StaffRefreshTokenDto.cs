@@ -1,9 +1,8 @@
 using Application.Common.Mappings;
 using Application.Features.Staffs.Commands.RefreshToken;
-using Application.Features.User.Commands.RefreshToken;
 using AutoMapper;
 
-namespace Api.Controllers.Staff.Models;
+namespace Api.Controllers.Staffs.Models;
 
 public class StaffRefreshTokenDto : IMapWith<RefreshStaffTokenCommand>
 {

@@ -91,6 +91,8 @@ public class VenueController(IMapper mapper) : BaseController
         var venueDto = mapper.Map<List<VenueServiceVm>>(result.Value);
         return Ok(venueDto);
     }
+    
+    // TODO : venue/{id}/staff
 
     [HttpPatch]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

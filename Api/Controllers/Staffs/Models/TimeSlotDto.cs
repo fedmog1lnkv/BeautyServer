@@ -3,7 +3,7 @@ using Application.Features.Staffs.Commands.AddTimeSlot;
 using Application.Features.Staffs.Commands.AddTimeSlot.Dto;
 using AutoMapper;
 
-namespace Api.Controllers.Staff.Models;
+namespace Api.Controllers.Staffs.Models;
 
 public class TimeSlotDto : IMapWith<AddTimeSlotCommand>
 {
