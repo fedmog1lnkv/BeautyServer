@@ -2,6 +2,7 @@ using Api.Controllers.Base;
 using Api.Controllers.Venue.Models;
 using Api.Filters;
 using Application.Features.Services.Queries.GetServicesByVenueId;
+using Application.Features.Staffs.Queries.GetStaffWithServicesByVenueId;
 using Application.Features.Venues.Commands.CreateVenue;
 using Application.Features.Venues.Commands.UpdateVenue;
 using Application.Features.Venues.Queries.GetAllVenues;
@@ -22,11 +23,11 @@ public class VenueController(IMapper mapper) : BaseController
         var staffOrganizationId = HttpContext.Items["organization_id"] as Guid?;
         if (staffOrganizationId != request.OrganizationId)
             return Unauthorized("staffOrganizationId != request.OrganizationId");
-        
+
         var isManager = HttpContext.Items["is_manager"] as bool?;
         if (!isManager!.Value)
             return Unauthorized("Not manager");
-        
+
         var command = mapper.Map<CreateVenueCommand>(request);
 
         var result = await Sender.Send(command);
@@ -76,7 +77,7 @@ public class VenueController(IMapper mapper) : BaseController
         var venueDto = mapper.Map<VenueVm>(result.Value);
         return Ok(venueDto);
     }
-    
+
     [HttpGet("{id}/services")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -91,8 +92,21 @@ public class VenueController(IMapper mapper) : BaseController
         var venueDto = mapper.Map<List<VenueServiceVm>>(result.Value);
         return Ok(venueDto);
     }
-    
-    // TODO : venue/{id}/staff
+
+    [HttpGet("{id}/staff")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetStaffWithServicesByVenueId(Guid id)
+    {
+        var query = new GetStaffWithServicesByVenueIdQuery(id);
+        var result = await Sender.Send(query);
+
+        if (result.IsFailure)
+            return HandleFailure(result);
+
+        var staffDtos = mapper.Map<List<VenueStaffWithServicesLookupDto>>(result.Value);
+        return Ok(staffDtos);
+    }
 
     [HttpPatch]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -103,7 +117,7 @@ public class VenueController(IMapper mapper) : BaseController
         var staffOrganizationId = HttpContext.Items["organization_id"] as Guid?;
         if (staffOrganizationId != request.OrganizationId)
             return Unauthorized();
-        
+
         var isManager = HttpContext.Items["is_manager"] as bool?;
         if (!isManager!.Value)
             return Unauthorized();

@@ -11,7 +11,7 @@ public class StaffReadOnlyRepository(ApplicationDbContext dbContext) : IStaffRea
         await dbContext.Set<Staff>()
             .AsNoTracking()
             .AnyAsync(s => s.Id == id, cancellationToken);
-    
+
     public async Task<bool> IsPhoneNumberUnique(
         StaffPhoneNumber phoneNumber,
         CancellationToken cancellationToken = default)
@@ -35,4 +35,15 @@ public class StaffReadOnlyRepository(ApplicationDbContext dbContext) : IStaffRea
         await dbContext.Set<Staff>()
             .AsNoTracking()
             .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
+
+    public async Task<List<Staff>> GetByVenueIdWithServicesAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+
+        return await dbContext.Set<Staff>()
+            .AsNoTracking()
+            .Where(s => s.TimeSlots.Any(ts => ts.VenueId == id && ts.Date >= today))
+            .Include(s => s.Services)
+            .ToListAsync(cancellationToken: cancellationToken);
+    }
 }

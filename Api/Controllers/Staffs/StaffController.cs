@@ -101,7 +101,6 @@ public class StaffController(IMapper mapper) : BaseController
         return Ok(result.Value);
     }
     
-    // TODO : get staff with service ids {"services" : []}
     [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
