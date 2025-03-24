@@ -16,7 +16,7 @@ public class VenueLookupDto : IMapWith<Domain.Entities.Venue>
         profile.CreateMap<Domain.Entities.Venue, VenueLookupDto>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.Value))
-            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description.Value))
             .ForMember(
                 dest => dest.Theme,
                 opt => opt.MapFrom(

@@ -24,7 +24,7 @@ public class VenueConfiguration : IEntityTypeConfiguration<Venue>
             .HasConversion(
                 description => description == null ? null : description.Value,
                 value => value == null ? null : VenueDescription.Create(value).Value)
-            .HasMaxLength(VenueName.MaxLength)
+            .HasMaxLength(VenueDescription.MaxLength)
             .IsRequired(false);
 
         builder.OwnsOne(

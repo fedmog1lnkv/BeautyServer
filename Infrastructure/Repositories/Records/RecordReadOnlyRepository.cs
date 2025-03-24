@@ -26,4 +26,21 @@ public class RecordReadOnlyRepository(ApplicationDbContext dbContext) : IRecordR
             .Take(limit)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<List<Record>> GetByUserIdAsync(
+        Guid userId,
+        int limit,
+        int offset,
+        bool isPending,
+        CancellationToken cancellationToken = default) =>
+        await dbContext.Set<Record>()
+            .Where(
+                r => r.UserId == userId)
+            .Include(r => r.Staff)
+            .Include(r => r.Service)
+            .Include(r => r.Venue)
+            .OrderBy(r => r.StartTimestamp)
+            .Skip(offset)
+            .Take(limit)
+            .ToListAsync(cancellationToken);
 }

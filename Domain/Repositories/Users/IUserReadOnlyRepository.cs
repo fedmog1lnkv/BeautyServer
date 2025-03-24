@@ -6,6 +6,7 @@ namespace Domain.Repositories.Users;
 
 public interface IUserReadOnlyRepository : IReadOnlyRepository<User>
 {
+    Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<bool> ExistsAsync(
         Guid id,
         CancellationToken cancellationToken = default);

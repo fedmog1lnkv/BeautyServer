@@ -2,8 +2,8 @@ namespace Domain.Enums;
 
 public enum RecordStatus
 {
-    Discard = -1,
+    Discarded = -1,
     Pending = 0,
-    Approve = 1,
-    Complete = 2
+    Approved = 1,
+    Completed = 2
 }

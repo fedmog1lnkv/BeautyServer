@@ -6,7 +6,7 @@ namespace Domain.ValueObjects;
 
 public class VenueDescription : ValueObject
 {
-    public const int MaxLength = 50;
+    public const int MaxLength = 150;
     public const int MinLength = 3;
 
     private VenueDescription(string value) =>

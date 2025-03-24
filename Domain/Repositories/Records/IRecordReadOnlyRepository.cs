@@ -11,4 +11,11 @@ public interface IRecordReadOnlyRepository : IReadOnlyRepository<Record>
         int offset,
         bool isPending,
         CancellationToken cancellationToken = default);
+    
+    Task<List<Record>> GetByUserIdAsync(
+        Guid userId,
+        int limit,
+        int offset,
+        bool isPending,
+        CancellationToken cancellationToken = default);
 }

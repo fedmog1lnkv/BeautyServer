@@ -128,7 +128,7 @@ public sealed class Record : AggregateRoot
         if (setCommentResult.IsFailure)
             return setCommentResult;
 
-        Status = RecordStatus.Approve;
+        Status = RecordStatus.Approved;
 
         return Result.Success();
     }
@@ -139,7 +139,7 @@ public sealed class Record : AggregateRoot
         if (setCommentResult.IsFailure)
             return setCommentResult;
 
-        Status = RecordStatus.Discard;
+        Status = RecordStatus.Discarded;
 
         return Result.Success();
     }
