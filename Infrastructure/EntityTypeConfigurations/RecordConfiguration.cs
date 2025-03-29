@@ -13,27 +13,27 @@ public class RecordConfiguration : IEntityTypeConfiguration<Record>
         builder.HasOne(r => r.User)
             .WithMany()
             .HasForeignKey(r => r.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.SetNull);
 
         builder.HasOne(r => r.Staff)
             .WithMany()
             .HasForeignKey(r => r.StaffId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.SetNull);
 
         builder.HasOne(r => r.Organization)
             .WithMany()
             .HasForeignKey(r => r.OrganizationId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(r => r.Venue)
             .WithMany()
             .HasForeignKey(r => r.VenueId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(r => r.Service)
             .WithMany()
             .HasForeignKey(r => r.ServiceId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.SetNull);
 
         builder.Property(r => r.Status)
             .HasConversion(

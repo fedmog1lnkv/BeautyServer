@@ -28,9 +28,9 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasConversion(
                 u => u.Value,
                 u => UserPhoneNumber.Create(u).Value)
-            .HasColumnType("varchar(20)")
+            .HasMaxLength(15)
             .IsRequired();
-
+        
         builder.HasIndex(u => u.PhoneNumber)
             .IsUnique();
     }

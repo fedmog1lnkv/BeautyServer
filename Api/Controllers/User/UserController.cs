@@ -106,7 +106,5 @@ public class UserController(IMapper mapper) : BaseController
         return Ok(records);
     }
     
-    // TODO : get user 
-    
     // TODO : update name
 }

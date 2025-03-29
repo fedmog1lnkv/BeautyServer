@@ -50,5 +50,10 @@ public class OrganizationConfiguration : IEntityTypeConfiguration<Organization>
                     .HasMaxLength(2048)
                     .IsRequired(false);
             });
+        
+        builder.HasMany(o => o.Venues)
+            .WithOne()
+            .HasForeignKey(v => v.OrganizationId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

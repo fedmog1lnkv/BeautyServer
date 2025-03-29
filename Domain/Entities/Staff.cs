@@ -114,9 +114,8 @@ public class Staff : AggregateRoot, IAuditableEntity
         IVenueReadOnlyRepository venueReadOnlyRepository,
         CancellationToken cancellationToken)
     {
-        // TODO : found
         if (TimeSlots.Any(ts => ts.Id == id || ts.Date == date))
-            return Result.Failure(DomainErrors.TimeSlot.NotFound(id));
+            return Result.Failure(DomainErrors.TimeSlot.Overlap);
         
         var createTimeSlotResult = await TimeSlot.CreateAsync(
             id,

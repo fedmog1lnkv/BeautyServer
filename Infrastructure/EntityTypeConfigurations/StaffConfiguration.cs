@@ -21,7 +21,7 @@ public class StaffConfiguration : IEntityTypeConfiguration<Staff>
             .HasConversion(
                 name => name.Value,
                 value => StaffName.Create(value).Value)
-            .HasMaxLength(100)
+            .HasMaxLength(StaffName.MaxLength)
             .IsRequired();
 
         builder.Property(s => s.PhoneNumber)
@@ -38,11 +38,6 @@ public class StaffConfiguration : IEntityTypeConfiguration<Staff>
             )
             .HasColumnType("varchar(10)")
             .IsRequired(); 
-
-        builder.HasMany(s => s.TimeSlots)
-            .WithOne()
-            .HasForeignKey(ts => ts.StaffId)
-            .OnDelete(DeleteBehavior.Cascade);
         
         builder.Property(s => s.CreatedOnUtc)
             .IsRequired();
@@ -53,6 +48,11 @@ public class StaffConfiguration : IEntityTypeConfiguration<Staff>
         builder.HasOne<Organization>()
             .WithMany()
             .HasForeignKey(s => s.OrganizationId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.HasMany(s => s.TimeSlots)
+            .WithOne()
+            .HasForeignKey(ts => ts.StaffId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

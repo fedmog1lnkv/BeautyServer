@@ -24,7 +24,7 @@ public class ServiceConfiguration : IEntityTypeConfiguration<Service>
             .HasConversion(
                 description => description == null ? null : description.Value,
                 value => value == null ? null : ServiceDescription.Create(value).Value)
-            .HasMaxLength(VenueName.MaxLength)
+            .HasMaxLength(ServiceDescription.MaxLength)
             .IsRequired(false);
         
         builder.Property(s => s.Duration)
@@ -39,6 +39,7 @@ public class ServiceConfiguration : IEntityTypeConfiguration<Service>
         builder.HasOne<Organization>()
             .WithMany()
             .HasForeignKey(s => s.OrganizationId)
-            .IsRequired();
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

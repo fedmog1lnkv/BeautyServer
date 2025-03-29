@@ -1,6 +1,7 @@
 using Domain.Entities;
 using Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 
@@ -26,10 +27,16 @@ public class TimeSlotConfiguration : IEntityTypeConfiguration<TimeSlot>
         builder.Property(ts => ts.Date)
             .IsRequired();
 
+        var valueComparer = new ValueComparer<List<Interval>>(
+            (c1, c2) => (c1 == null && c2 == null) || c1 != null && c2 != null && c1.SequenceEqual(c2),
+            c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+            c => c.ToList());
+
         builder.Property(ts => ts.Intervals)
             .HasConversion(
                 intervals => JsonConvert.SerializeObject(intervals),
-                json => DeserializeIntervals(json))
+                json => DeserializeIntervals(json),
+                valueComparer)
             .HasColumnType("jsonb")
             .IsRequired();
     }
@@ -37,23 +44,27 @@ public class TimeSlotConfiguration : IEntityTypeConfiguration<TimeSlot>
     private List<Interval> DeserializeIntervals(string? json)
     {
         if (string.IsNullOrEmpty(json))
-            return new List<Interval>();
+            return [];
 
         var intervals = JsonConvert.DeserializeObject<List<IntervalDto>>(json);
+        if (intervals is null)
+            return [];
 
-        var result = intervals?
-            .Select(interval =>
-            {
-                var createResult = Interval.Create(interval.Start, interval.End);
-                return createResult.IsSuccess ? createResult.Value : null;  // Возвращаем только валидные интервалы
-            })
-            .Where(interval => interval != null)
+        var result = intervals
+            .Select(
+                interval =>
+                {
+                    var createResult = Interval.Create(interval.Start, interval.End);
+                    return createResult.IsSuccess ? createResult.Value : null;
+                })
+            .Where(interval => interval is not null)
+            .Cast<Interval>()
             .ToList();
 
-        return result ?? new List<Interval>();
+        return result;
     }
-    
-    private class IntervalDto
+
+    private sealed class IntervalDto
     {
         public TimeSpan Start { get; set; }
         public TimeSpan End { get; set; }

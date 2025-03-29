@@ -2,9 +2,6 @@ using Api.OptionsSetup;
 using Application.Common.Mappings;
 using Application.Configurations;
 using Domain.Entities;
-using Domain.Repositories.Organizations;
-using Domain.Repositories.Services;
-using Domain.Repositories.Staffs;
 using Infrastructure;
 using Infrastructure.Configurations;
 using Microsoft.EntityFrameworkCore;
@@ -39,6 +36,7 @@ builder.Logging.ClearProviders();
 builder.Logging.AddSerilog();
 
 #endregion
+#region Mapper
 
 builder.Services.AddAutoMapper(
     config =>
@@ -47,6 +45,10 @@ builder.Services.AddAutoMapper(
         config.AddProfile(new AssemblyMappingProfile(Assembly.GetExecutingAssembly()));
         config.AddProfile(new AssemblyMappingProfile(AssemblyReference.Assembly));
     });
+
+#endregion
+#region Cors
+
 builder.Services.AddCors(
     options =>
     {
@@ -59,15 +61,20 @@ builder.Services.AddCors(
                     .AllowAnyHeader();
             });
     });
+
+#endregion
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     // db.Database.EnsureDeleted();
-    db.Database.EnsureCreated();
-    // db.Database.Migrate();
+    // db.Database.EnsureCreated();
+    db.Database.Migrate();
 }
+
+#region Test
 
 // using (var scope = app.Services.CreateScope())
 // {
@@ -109,6 +116,8 @@ using (var scope = app.Services.CreateScope())
 //
 //     staffFromDb = await staffReadOnlyRepository.GetByIdWithServices(staffId);
 // }
+
+#endregion
 
 //// Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())

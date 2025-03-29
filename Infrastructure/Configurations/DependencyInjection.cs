@@ -19,6 +19,7 @@ using Infrastructure.Repositories.Venues;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Infrastructure.Configurations;
 
@@ -29,9 +30,15 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         services.AddDbContextFactory<ApplicationDbContext>(
-            options => options
-                .UseNpgsql(configuration.GetConnectionString("DatabaseConnectionString") ?? string.Empty)
-                .EnableSensitiveDataLogging());
+            (serviceProvider, options) =>
+            {
+                var environment = serviceProvider.GetRequiredService<IHostEnvironment>();
+
+                options.UseNpgsql(configuration.GetConnectionString("DatabaseConnectionString") ?? string.Empty);
+
+                if (environment.IsDevelopment())
+                    options.EnableSensitiveDataLogging();
+            });
 
         services.AddTransient<IUserJwtProvider, UserJwtProvider>();
         services.AddTransient<IStaffJwtProvider, StaffJwtProvider>();
@@ -59,7 +66,7 @@ public static class DependencyInjection
         // Service
         services.AddScoped<IServiceRepository, ServiceRepository>();
         services.AddScoped<IServiceReadOnlyRepository, ServiceReadOnlyRepository>();
-        
+
         // Record
         services.AddScoped<IRecordRepository, RecordRepository>();
         services.AddScoped<IRecordReadOnlyRepository, RecordReadOnlyRepository>();
