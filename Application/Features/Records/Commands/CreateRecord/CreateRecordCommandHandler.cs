@@ -80,6 +80,8 @@ public class CreateRecordCommandHandler(
         }
 
         var updateStaffIntervalsResult = staff.UpdateTimeSlotIntervals(timeSlot.Id, updatedIntervals);
+        if (updateStaffIntervalsResult.IsFailure)
+            return Result.Failure(updateStaffIntervalsResult.Error);
 
         var createRecordResult = await Record.CreateAsync(
             Guid.NewGuid(),

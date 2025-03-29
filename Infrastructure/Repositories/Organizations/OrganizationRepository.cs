@@ -10,9 +10,9 @@ public class OrganizationRepository(ApplicationDbContext dbContext) : IOrganizat
         await dbContext.Set<Organization>()
             .FirstOrDefaultAsync(o => o.Id == id, cancellationToken);
 
-    public void Add(Organization organization)
-    {
+    public void Add(Organization organization) =>
         dbContext.Set<Organization>().Add(organization);
-        dbContext.SaveChanges();
-    }
+
+    public void Remove(Organization organization) =>
+        dbContext.Set<Organization>().Remove(organization);
 }

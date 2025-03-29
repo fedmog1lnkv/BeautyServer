@@ -253,6 +253,9 @@ public class DomainErrors
         public static Error NotFound(Guid id) => Error.NotFound(
             "TimeSlot.NotFound", "Time slot not found.");
         
+        public static readonly Error Overlap = Error.Conflict(
+            "TimeSlot.Overlap", "Time slot overlap.");
+        
         public static readonly Error NotFoundByTime = Error.NotFound(
             "TimeSlot.NotFound", "Time slot not found by time.");
         

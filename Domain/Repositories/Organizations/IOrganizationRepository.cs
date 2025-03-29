@@ -7,4 +7,5 @@ public interface IOrganizationRepository : IRepository<Organization>
 {
     Task<Organization?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     void Add(Organization organization);
+    void Remove(Organization organization);
 }

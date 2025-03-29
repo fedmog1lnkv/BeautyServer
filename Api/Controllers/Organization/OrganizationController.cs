@@ -1,10 +1,9 @@
 using Api.Controllers.Base;
 using Api.Controllers.Organization.Models;
-using Api.Controllers.User.Models;
 using Api.Filters;
 using Application.Features.Organizations.Commands.CreateOrganization;
+using Application.Features.Organizations.Commands.DeleteOrganization;
 using Application.Features.Organizations.Commands.UpdateOrganization;
-using Application.Features.User.Commands.GeneratePhoneChallenge;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,7 +25,7 @@ public class OrganizationController(IMapper mapper) : BaseController
             ? HandleFailure(result)
             : NoContent();
     }
-    
+
     [HttpPatch]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [UserValidationFilter]
@@ -35,7 +34,7 @@ public class OrganizationController(IMapper mapper) : BaseController
         var isAdmin = HttpContext.Items["is_admin"] as string;
         if (isAdmin != "True")
             request.Subscription = null;
-        
+
         var command = mapper.Map<UpdateOrganizationCommand>(request);
 
         var result = await Sender.Send(command);
@@ -43,5 +42,16 @@ public class OrganizationController(IMapper mapper) : BaseController
         return result.IsFailure
             ? HandleFailure(result)
             : NoContent();
+    }
+
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var command = new DeleteOrganizationCommand(id);
+        var result = await Sender.Send(command);
+
+        if (result.IsFailure)
+            return HandleFailure(result);
+
+        return NoContent();
     }
 }
