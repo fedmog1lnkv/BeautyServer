@@ -26,4 +26,7 @@ public class VenueRepository(ApplicationDbContext dbContext) : IVenueRepository
 
     public void Add(Venue venue) =>
         dbContext.Set<Venue>().Add(venue);
+
+    public void Remove(Venue venue) =>
+        dbContext.Set<Venue>().Remove(venue);
 }

@@ -21,13 +21,6 @@ public class GenerateStaffPhoneChallengeCommandHandler(
         GenerateStaffPhoneChallengeCommand request,
         CancellationToken cancellationToken)
     {
-        var isOrganizationExistsAsync = await organizationReadOnlyRepository.ExistsAsync(
-            request.OrganizationId,
-            cancellationToken);
-
-        if (!isOrganizationExistsAsync)
-            return Result.Failure(DomainErrors.Organization.NotFound(request.OrganizationId));
-
         var staffPhoneNumberResult = StaffPhoneNumber.Create(request.PhoneNumber);
         if (staffPhoneNumberResult.IsFailure)
             return Result.Failure(staffPhoneNumberResult.Error);
@@ -35,8 +28,21 @@ public class GenerateStaffPhoneChallengeCommandHandler(
         var staffPhoneNumber = staffPhoneNumberResult.Value;
 
         var staff = await staffRepository.GetByPhoneNumberAsync(staffPhoneNumber, cancellationToken);
+        
         if (staff is null)
         {
+            if (!request.OrganizationId.HasValue)
+                return Result.Failure(DomainErrors.Organization.IdIsEmpty);
+
+            var organizationId = request.OrganizationId!.Value;
+                    
+            var isOrganizationExistsAsync = await organizationReadOnlyRepository.ExistsAsync(
+                organizationId,
+                cancellationToken);
+
+            if (!isOrganizationExistsAsync)
+                return Result.Failure(DomainErrors.Organization.NotFound(organizationId));
+            
             var staffName = await phoneChallengeRepository.SendAuthRequestAsync(
                 staffPhoneNumber.Value,
                 cancellationToken);
@@ -45,7 +51,7 @@ public class GenerateStaffPhoneChallengeCommandHandler(
 
             var createStaffResult = await Staff.CreateAsync(
                 Guid.NewGuid(),
-                request.OrganizationId,
+                organizationId,
                 staffName,
                 staffPhoneNumber.Value,
                 DateTime.UtcNow,

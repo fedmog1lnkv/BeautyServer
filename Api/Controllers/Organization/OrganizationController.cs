@@ -4,6 +4,8 @@ using Api.Filters;
 using Application.Features.Organizations.Commands.CreateOrganization;
 using Application.Features.Organizations.Commands.DeleteOrganization;
 using Application.Features.Organizations.Commands.UpdateOrganization;
+using Application.Features.Organizations.Queries.GetAllOrganizations;
+using Application.Features.Organizations.Queries.GetOrganiazationById;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
@@ -54,5 +56,37 @@ public class OrganizationController(IMapper mapper) : BaseController
             return HandleFailure(result);
 
         return NoContent();
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll(
+        [FromQuery] int limit,
+        [FromQuery] int offset)
+    {
+        if (limit <= 0 || offset < 0)
+            return BadRequest("Limit must be greater than zero, and offset cannot be negative.");
+
+        var query = new GetAllOrganizationsQuery(limit, offset);
+        var result = await Sender.Send(query);
+
+        if (result.IsFailure)
+            return HandleFailure(result);
+
+        var organizations = mapper.Map<List<OrganizationLookupDto>>(result.Value);
+
+        return Ok(organizations);
+    }
+    
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var query = new GetOrganizationByIdQuery(id);
+        var result = await Sender.Send(query);
+
+        if (result.IsFailure)
+            return HandleFailure(result);
+
+        var venueDto = mapper.Map<OrganizationVm>(result.Value);
+        return Ok(venueDto);
     }
 }

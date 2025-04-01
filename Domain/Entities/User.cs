@@ -53,4 +53,17 @@ public sealed class User : AggregateRoot, IAuditableEntity
 
         return Result.Success(user);
     }
+    
+    public Result SetName(string name)
+    {
+        var nameResult = UserName.Create(name);
+        if (nameResult.IsFailure)
+            return nameResult;
+
+        if (Name.Equals(nameResult.Value))
+            return Result.Success();
+
+        Name = nameResult.Value;
+        return Result.Success();
+    }
 }

@@ -9,4 +9,5 @@ public interface IVenueRepository : IRepository<Venue>
     Task<Venue?> GetByIdWithServicesAsync(Guid id, CancellationToken cancellationToken = default);
     Task<List<Venue>> GetByOrganizationId(Guid organizationId, CancellationToken cancellationToken = default);
     void Add(Venue venue);
+    void Remove(Venue venue);
 }

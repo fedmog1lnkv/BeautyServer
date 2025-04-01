@@ -65,6 +65,9 @@ public class DomainErrors
     {
         public static Error NotFound(Guid id) => Error.NotFound(
             "Organization.NotFound", $"Organization with the Id '{id}' was not found.");
+        
+        public static readonly Error IdIsEmpty =  Error.Validation(
+            "Organization.IdIsEmpty", $"Organization id is empty.");
     }
     
     public static class OrganizationName

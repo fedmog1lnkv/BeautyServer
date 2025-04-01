@@ -15,4 +15,14 @@ public class OrganizationReadOnlyRepository(ApplicationDbContext dbContext) : IO
         await dbContext.Set<Organization>()
             .AsNoTracking()
             .AnyAsync(o => o.Id == organizationId, cancellationToken);
+
+    public async Task<List<Organization>> GetAll(
+        int limit,
+        int offset,
+        CancellationToken cancellationToken = default) =>
+        await dbContext.Set<Organization>()
+            .AsNoTracking()
+            .Skip(offset)
+            .Take(limit)
+            .ToListAsync(cancellationToken);
 }

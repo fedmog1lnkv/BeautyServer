@@ -8,6 +8,7 @@ public class AdminValidationFilter : ActionFilterAttribute
 {
     public override void OnActionExecuting(ActionExecutingContext context)
     {
+        // TODO : add check expired
         var tokenString = context.HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
 
         // Проверка на наличие токена

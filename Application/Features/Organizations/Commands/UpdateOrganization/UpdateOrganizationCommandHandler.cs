@@ -8,7 +8,7 @@ using Domain.Shared;
 
 namespace Application.Features.Organizations.Commands.UpdateOrganization;
 
-public class UpdateOrganizationCommandHandler(IOrganizationRepository organizationRepository, IDomainEventBus eventBus)
+public sealed class UpdateOrganizationCommandHandler(IOrganizationRepository organizationRepository, IDomainEventBus eventBus)
     : ICommandHandler<UpdateOrganizationCommand, Result>
 {
     public async Task<Result> Handle(UpdateOrganizationCommand request, CancellationToken cancellationToken)

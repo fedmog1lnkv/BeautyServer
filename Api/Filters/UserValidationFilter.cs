@@ -8,6 +8,8 @@ public class UserValidationFilter : ActionFilterAttribute
 {
     public override void OnActionExecuting(ActionExecutingContext context)
     {
+        // TODO : add check expired
+
         var tokenString = context.HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
 
         if (string.IsNullOrEmpty(tokenString))

@@ -10,4 +10,9 @@ public interface IOrganizationReadOnlyRepository : IReadOnlyRepository<Organizat
     Task<bool> ExistsAsync(
         Guid organizationId,
         CancellationToken cancellationToken = default);
+
+    Task<List<Organization>> GetAll(
+        int limit,
+        int offset,
+        CancellationToken cancellationToken = default);
 }

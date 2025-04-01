@@ -47,9 +47,7 @@ public class VenueController(IMapper mapper) : BaseController
         [FromQuery] int offset)
     {
         if (limit <= 0 || offset < 0)
-        {
             return BadRequest("Limit must be greater than zero, and offset cannot be negative.");
-        }
 
         var query = new GetAllVenuesQuery(limit, offset, latitude, longitude);
 
