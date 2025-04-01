@@ -18,7 +18,8 @@ internal sealed class CreateOrganizationCommandHandler(IOrganizationRepository o
         var createOrganizationResult = Organization.Create(
             Guid.NewGuid(),
             request.Name,
-            orgColor);
+            orgColor,
+            DateTime.UtcNow);
 
         if (createOrganizationResult.IsFailure)
             return Result.Failure(createOrganizationResult.Error);

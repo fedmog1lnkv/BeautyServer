@@ -49,7 +49,6 @@ public class GenerateStaffPhoneChallengeCommandHandler(
                 staffName,
                 staffPhoneNumber.Value,
                 DateTime.UtcNow,
-                null,
                 staffReadOnlyRepository,
                 organizationReadOnlyRepository,
                 cancellationToken);

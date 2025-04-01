@@ -47,5 +47,11 @@ public class RecordConfiguration : IEntityTypeConfiguration<Record>
                 comment => comment == null ? null : comment.Value,
                 value => value == null ? null : RecordComment.Create(value).Value)
             .HasMaxLength(RecordComment.MaxLength);
+        
+        builder.Property(s => s.CreatedOnUtc)
+            .IsRequired();
+
+        builder.Property(s => s.ModifiedOnUtc)
+            .IsRequired(false);
     }
 }

@@ -55,5 +55,11 @@ public class OrganizationConfiguration : IEntityTypeConfiguration<Organization>
             .WithOne()
             .HasForeignKey(v => v.OrganizationId)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.Property(s => s.CreatedOnUtc)
+            .IsRequired();
+
+        builder.Property(s => s.ModifiedOnUtc)
+            .IsRequired(false);
     }
 }

@@ -41,5 +41,11 @@ public class ServiceConfiguration : IEntityTypeConfiguration<Service>
             .HasForeignKey(s => s.OrganizationId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.Property(s => s.CreatedOnUtc)
+            .IsRequired();
+
+        builder.Property(s => s.ModifiedOnUtc)
+            .IsRequired(false);
     }
 }

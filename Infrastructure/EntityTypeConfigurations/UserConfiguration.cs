@@ -33,5 +33,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         
         builder.HasIndex(u => u.PhoneNumber)
             .IsUnique();
+        
+        builder.Property(s => s.CreatedOnUtc)
+            .IsRequired();
+
+        builder.Property(s => s.ModifiedOnUtc)
+            .IsRequired(false);
     }
 }

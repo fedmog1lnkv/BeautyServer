@@ -39,12 +39,6 @@ public class StaffConfiguration : IEntityTypeConfiguration<Staff>
             .HasColumnType("varchar(10)")
             .IsRequired(); 
         
-        builder.Property(s => s.CreatedOnUtc)
-            .IsRequired();
-
-        builder.Property(s => s.ModifiedOnUtc)
-            .IsRequired(false);
-        
         builder.HasOne<Organization>()
             .WithMany()
             .HasForeignKey(s => s.OrganizationId)
@@ -54,5 +48,11 @@ public class StaffConfiguration : IEntityTypeConfiguration<Staff>
             .WithOne()
             .HasForeignKey(ts => ts.StaffId)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.Property(s => s.CreatedOnUtc)
+            .IsRequired();
+
+        builder.Property(s => s.ModifiedOnUtc)
+            .IsRequired(false);
     }
 }

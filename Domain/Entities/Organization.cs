@@ -5,7 +5,7 @@ using Domain.ValueObjects;
 
 namespace Domain.Entities;
 
-public sealed class Organization : AggregateRoot
+public sealed class Organization : AggregateRoot, IAuditableEntity
 {
     private readonly List<Venue> _venues = [];
 
@@ -14,12 +14,15 @@ public sealed class Organization : AggregateRoot
         OrganizationName name,
         OrganizationTheme theme,
         OrganizationSubscription subscription,
-        OrganizationDescription? description) : base(id)
+        OrganizationDescription? description,
+        DateTime createdOnUtc) : base(id)
     {
         Name = name;
         Theme = theme;
         Subscription = subscription;
         Description = description;
+        
+        CreatedOnUtc = createdOnUtc;
     }
 
 #pragma warning disable CS8618
@@ -31,12 +34,15 @@ public sealed class Organization : AggregateRoot
     public OrganizationSubscription Subscription { get; private set; }
     public OrganizationTheme Theme { get; private set; }
     public IReadOnlyCollection<Venue> Venues => _venues.AsReadOnly();
-
+    
+    public DateTime CreatedOnUtc { get; set; }
+    public DateTime? ModifiedOnUtc { get; set; }
 
     public static Result<Organization> Create(
         Guid id,
         string name,
-        string defaultColor)
+        string defaultColor,
+        DateTime createdOnUtc)
     {
         var nameResult = OrganizationName.Create(name);
         if (nameResult.IsFailure)
@@ -51,7 +57,8 @@ public sealed class Organization : AggregateRoot
             nameResult.Value,
             themeResult.Value,
             OrganizationSubscription.Disabled,
-            null);
+            null,
+            createdOnUtc);
     }
 
     public Result SetName(string name)

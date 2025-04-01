@@ -25,7 +25,8 @@ public class GeneratePhoneChallengeCommandHandler(
         var user = await userRepository.GetByPhoneNumberAsync(userPhoneNumber, cancellationToken);
         if (user is null)
         {
-            var userName = await phoneChallengeRepository.SendAuthRequestAsync(userPhoneNumber.Value, cancellationToken);
+            var userName =
+                await phoneChallengeRepository.SendAuthRequestAsync(userPhoneNumber.Value, cancellationToken);
             if (userName == null)
                 return Result.Failure(DomainErrors.User.RejectAuthRequest);
 
@@ -33,6 +34,7 @@ public class GeneratePhoneChallengeCommandHandler(
                 Guid.NewGuid(),
                 userName,
                 userPhoneNumber.Value,
+                DateTime.UtcNow,
                 userReadOnlyRepository,
                 cancellationToken);
             if (createUserResult.IsFailure)
@@ -43,7 +45,8 @@ public class GeneratePhoneChallengeCommandHandler(
             user = createUserResult.Value;
         }
 
-        var oldPhoneChallenge = await phoneChallengeRepository.GetByPhoneNumberAsync(userPhoneNumber.Value, cancellationToken);
+        var oldPhoneChallenge =
+            await phoneChallengeRepository.GetByPhoneNumberAsync(userPhoneNumber.Value, cancellationToken);
         if (oldPhoneChallenge is not null)
             phoneChallengeRepository.Remove(oldPhoneChallenge);
 

@@ -11,7 +11,7 @@ using Domain.ValueObjects;
 
 namespace Domain.Entities;
 
-public sealed class Record : AggregateRoot
+public sealed class Record : AggregateRoot, IAuditableEntity
 {
     private Record(
         Guid id,
@@ -23,7 +23,8 @@ public sealed class Record : AggregateRoot
         RecordStatus status,
         RecordComment? comment,
         DateTime startTimestamp,
-        DateTime endTimestamp) : base(id)
+        DateTime endTimestamp,
+        DateTime createdOnUtc) : base(id)
     {
         UserId = userId;
         StaffId = staffId;
@@ -34,6 +35,8 @@ public sealed class Record : AggregateRoot
         Comment = comment;
         StartTimestamp = startTimestamp;
         EndTimestamp = endTimestamp;
+
+        CreatedOnUtc = createdOnUtc;
     }
 
 #pragma warning disable CS8618
@@ -48,12 +51,15 @@ public sealed class Record : AggregateRoot
     public RecordComment? Comment { get; private set; }
     public DateTime StartTimestamp { get; private set; }
     public DateTime EndTimestamp { get; private set; }
-    
+
     public User User { get; private set; } = null!;
     public Staff Staff { get; private set; } = null!;
     public Organization Organization { get; private set; } = null!;
     public Venue Venue { get; private set; } = null!;
     public Service Service { get; private set; } = null!;
+
+    public DateTime CreatedOnUtc { get; set; }
+    public DateTime? ModifiedOnUtc { get; set; }
 
     public static async Task<Result<Record>> CreateAsync(
         Guid id,
@@ -65,6 +71,7 @@ public sealed class Record : AggregateRoot
         RecordStatus status,
         DateTime startTimestamp,
         DateTime endTimestamp,
+        DateTime createdOnUtc,
         IUserReadOnlyRepository userRepository,
         IStaffReadOnlyRepository staffRepository,
         IOrganizationReadOnlyRepository organizationRepository,
@@ -117,7 +124,8 @@ public sealed class Record : AggregateRoot
             status,
             null,
             startTimestamp,
-            endTimestamp);
+            endTimestamp,
+            createdOnUtc);
 
         return Result.Success(record);
     }

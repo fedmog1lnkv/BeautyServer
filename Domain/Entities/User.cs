@@ -6,24 +6,30 @@ using Domain.ValueObjects;
 
 namespace Domain.Entities;
 
-public sealed class User : AggregateRoot
+public sealed class User : AggregateRoot, IAuditableEntity
 {
     private User(
         Guid id,
         UserName name,
-        UserPhoneNumber phoneNumber) : base(id)
+        UserPhoneNumber phoneNumber,
+        DateTime createdOnUtc) : base(id)
     {
         Name = name;
         PhoneNumber = phoneNumber;
+        
+        CreatedOnUtc = createdOnUtc;
     }
 
     public UserName Name { get; private set; }
     public UserPhoneNumber PhoneNumber { get; private set; }
+    public DateTime CreatedOnUtc { get; set; }
+    public DateTime? ModifiedOnUtc { get; set; }
 
     public static async Task<Result<User>> CreateAsync(
         Guid id,
         string name,
         string phoneNumber,
+        DateTime createdOnUtc,
         IUserReadOnlyRepository repository,
         CancellationToken cancellationToken)
     {
@@ -42,7 +48,8 @@ public sealed class User : AggregateRoot
         var user = new User(
             id,
             createNameResult.Value,
-            createPhoneNumberResult.Value);
+            createPhoneNumberResult.Value,
+            createdOnUtc);
 
         return Result.Success(user);
     }

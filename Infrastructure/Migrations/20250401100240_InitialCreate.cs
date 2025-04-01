@@ -20,7 +20,9 @@ namespace Infrastructure.Migrations
                     Description = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
                     Subscription = table.Column<string>(type: "varchar(10)", nullable: false),
                     Color = table.Column<string>(type: "character varying(7)", maxLength: 7, nullable: false),
-                    Photo = table.Column<string>(type: "character varying(2048)", maxLength: 2048, nullable: true)
+                    Photo = table.Column<string>(type: "character varying(2048)", maxLength: 2048, nullable: true),
+                    CreatedOnUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOnUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -48,7 +50,9 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
-                    PhoneNumber = table.Column<string>(type: "character varying(15)", maxLength: 15, nullable: false)
+                    PhoneNumber = table.Column<string>(type: "character varying(15)", maxLength: 15, nullable: false),
+                    CreatedOnUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOnUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -64,7 +68,9 @@ namespace Infrastructure.Migrations
                     Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     Description = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
                     Duration = table.Column<TimeSpan>(type: "interval", nullable: true),
-                    Price = table.Column<double>(type: "double precision", nullable: true)
+                    Price = table.Column<double>(type: "double precision", nullable: true),
+                    CreatedOnUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOnUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -111,7 +117,9 @@ namespace Infrastructure.Migrations
                     Color = table.Column<string>(type: "character varying(7)", maxLength: 7, nullable: false),
                     Photo = table.Column<string>(type: "character varying(2048)", maxLength: 2048, nullable: true),
                     Latitude = table.Column<double>(type: "double precision", nullable: false),
-                    Longitude = table.Column<double>(type: "double precision", nullable: false)
+                    Longitude = table.Column<double>(type: "double precision", nullable: false),
+                    CreatedOnUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOnUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -182,7 +190,9 @@ namespace Infrastructure.Migrations
                     Status = table.Column<string>(type: "varchar(10)", nullable: false),
                     Comment = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: true),
                     StartTimestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    EndTimestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    EndTimestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedOnUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOnUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {

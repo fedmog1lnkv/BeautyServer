@@ -20,8 +20,7 @@ public class Staff : AggregateRoot, IAuditableEntity
         StaffName name,
         StaffPhoneNumber phoneNumber,
         StaffRole role,
-        DateTime createdOnUtc,
-        DateTime? modifiedOnUtc) : base(id)
+        DateTime createdOnUtc) : base(id)
     {
         OrganizationId = organizationId;
         Name = name;
@@ -29,7 +28,6 @@ public class Staff : AggregateRoot, IAuditableEntity
         Role = role;
 
         CreatedOnUtc = createdOnUtc;
-        ModifiedOnUtc = modifiedOnUtc;
     }
 
 #pragma warning disable CS8618
@@ -51,7 +49,6 @@ public class Staff : AggregateRoot, IAuditableEntity
         string name,
         string phoneNumber,
         DateTime createdOnUtc,
-        DateTime? modifiedOnUtc,
         IStaffReadOnlyRepository staffRepository,
         IOrganizationReadOnlyRepository organizationRepository,
         CancellationToken cancellationToken)
@@ -81,8 +78,7 @@ public class Staff : AggregateRoot, IAuditableEntity
             staffNameResult.Value,
             staffPhoneResult.Value,
             StaffRole.Unknown,
-            createdOnUtc,
-            modifiedOnUtc);
+            createdOnUtc);
     }
 
     public Result SetName(string name)

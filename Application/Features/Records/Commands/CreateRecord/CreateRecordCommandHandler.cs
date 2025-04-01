@@ -93,6 +93,7 @@ public class CreateRecordCommandHandler(
             RecordStatus.Pending,
             request.StartTimestamp.ToUniversalTime(),
             endTimeStamp.ToUniversalTime(),
+            DateTime.UtcNow,
             userReadOnlyRepository,
             staffReadOnlyRepository,
             organizationReadOnlyRepository,

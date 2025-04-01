@@ -1,4 +1,3 @@
-using Application.Features.Organizations.Commands.CreateOrganization;
 using Application.Messaging.Command;
 using Domain.Entities;
 using Domain.Errors;
@@ -8,14 +7,15 @@ using Domain.Shared;
 
 namespace Application.Features.Services.Commands.CreateService;
 
-internal sealed class CreateServiceCommandHandler(IServiceRepository serviceRepository, 
+internal sealed class CreateServiceCommandHandler(
+    IServiceRepository serviceRepository,
     IOrganizationReadOnlyRepository organizationReadOnlyRepository)
     : ICommandHandler<CreateServiceCommand, Result>
 {
-
     public async Task<Result> Handle(CreateServiceCommand request, CancellationToken cancellationToken)
     {
-        var organizationExists = await organizationReadOnlyRepository.ExistsAsync(request.OrganizationId, cancellationToken);
+        var organizationExists =
+            await organizationReadOnlyRepository.ExistsAsync(request.OrganizationId, cancellationToken);
         if (!organizationExists)
             return Result.Failure(DomainErrors.Organization.NotFound(request.OrganizationId));
 
@@ -23,8 +23,8 @@ internal sealed class CreateServiceCommandHandler(IServiceRepository serviceRepo
             Guid.NewGuid(),
             request.OrganizationId,
             request.Name,
-            organizationReadOnlyRepository
-        );
+            DateTime.UtcNow,
+            organizationReadOnlyRepository);
 
         if (createServiceResult.IsFailure)
             return Result.Failure(createServiceResult.Error);

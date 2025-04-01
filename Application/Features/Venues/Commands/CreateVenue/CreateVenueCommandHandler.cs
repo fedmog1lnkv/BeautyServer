@@ -28,6 +28,7 @@ public class CreateVenueCommandHandler(
             venueColor,
             request.Latitude,
             request.Longitude,
+            DateTime.UtcNow,
             organizationReadOnlyRepository);
 
         if (createVenueResult.IsFailure)

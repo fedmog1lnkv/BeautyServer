@@ -44,6 +44,7 @@ public class OrganizationController(IMapper mapper) : BaseController
             : NoContent();
     }
 
+    [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
         var command = new DeleteOrganizationCommand(id);

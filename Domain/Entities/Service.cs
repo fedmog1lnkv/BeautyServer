@@ -6,7 +6,7 @@ using Domain.ValueObjects;
 
 namespace Domain.Entities;
 
-public class Service : AggregateRoot
+public class Service : AggregateRoot, IAuditableEntity
 {
     private readonly List<Staff> _staffs = [];
     private readonly List<Venue> _venues = [];
@@ -17,13 +17,16 @@ public class Service : AggregateRoot
         ServiceName name,
         ServiceDescription? description,
         TimeSpan? duration,
-        ServicePrice? price) : base(id)
+        ServicePrice? price,
+        DateTime createdOnUtc) : base(id)
     {
         OrganizationId = organizationId;
         Name = name;
         Description = description;
         Duration = duration;
         Price = price;
+
+        CreatedOnUtc = createdOnUtc;
     }
 
 #pragma warning disable CS8618
@@ -35,14 +38,17 @@ public class Service : AggregateRoot
     public ServiceDescription? Description { get; private set; }
     public TimeSpan? Duration { get; private set; }
     public ServicePrice? Price { get; private set; }
+    public DateTime CreatedOnUtc { get; set; }
+    public DateTime? ModifiedOnUtc { get; set; }
+
     public IReadOnlyCollection<Staff> Staffs => _staffs.AsReadOnly();
     public IReadOnlyCollection<Venue> Venues => _venues.AsReadOnly();
-
 
     public static async Task<Result<Service>> Create(
         Guid id,
         Guid organizationId,
         string name,
+        DateTime createdOnUtc,
         IOrganizationReadOnlyRepository repository)
     {
         if (organizationId == Guid.Empty)
@@ -62,7 +68,8 @@ public class Service : AggregateRoot
             nameResult.Value,
             null,
             null,
-            null);
+            null,
+            createdOnUtc);
     }
 
     public Result SetName(string name)

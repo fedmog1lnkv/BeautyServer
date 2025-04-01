@@ -6,7 +6,7 @@ using Domain.ValueObjects;
 
 namespace Domain.Entities;
 
-public class Venue : AggregateRoot
+public class Venue : AggregateRoot, IAuditableEntity
 {
     private readonly List<Service> _services = [];
 
@@ -16,13 +16,16 @@ public class Venue : AggregateRoot
         VenueName name,
         VenueTheme theme,
         Location location,
-        VenueDescription? description) : base(id)
+        VenueDescription? description,
+        DateTime createdOnUtc) : base(id)
     {
         OrganizationId = organizationId;
         Name = name;
         Theme = theme;
         Location = location;
         Description = description;
+        
+        CreatedOnUtc = createdOnUtc;
     }
 
 #pragma warning disable CS8618
@@ -34,6 +37,9 @@ public class Venue : AggregateRoot
     public VenueDescription? Description { get; private set; }
     public VenueTheme Theme { get; private set; }
     public Location Location { get; private set; }
+    
+    public DateTime CreatedOnUtc { get; set; }
+    public DateTime? ModifiedOnUtc { get; set; }
     public IReadOnlyCollection<Service> Services => _services.AsReadOnly();
 
     public static async Task<Result<Venue>> CreateAsync(
@@ -43,6 +49,7 @@ public class Venue : AggregateRoot
         string defaultColor,
         double latitude,
         double longitude,
+        DateTime createdOnUtc,
         IOrganizationReadOnlyRepository repository)
     {
         if (organizationId == Guid.Empty)
@@ -70,7 +77,8 @@ public class Venue : AggregateRoot
             nameResult.Value,
             themeResult.Value,
             locationResult.Value,
-            null);
+            null,
+            createdOnUtc);
     }
 
     public Result SetName(string name)
