@@ -1,10 +1,11 @@
 using Domain.Entities;
 using Domain.Repositories.Venues;
+using Infrastructure.Utils;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories.Venues;
 
-public class VenueRepository(ApplicationDbContext dbContext) : IVenueRepository
+public class VenueRepository(ApplicationDbContext dbContext, S3StorageUtils s3StorageUtils) : IVenueRepository
 {
     public async Task<Venue?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
@@ -29,4 +30,7 @@ public class VenueRepository(ApplicationDbContext dbContext) : IVenueRepository
 
     public void Remove(Venue venue) =>
         dbContext.Set<Venue>().Remove(venue);
+
+    public async Task<string?> UploadPhotoAsync(string base64Photo, string fileName) =>
+        await s3StorageUtils.UploadPhotoAsync(base64Photo, fileName, "venues");
 }

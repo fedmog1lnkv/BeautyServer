@@ -38,7 +38,24 @@ public class CreateVenueCommandHandler(
 
         if (request.Photo is not null)
         {
-            var result = venue.SetPhoto(request.Photo);
+            var isBase64 = request.Photo.Length % 4 == 0 &&
+                           request.Photo.Replace(" ", "").Replace("\n", "").Replace("\r", "").All(
+                               c => char.IsLetterOrDigit(c) || c == '+' || c == '/' || c == '=');
+
+            var photoUrl = isBase64
+                ? await venueRepository.UploadPhotoAsync(request.Photo, venue.Id.ToString())
+                : request.Photo;
+
+            if (string.IsNullOrEmpty(photoUrl))
+                return Result.Failure(DomainErrors.Organization.PhotoUploadFailed);
+
+            var result = venue.SetPhoto(photoUrl);
+            if (result.IsFailure)
+                return Result.Failure(result.Error);
+        }
+        else
+        {
+            var result = venue.SetPhoto(organization.Theme.Photo);
             if (result.IsFailure)
                 return Result.Failure(result.Error);
         }

@@ -39,13 +39,24 @@ public class UpdateVenueCommandHandler(
                 return colorResult;
         }
 
+
         if (!string.IsNullOrWhiteSpace(request.Photo))
         {
-            var photoResult = venue.SetPhoto(request.Photo);
+            var isBase64 = request.Photo.Length % 4 == 0 &&
+                           request.Photo.Replace(" ", "").Replace("\n", "").Replace("\r", "").All(
+                               c => char.IsLetterOrDigit(c) || c == '+' || c == '/' || c == '=');
+
+            var photoUrl = isBase64
+                ? await venueRepository.UploadPhotoAsync(request.Photo, venue.Id.ToString())
+                : request.Photo;
+
+            if (string.IsNullOrEmpty(photoUrl))
+                return Result.Failure(DomainErrors.Organization.PhotoUploadFailed);
+
+            var photoResult = venue.SetPhoto(photoUrl);
             if (photoResult.IsFailure)
                 return photoResult;
         }
-
         if (request.Latitude.HasValue && request.Longitude.HasValue)
         {
             var locationResult = venue.SetLocation(request.Latitude.Value, request.Longitude.Value);
@@ -55,7 +66,8 @@ public class UpdateVenueCommandHandler(
 
         if (request.ServiceIds is not null)
         {
-            var availableServices = await serviceReadOnlyRepository.GetByOrganizationIdAsync(venue.OrganizationId, cancellationToken);
+            var availableServices =
+                await serviceReadOnlyRepository.GetByOrganizationIdAsync(venue.OrganizationId, cancellationToken);
             var serviceDict = availableServices.ToDictionary(s => s.Id);
 
             var newServices = new List<Service>();
@@ -71,7 +83,7 @@ public class UpdateVenueCommandHandler(
             if (setServicesResult.IsFailure)
                 return setServicesResult;
         }
-        
+
         return Result.Success();
     }
 }

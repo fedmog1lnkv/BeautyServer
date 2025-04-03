@@ -5,7 +5,7 @@ using System.Net;
 
 namespace Infrastructure.Utils;
 
-public class S3StorageUtils(IAmazonS3 s3Client, IConfiguration configuration)
+public sealed class S3StorageUtils(IAmazonS3 s3Client, IConfiguration configuration)
 {
     private readonly string _bucketName = configuration["AWS:BucketName"]!;
 
@@ -18,8 +18,9 @@ public class S3StorageUtils(IAmazonS3 s3Client, IConfiguration configuration)
         {
             var photoBytes = Convert.FromBase64String(base64Photo);
             var contentType = GetContentType(photoBytes);
+            var fileExtension = GetFileExtension(contentType);
 
-            string filePath = $"{folder}/{fileName}";
+            var filePath = $"{folder}/{fileName}.{fileExtension}";
 
             var putRequest = new PutObjectRequest
             {
@@ -65,5 +66,18 @@ public class S3StorageUtils(IAmazonS3 s3Client, IConfiguration configuration)
             return "image/tiff";
 
         return "application/octet-stream";
+    }
+
+    private static string GetFileExtension(string contentType)
+    {
+        return contentType switch
+        {
+            "image/jpeg" => "jpg",
+            "image/png" => "png",
+            "image/gif" => "gif",
+            "image/bmp" => "bmp",
+            "image/tiff" => "tiff",
+            _ => "bin"
+        };
     }
 }

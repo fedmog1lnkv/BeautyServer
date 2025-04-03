@@ -34,7 +34,7 @@ internal sealed class CreateOrganizationCommandHandler(IOrganizationRepository o
                                c => char.IsLetterOrDigit(c) || c == '+' || c == '/' || c == '=');
 
             var photoUrl = isBase64
-                ? await organizationRepository.UploadPhotoAsync(request.Photo, $"{Guid.NewGuid()}.jpg")
+                ? await organizationRepository.UploadPhotoAsync(request.Photo, organization.Id.ToString())
                 : request.Photo;
 
             if (string.IsNullOrEmpty(photoUrl))
