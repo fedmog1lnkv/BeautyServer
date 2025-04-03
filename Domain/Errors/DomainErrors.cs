@@ -231,6 +231,12 @@ public class DomainErrors
         
         public static Error NotFound(Guid id) => Error.NotFound(
             "Staff.NotFound", $"Staff with the Id '{id}' was not found.");
+        
+        public static readonly Error PhotoUploadFailed = Error.Failure(
+            "Staff.PhotoUploadFailed", "Failed to upload staff photo.");
+        
+        public static readonly Error StaffCannotUpdate = Error.Failure(
+            "Staff.StaffCannotUpdate", "You do not have permission to update this staff member's data.");
     }
     
     public static class StaffName
@@ -252,6 +258,21 @@ public class DomainErrors
         
         public static readonly Error InvalidFormat = Error.Validation(
             "StaffPhoneNumber.InvalidFormat", "Invalid staff phone number format.");
+    }
+    
+    public static class StaffPhoto
+    {
+        public static readonly Error Empty = Error.Validation(
+            "StaffPhoto.Empty", 
+            "The staff photo is required and cannot be empty.");
+
+        public static readonly Error TooLong = Error.Validation(
+            "StaffPhoto.TooLong", 
+            $"The staff photo is too long. It should not exceed {Domain.ValueObjects.StaffPhoto.MaxLength} characters.");
+
+        public static readonly Error InvalidFormat = Error.Validation(
+            "StaffPhoto.InvalidFormat", 
+            "The staff photo URL format is invalid.");
     }
     
     public static class TimeSlot

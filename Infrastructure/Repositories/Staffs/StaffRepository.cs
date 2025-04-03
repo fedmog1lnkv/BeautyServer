@@ -1,11 +1,12 @@
 using Domain.Entities;
 using Domain.Repositories.Staffs;
 using Domain.ValueObjects;
+using Infrastructure.Utils;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories.Staffs;
 
-public class StaffRepository(ApplicationDbContext dbContext) : IStaffRepository
+public class StaffRepository(ApplicationDbContext dbContext, S3StorageUtils s3StorageUtils) : IStaffRepository
 {
     public async Task<Staff?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
         await dbContext.Set<Staff>()
@@ -33,4 +34,7 @@ public class StaffRepository(ApplicationDbContext dbContext) : IStaffRepository
 
     public void Add(Staff staff) =>
         dbContext.Set<Staff>().Add(staff);
+
+    public async Task<string?> UploadPhotoAsync(string base64Photo, string fileName) =>
+        await s3StorageUtils.UploadPhotoAsync(base64Photo, fileName, "staffs");
 }

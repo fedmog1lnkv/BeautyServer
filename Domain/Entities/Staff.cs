@@ -38,6 +38,7 @@ public class Staff : AggregateRoot, IAuditableEntity
     public StaffName Name { get; private set; }
     public StaffPhoneNumber PhoneNumber { get; private set; }
     public StaffRole Role { get; private set; }
+    public StaffPhoto Photo { get; private set; }
     public DateTime CreatedOnUtc { get; set; }
     public DateTime? ModifiedOnUtc { get; set; }
     public IReadOnlyCollection<Service> Services => _services.AsReadOnly();
@@ -100,6 +101,19 @@ public class Staff : AggregateRoot, IAuditableEntity
             return Result.Success();
 
         Role = role;
+        return Result.Success();
+    }
+    
+    public Result SetPhoto(string photoUrl)
+    {
+        var photoResult = StaffPhoto.Create(photoUrl);
+        if (photoResult.IsFailure)
+            return photoResult;
+
+        if (Photo.Equals(photoResult.Value))
+            return Result.Success();
+
+        Photo = photoResult.Value;
         return Result.Success();
     }
 

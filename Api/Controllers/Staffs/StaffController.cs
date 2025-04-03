@@ -1,11 +1,13 @@
 using Api.Controllers.Base;
 using Api.Controllers.Staffs.Models;
 using Api.Filters;
+using Api.Utils;
 using Application.Features.Records.Queries.GetRecordsByStaffId;
 using Application.Features.Staffs.Commands.AddTimeSlot;
 using Application.Features.Staffs.Commands.Auth;
 using Application.Features.Staffs.Commands.GeneratePhoneChallenge;
 using Application.Features.Staffs.Commands.RefreshToken;
+using Application.Features.Staffs.Commands.UpdateStaff;
 using Application.Features.Staffs.Queries.GetStaffWithServicesById;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
@@ -120,19 +122,18 @@ public class StaffController(IMapper mapper) : BaseController
         return Ok(staff);
     }
     
-    // [HttpPatch]
-    // [ProducesResponseType(StatusCodes.Status204NoContent)]
-    // [StaffValidationFilter]
-    // public async Task<IActionResult> Update([FromBody] UpdateStaffDto request)
-    // {
-    //     request.Id = HttpContext.GetStaffId();
-    //
-    //     var command = mapper.Map<UpdateStaffCommand>(request);
-    //
-    //     var result = await Sender.Send(command);
-    //
-    //     return result.IsFailure
-    //         ? HandleFailure(result)
-    //         : NoContent();
-    // }
+    [HttpPatch]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [StaffValidationFilter]
+    public async Task<IActionResult> Update([FromBody] UpdateStaffDto request)
+    {
+        request.InitiatorId = HttpContext.GetStaffId();
+        var command = mapper.Map<UpdateStaffCommand>(request);
+    
+        var result = await Sender.Send(command);
+    
+        return result.IsFailure
+            ? HandleFailure(result)
+            : NoContent();
+    }
 }

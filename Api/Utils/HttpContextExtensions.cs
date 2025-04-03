@@ -11,4 +11,9 @@ public static class HttpContextExtensions
     {
         return context.Items.TryGetValue("is_admin", out var isAdmin) && isAdmin is bool admin && admin;
     }
+    
+    public static Guid GetStaffId(this HttpContext context)
+    {
+        return Guid.Parse(context.Items["staff_id"]?.ToString() ?? string.Empty);
+    }
 }

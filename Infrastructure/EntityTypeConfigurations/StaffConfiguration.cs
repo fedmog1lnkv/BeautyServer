@@ -34,21 +34,27 @@ public class StaffConfiguration : IEntityTypeConfiguration<Staff>
         builder.Property(s => s.Role)
             .HasConversion(
                 v => v.ToString(),
-                v => (StaffRole)Enum.Parse(typeof(StaffRole), v, true)
-            )
+                v => (StaffRole)Enum.Parse(typeof(StaffRole), v, true))
             .HasColumnType("varchar(10)")
-            .IsRequired(); 
-        
+            .IsRequired();
+
+        builder.Property(s => s.Photo)
+            .HasConversion(
+                photo => photo.Value,
+                value => StaffPhoto.Create(value).Value)
+            .HasMaxLength(StaffPhoto.MaxLength)
+            .IsRequired(false);
+
         builder.HasOne<Organization>()
             .WithMany()
             .HasForeignKey(s => s.OrganizationId)
             .OnDelete(DeleteBehavior.Cascade);
-        
+
         builder.HasMany(s => s.TimeSlots)
             .WithOne()
             .HasForeignKey(ts => ts.StaffId)
             .OnDelete(DeleteBehavior.Cascade);
-        
+
         builder.Property(s => s.CreatedOnUtc)
             .IsRequired();
 
