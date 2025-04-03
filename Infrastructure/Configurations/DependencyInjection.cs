@@ -1,3 +1,5 @@
+using Amazon.Runtime;
+using Amazon.S3;
 using Application.Abstractions;
 using Domain.Repositories;
 using Domain.Repositories.Organizations;
@@ -16,6 +18,7 @@ using Infrastructure.Repositories.Services;
 using Infrastructure.Repositories.Staffs;
 using Infrastructure.Repositories.Users;
 using Infrastructure.Repositories.Venues;
+using Infrastructure.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,6 +42,27 @@ public static class DependencyInjection
                 if (environment.IsDevelopment())
                     options.EnableSensitiveDataLogging();
             });
+        
+        services.AddSingleton<IAmazonS3>(sp =>
+        {
+            var accessKey = configuration["AWS:AccessKey"];
+            var secretKey = configuration["AWS:SecretKey"];
+            var region = Amazon.RegionEndpoint.GetBySystemName(configuration["AWS:Region"]);
+            var endpointUrl = configuration["AWS:EndpointUrl"];
+
+            var s3Config = new AmazonS3Config
+            {
+                RegionEndpoint = region,
+                ServiceURL = endpointUrl,
+                ForcePathStyle = true
+            };
+
+            var credentials = new BasicAWSCredentials(accessKey, secretKey);
+
+            return new AmazonS3Client(credentials, s3Config);
+        });
+        
+        services.AddScoped<S3StorageUtils>();
 
         services.AddTransient<IUserJwtProvider, UserJwtProvider>();
         services.AddTransient<IStaffJwtProvider, StaffJwtProvider>();

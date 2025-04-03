@@ -1,5 +1,6 @@
 using Application.Messaging.Command;
 using Domain.Entities;
+using Domain.Errors;
 using Domain.Repositories.Organizations;
 using Domain.Shared;
 
@@ -28,9 +29,22 @@ internal sealed class CreateOrganizationCommandHandler(IOrganizationRepository o
 
         if (request.Photo is not null)
         {
-            var result = organization.SetPhoto(request.Photo);
+            var isBase64 = request.Photo.Length % 4 == 0 &&
+                           request.Photo.Replace(" ", "").Replace("\n", "").Replace("\r", "").All(
+                               c => char.IsLetterOrDigit(c) || c == '+' || c == '/' || c == '=');
+
+            var photoUrl = isBase64
+                ? await organizationRepository.UploadPhotoAsync(request.Photo, $"{Guid.NewGuid()}.jpg")
+                : request.Photo;
+
+            if (string.IsNullOrEmpty(photoUrl))
+                return Result.Failure(DomainErrors.Organization.PhotoUploadFailed);
+
+            var result = organization.SetPhoto(photoUrl);
             if (result.IsFailure)
+            {
                 return Result.Failure(result.Error);
+            }
         }
 
         if (request.Description is not null)

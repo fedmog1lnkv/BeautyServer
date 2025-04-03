@@ -68,6 +68,9 @@ public class DomainErrors
         
         public static readonly Error IdIsEmpty =  Error.Validation(
             "Organization.IdIsEmpty", $"Organization id is empty.");
+        
+        public static readonly Error PhotoUploadFailed = Error.Failure(
+            "Organization.PhotoUploadFailed", "Failed to upload organization photo.");
     }
     
     public static class OrganizationName

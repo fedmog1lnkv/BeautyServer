@@ -119,4 +119,20 @@ public class StaffController(IMapper mapper) : BaseController
 
         return Ok(staff);
     }
+    
+    // [HttpPatch]
+    // [ProducesResponseType(StatusCodes.Status204NoContent)]
+    // [StaffValidationFilter]
+    // public async Task<IActionResult> Update([FromBody] UpdateStaffDto request)
+    // {
+    //     request.Id = HttpContext.GetStaffId();
+    //
+    //     var command = mapper.Map<UpdateStaffCommand>(request);
+    //
+    //     var result = await Sender.Send(command);
+    //
+    //     return result.IsFailure
+    //         ? HandleFailure(result)
+    //         : NoContent();
+    // }
 }

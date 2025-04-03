@@ -2,7 +2,7 @@ using Application.Common.Mappings;
 using AutoMapper;
 using Domain.Entities;
 
-namespace Api.Controllers.User.Models;
+namespace Api.Controllers.Users.Models;
 
 public class UserRecordsLookupDto : IMapWith<Record>
 {

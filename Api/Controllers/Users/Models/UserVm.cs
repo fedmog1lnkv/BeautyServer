@@ -1,7 +1,7 @@
 using Application.Common.Mappings;
 using AutoMapper;
 
-namespace Api.Controllers.User.Models;
+namespace Api.Controllers.Users.Models;
 
 public class UserVm : IMapWith<Domain.Entities.User>
 {

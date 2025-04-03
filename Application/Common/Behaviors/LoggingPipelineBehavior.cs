@@ -1,6 +1,7 @@
 ﻿using Domain.Shared;
 using MediatR;
 using Serilog;
+using System.Text.Json;
 
 namespace Application.Common.Behaviors;
 
@@ -14,9 +15,10 @@ public class LoggingPipelineBehavior<TRequest, TResponse>
         RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken)
     {
-        Log.Information("Starting request {@RequestName}, {@DateTimeUtc}",
+        Log.Information("Starting request {@RequestName}, {@DateTimeUtc}, {@RequestBody}",
             typeof(TRequest).Name,
-            DateTime.UtcNow);
+            DateTime.UtcNow,
+            JsonSerializer.Serialize(request));
 
         var result = await next();
 

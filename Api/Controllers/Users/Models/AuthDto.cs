@@ -2,7 +2,7 @@ using Application.Common.Mappings;
 using Application.Features.User.Commands.Auth;
 using AutoMapper;
 
-namespace Api.Controllers.User.Models;
+namespace Api.Controllers.Users.Models;
 
 public class AuthDto : IMapWith<AuthCommand>
 {

@@ -2,7 +2,7 @@ using Application.Common.Mappings;
 using Application.Features.User.Commands.RefreshToken;
 using AutoMapper;
 
-namespace Api.Controllers.User.Models;
+namespace Api.Controllers.Users.Models;
 
 public class RefreshTokenDto : IMapWith<RefreshTokenCommand>
 {
