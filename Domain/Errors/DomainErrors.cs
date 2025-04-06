@@ -306,6 +306,9 @@ public class DomainErrors
         
         public static readonly Error ServiceIdEmpty = Error.Validation(
             "Record.ServiceIdEmpty", "Service ID cannot be empty.");
+        
+        public static readonly Error NotFound = Error.NotFound(
+            "Record.NotFound", "Record not found by id.");
     }
     
     public static class RecordComment

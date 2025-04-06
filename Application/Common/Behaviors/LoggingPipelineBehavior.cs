@@ -15,22 +15,28 @@ public class LoggingPipelineBehavior<TRequest, TResponse>
         RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken)
     {
-        Log.Information("Starting request {@RequestName}, {@DateTimeUtc}, {@RequestBody}",
+        var json = JsonSerializer.Serialize(
+            request,
+            new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+        Log.Information(
+            "Starting request {@RequestName}\n{@RequestBody}",
             typeof(TRequest).Name,
-            DateTime.UtcNow,
-            JsonSerializer.Serialize(request));
+            json);
 
         var result = await next();
 
         if (result.IsFailure)
-            Log.Error("Request failure {@RequestName}, {@Error},{@DateTimeUtc}",
+            Log.Error(
+                "Request failure {RequestName}\nError: {Error}",
                 typeof(TRequest).Name,
-                result.Error,
-                DateTime.UtcNow);
+                result.Error);
 
-        Log.Information("Completed request {@RequestName}, {@DateTimeUtc}",
-            typeof(TRequest).Name,
-            DateTime.UtcNow);
+        Log.Information(
+            "Completed request {RequestName}",
+            typeof(TRequest).Name);
 
         return result;
     }

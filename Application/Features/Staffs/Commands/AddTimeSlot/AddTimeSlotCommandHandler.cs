@@ -1,5 +1,6 @@
 using Application.Messaging.Command;
 using Domain.Entities;
+using Domain.Enums;
 using Domain.Errors;
 using Domain.Repositories.Staffs;
 using Domain.Repositories.Venues;
@@ -16,9 +17,18 @@ public class AddTimeSlotCommandHandler(
 {
     public async Task<Result> Handle(AddTimeSlotCommand request, CancellationToken cancellationToken)
     {
-        var staff = await staffRepository.GetByIdWithTimeSlotsAsync(request.StaffId, cancellationToken);
+        var initiatorStaff = await staffRepository.GetByIdAsync(request.InitiatorId, cancellationToken);
+        if (initiatorStaff is null)
+            return Result.Failure(DomainErrors.Staff.NotFound(request.InitiatorId));
+
+        var staff = await staffRepository.GetByIdAsync(request.StaffId, cancellationToken);
         if (staff is null)
             return Result.Failure(DomainErrors.Staff.NotFound(request.StaffId));
+
+        if (initiatorStaff.Id != staff.Id && 
+            (initiatorStaff.OrganizationId != staff.OrganizationId || 
+             initiatorStaff.Role != StaffRole.Manager))
+            return Result.Failure(DomainErrors.Staff.StaffCannotUpdate);
 
         var addTimeSlotResult = await staff.AddTimeSlotAsync(
             Guid.NewGuid(),

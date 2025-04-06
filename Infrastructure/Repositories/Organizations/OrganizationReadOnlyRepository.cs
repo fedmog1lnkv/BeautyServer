@@ -22,6 +22,7 @@ public class OrganizationReadOnlyRepository(ApplicationDbContext dbContext) : IO
         CancellationToken cancellationToken = default) =>
         await dbContext.Set<Organization>()
             .AsNoTracking()
+            .OrderBy(o => o.Id)
             .Skip(offset)
             .Take(limit)
             .ToListAsync(cancellationToken);

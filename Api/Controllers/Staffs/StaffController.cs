@@ -9,6 +9,7 @@ using Application.Features.Staffs.Commands.GeneratePhoneChallenge;
 using Application.Features.Staffs.Commands.RefreshToken;
 using Application.Features.Staffs.Commands.UpdateStaff;
 using Application.Features.Staffs.Queries.GetStaffWithServicesById;
+using Application.Features.Staffs.Queries.GetStaffWithTimeSlotsByIdAndVenueId;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using TimeSlotDto = Api.Controllers.Staffs.Models.TimeSlotDto;
@@ -60,11 +61,13 @@ public class StaffController(IMapper mapper) : BaseController
             : Ok(result.Value);
     }
 
-    [HttpPost("scheldue")]
+    [HttpPost("schedule")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    [StaffValidationFilter]
     public async Task<IActionResult> AddTimeSlot([FromBody] TimeSlotDto request)
     {
+        request.InitiatorId = HttpContext.GetStaffId();
         var command = mapper.Map<AddTimeSlotCommand>(request);
 
         var result = await Sender.Send(command);
@@ -72,6 +75,20 @@ public class StaffController(IMapper mapper) : BaseController
         return result.IsFailure
             ? HandleFailure(result)
             : Ok();
+    }
+
+    [HttpGet("{id}/schedule")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetTimeSlotByStaffId(Guid id, [FromQuery] Guid venueId)
+    {
+        var query = new GetStaffWithTimeSlotsByIdAndVenueIdQuery(id, venueId);
+
+        var result = await Sender.Send(query);
+        if (result.IsFailure)
+            return HandleFailure(result);
+
+        var timeSlots = mapper.Map<List<TimeSlotsVm>>(result.Value.TimeSlots);
+        return Ok(timeSlots);
     }
 
     [HttpGet("records")]
@@ -91,18 +108,18 @@ public class StaffController(IMapper mapper) : BaseController
         var staffId = Guid.Parse(HttpContext.Items["staff_id"]?.ToString() ?? string.Empty);
         if (staffId == Guid.Empty)
             return Unauthorized();
-        
+
         var query = new GetRecordsByStaffIdQuery(staffId, limit, offset, isPending);
 
         var result = await Sender.Send(query);
         if (result.IsFailure)
             return HandleFailure(result);
-// TODO : MAP
-        // var venues = mapper.Map<List<StaffRecordLookupDto>>(result.Value);
 
-        return Ok(result.Value);
+        var records = mapper.Map<List<StaffRecordsLookupDto>>(result.Value);
+
+        return Ok(records);
     }
-    
+
     [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
@@ -110,18 +127,18 @@ public class StaffController(IMapper mapper) : BaseController
     {
         if (id == Guid.Empty)
             return BadRequest();
-        
+
         var query = new GetStaffWithServicesByIdQuery(id);
 
         var result = await Sender.Send(query);
         if (result.IsFailure)
             return HandleFailure(result);
-        
+
         var staff = mapper.Map<StaffVm>(result.Value);
 
         return Ok(staff);
     }
-    
+
     [HttpPatch]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [StaffValidationFilter]
@@ -129,9 +146,9 @@ public class StaffController(IMapper mapper) : BaseController
     {
         request.InitiatorId = HttpContext.GetStaffId();
         var command = mapper.Map<UpdateStaffCommand>(request);
-    
+
         var result = await Sender.Send(command);
-    
+
         return result.IsFailure
             ? HandleFailure(result)
             : NoContent();

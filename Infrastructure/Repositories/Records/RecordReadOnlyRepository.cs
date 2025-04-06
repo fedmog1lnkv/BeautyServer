@@ -1,5 +1,4 @@
 using Domain.Entities;
-using Domain.Enums;
 using Domain.Repositories.Records;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,8 +14,7 @@ public class RecordReadOnlyRepository(ApplicationDbContext dbContext) : IRecordR
         CancellationToken cancellationToken = default)
     {
         return await dbContext.Set<Record>()
-            .Where(
-                r => r.StaffId == staffId)
+            .Where(r => r.StaffId == staffId)
             .Include(r => r.User)
             .Include(r => r.Service)
             .Include(r => r.Venue)
@@ -34,8 +32,7 @@ public class RecordReadOnlyRepository(ApplicationDbContext dbContext) : IRecordR
         bool isPending,
         CancellationToken cancellationToken = default) =>
         await dbContext.Set<Record>()
-            .Where(
-                r => r.UserId == userId)
+            .Where(r => r.UserId == userId)
             .Include(r => r.Staff)
             .Include(r => r.Service)
             .Include(r => r.Venue)
@@ -43,4 +40,16 @@ public class RecordReadOnlyRepository(ApplicationDbContext dbContext) : IRecordR
             .Skip(offset)
             .Take(limit)
             .ToListAsync(cancellationToken);
+
+    public async Task<Record?> GetRecordById(
+        Guid id,
+        CancellationToken cancellationToken = default) =>
+        await dbContext.Set<Record>()
+            .Where(r => r.Id == id)
+            .Include(r => r.User)
+            .Include(r => r.Staff)
+            .Include(r => r.Service)
+            .Include(r => r.Venue)
+            .AsSplitQuery()
+            .FirstOrDefaultAsync(cancellationToken);
 }

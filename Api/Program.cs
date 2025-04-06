@@ -29,7 +29,10 @@ builder.Services.AddApplication();
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
-    .WriteTo.Console()
+    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Warning)
+    .WriteTo.Console(outputTemplate: "[{Timestamp:yyyy/MM/dd HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
+    .Enrich.WithProperty("Timestamp", DateTime.UtcNow)
     .CreateLogger();
 
 builder.Logging.ClearProviders();

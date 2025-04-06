@@ -18,7 +18,9 @@ public class VenueVm : IMapWith<Domain.Entities.Venue>
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.OrganizationId, opt => opt.MapFrom(src => src.OrganizationId))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.Value))
-            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+            .ForMember(
+                dest => dest.Description,
+                opt => opt.MapFrom(src => src.Description != null ? src.Description.Value : null))
             .ForMember(
                 dest => dest.Theme,
                 opt => opt.MapFrom(
