@@ -165,8 +165,8 @@ public sealed class Record : AggregateRoot, IAuditableEntity
 
     public Result SetComment(string? commentText)
     {
-        if (!string.IsNullOrEmpty(commentText))
-            return Result.Failure(DomainErrors.RecordComment.Empty);
+        if (string.IsNullOrWhiteSpace(commentText))
+            return Result.Success();
 
         var createCommentResult = RecordComment.Create(commentText!);
         if (createCommentResult.IsFailure)

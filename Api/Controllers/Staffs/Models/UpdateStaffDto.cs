@@ -9,7 +9,7 @@ public class UpdateStaffDto : IMapWith<UpdateStaffCommand>
 {
     [SwaggerIgnore]
     public Guid InitiatorId { get; set; }
-    public Guid StaffId { get; set; }
+    public required Guid StaffId { get; set; }
     public string? Name { get; set; }
     public string? Photo { get; set; }
 

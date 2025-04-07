@@ -154,6 +154,27 @@ public class StaffController(IMapper mapper) : BaseController
 
         return Ok(staff);
     }
+    
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    [StaffValidationFilter]
+    public async Task<IActionResult> Get()
+    {
+        var id = HttpContext.GetStaffId();
+        if (id == Guid.Empty)
+            return BadRequest();
+
+        var query = new GetStaffWithServicesByIdQuery(id);
+
+        var result = await Sender.Send(query);
+        if (result.IsFailure)
+            return HandleFailure(result);
+
+        var staff = mapper.Map<StaffVm>(result.Value);
+
+        return Ok(staff);
+    }
 
     [HttpPatch]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

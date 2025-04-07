@@ -7,14 +7,14 @@ using Domain.Repositories.Staffs;
 using Domain.Shared;
 using Domain.ValueObjects;
 
-namespace Application.Features.Staffs.Commands.UpdateStaffRecord;
+namespace Application.Features.User.Commands.UpdateUserRecord;
 
-public sealed class UpdateStaffRecordCommandHandler(
+public sealed class UpdateUserRecordCommandHandler(
     IStaffRepository staffRepository,
     IRecordRepository
-        recordRepository) : ICommandHandler<UpdateStaffRecordCommand, Result>
+        recordRepository) : ICommandHandler<UpdateUserRecordCommand, Result>
 {
-    public async Task<Result> Handle(UpdateStaffRecordCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(UpdateUserRecordCommand request, CancellationToken cancellationToken)
     {
         var record = await recordRepository.GetRecordById(request.RecordId, cancellationToken);
         if (record is null)
@@ -23,9 +23,9 @@ public sealed class UpdateStaffRecordCommandHandler(
         if (record.Status == RecordStatus.Completed)
             return Result.Failure(DomainErrors.Record.CannotUpdate);
 
-        var initiatorStaff = await staffRepository.GetByIdAsync(request.InitiatorId, cancellationToken);
+        var initiatorStaff = await staffRepository.GetByIdAsync(record.StaffId, cancellationToken);
         if (initiatorStaff is null)
-            return Result.Failure(DomainErrors.Staff.NotFound(request.InitiatorId));
+            return Result.Failure(DomainErrors.Staff.NotFound(record.StaffId));
 
         var staff = await staffRepository.GetByIdWithTimeSlotsAsync(record.StaffId, cancellationToken);
         if (staff is null)
@@ -42,22 +42,19 @@ public sealed class UpdateStaffRecordCommandHandler(
         {
             var status = (RecordStatus)Enum.Parse(typeof(RecordStatus), request.Status, true);
 
-            result = status switch
+            if (status == RecordStatus.Discarded)
             {
-                RecordStatus.Approved => record.Approve(request.Comment),
-                RecordStatus.Discarded => record.Discard(request.Comment),
-                RecordStatus.Completed => record.Completed(request.Comment),
-                _ => result
-            };
-
-            if (result.IsFailure)
-                return result;
-
-            if (record.Status == RecordStatus.Discarded)
+                result = record.Discard(request.Comment);
+                if (result.IsFailure)
+                    return result;
+                
+                result = RemoveRecordFromIntervals(staff, record);
+                if (result.IsFailure)
+                    return result;
+            }
+            else
             {
-                var removeOldRecordResult = RemoveRecordFromIntervals(staff, record);
-                if (removeOldRecordResult.IsFailure)
-                    return removeOldRecordResult;
+                return Result.Failure(DomainErrors.Record.CannotUpdate);
             }
         }
 
@@ -67,79 +64,14 @@ public sealed class UpdateStaffRecordCommandHandler(
             if (result.IsFailure)
                 return result;
         }
-
-        if (request.StartTimestamp.HasValue || request.EndTimeStamp.HasValue)
-        {
-            var removeOldRecordResult = RemoveRecordFromIntervals(staff, record);
-            if (removeOldRecordResult.IsFailure)
-                return removeOldRecordResult;
-
-            var startTimeStamp = request.StartTimestamp ?? record.StartTimestamp;
-            var endTimeStamp = request.EndTimeStamp ?? record.EndTimestamp;
-
-            if (startTimeStamp.Date != endTimeStamp.Date)
-                return Result.Failure(DomainErrors.TimeSlot.NotSameDay);
-
-            var startTime = startTimeStamp.TimeOfDay;
-            var endTime = endTimeStamp.TimeOfDay;
-
-            var timeSlot = staff.TimeSlots.FirstOrDefault(ts => ts.Date == DateOnly.FromDateTime(startTimeStamp));
-            if (timeSlot is null)
-                return Result.Failure(DomainErrors.TimeSlot.NotFoundByTime);
-
-            var isAvailableTime = timeSlot.Intervals.Any(
-                interval =>
-                    startTime < interval.End && endTime > interval.Start);
-
-            if (!isAvailableTime)
-                return Result.Failure(DomainErrors.TimeSlot.IntervalsOverlap);
-
-            var updatedIntervals = new List<Interval>();
-
-            foreach (var interval in timeSlot.Intervals)
-            {
-                if (startTime <= interval.End && endTime >= interval.Start)
-                {
-                    if (interval.Start != startTime)
-                    {
-                        var createIntervalResult = Interval.Create(interval.Start, startTime);
-                        if (createIntervalResult.IsFailure)
-                            return createIntervalResult;
-
-                        updatedIntervals.Add(createIntervalResult.Value);
-                    }
-
-                    if (interval.End != endTime)
-                    {
-                        var createIntervalResult = Interval.Create(endTime, interval.End);
-                        if (createIntervalResult.IsFailure)
-                            return createIntervalResult;
-
-                        updatedIntervals.Add(createIntervalResult.Value);
-                    }
-                }
-                else
-                {
-                    updatedIntervals.Add(interval);
-                }
-            }
-
-            var updateStaffIntervalsResult = staff.UpdateTimeSlotIntervals(timeSlot.Id, updatedIntervals);
-            if (updateStaffIntervalsResult.IsFailure)
-                return Result.Failure(updateStaffIntervalsResult.Error);
-
-            result = record.SetTime(startTimeStamp, endTimeStamp);
-            if (result.IsFailure)
-                return result;
-        }
-
+        
         return Result.Success();
     }
 
     // TODO : move to helper
     private Result RemoveRecordFromIntervals(Staff staff, Record record)
     {
-        var recordIntervalResult = Interval.Create(record.StartTimestamp.TimeOfDay, record.EndTimestamp.TimeOfDay);
+        var recordIntervalResult = Interval.Create(record.StartTimestamp.ToLocalTime().TimeOfDay, record.EndTimestamp.ToLocalTime().TimeOfDay);
         if (recordIntervalResult.IsFailure)
             return recordIntervalResult;
 

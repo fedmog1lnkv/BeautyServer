@@ -7,6 +7,7 @@ using Application.Features.User.Commands.Auth;
 using Application.Features.User.Commands.GeneratePhoneChallenge;
 using Application.Features.User.Commands.RefreshToken;
 using Application.Features.User.Commands.UpdateUser;
+using Application.Features.User.Commands.UpdateUserRecord;
 using Application.Features.User.Queries.GetUserById;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
@@ -106,6 +107,21 @@ public class UserController(IMapper mapper) : BaseController
         request.Id = HttpContext.GetUserId();
 
         var command = mapper.Map<UpdateUserCommand>(request);
+
+        var result = await Sender.Send(command);
+
+        return result.IsFailure
+            ? HandleFailure(result)
+            : NoContent();
+    }
+    
+    [HttpPatch("record")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [UserValidationFilter]
+    public async Task<IActionResult> Update([FromBody] UpdateUserRecordDto request)
+    {
+        request.UserId = HttpContext.GetUserId();
+        var command = mapper.Map<UpdateUserRecordCommand>(request);
 
         var result = await Sender.Send(command);
 

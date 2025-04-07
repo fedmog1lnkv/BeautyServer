@@ -38,7 +38,7 @@ public class RecordReadOnlyRepository(ApplicationDbContext dbContext) : IRecordR
             .Include(r => r.Staff)
             .Include(r => r.Service)
             .Include(r => r.Venue)
-            .OrderBy(r => r.StartTimestamp)
+            .OrderByDescending(r => r.CreatedOnUtc)
             .Skip(offset)
             .Take(limit)
             .ToListAsync(cancellationToken);

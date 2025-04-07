@@ -20,12 +20,14 @@ public class Staff : AggregateRoot, IAuditableEntity
         StaffName name,
         StaffPhoneNumber phoneNumber,
         StaffRole role,
+        StaffPhoto? photo,
         DateTime createdOnUtc) : base(id)
     {
         OrganizationId = organizationId;
         Name = name;
         PhoneNumber = phoneNumber;
         Role = role;
+        Photo = photo;
 
         CreatedOnUtc = createdOnUtc;
     }
@@ -38,7 +40,7 @@ public class Staff : AggregateRoot, IAuditableEntity
     public StaffName Name { get; private set; }
     public StaffPhoneNumber PhoneNumber { get; private set; }
     public StaffRole Role { get; private set; }
-    public StaffPhoto Photo { get; private set; }
+    public StaffPhoto? Photo { get; private set; }
     public DateTime CreatedOnUtc { get; set; }
     public DateTime? ModifiedOnUtc { get; set; }
     public IReadOnlyCollection<Service> Services => _services.AsReadOnly();
@@ -79,6 +81,7 @@ public class Staff : AggregateRoot, IAuditableEntity
             staffNameResult.Value,
             staffPhoneResult.Value,
             StaffRole.Unknown,
+            null,
             createdOnUtc);
     }
 
@@ -110,7 +113,7 @@ public class Staff : AggregateRoot, IAuditableEntity
         if (photoResult.IsFailure)
             return photoResult;
 
-        if (Photo.Equals(photoResult.Value))
+        if (Photo is not null && Photo.Equals(photoResult.Value))
             return Result.Success();
 
         Photo = photoResult.Value;
