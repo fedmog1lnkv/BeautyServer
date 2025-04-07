@@ -4,6 +4,7 @@ using Domain.Enums;
 using Domain.Errors;
 using Domain.Repositories.Records;
 using Domain.Repositories.Staffs;
+using Domain.Repositories.Venues;
 using Domain.Shared;
 using Domain.ValueObjects;
 
@@ -11,8 +12,8 @@ namespace Application.Features.Staffs.Commands.UpdateStaffRecord;
 
 public sealed class UpdateStaffRecordCommandHandler(
     IStaffRepository staffRepository,
-    IRecordRepository
-        recordRepository) : ICommandHandler<UpdateStaffRecordCommand, Result>
+    IRecordRepository recordRepository,
+    IVenueReadOnlyRepository venueReadOnlyRepository) : ICommandHandler<UpdateStaffRecordCommand, Result>
 {
     public async Task<Result> Handle(UpdateStaffRecordCommand request, CancellationToken cancellationToken)
     {
@@ -83,7 +84,7 @@ public sealed class UpdateStaffRecordCommandHandler(
             var startTime = startTimeStamp.TimeOfDay;
             var endTime = endTimeStamp.TimeOfDay;
 
-            var timeSlot = staff.TimeSlots.FirstOrDefault(ts => ts.Date == DateOnly.FromDateTime(startTimeStamp));
+            var timeSlot = staff.TimeSlots.FirstOrDefault(ts => ts.Date == DateOnly.FromDateTime(startTimeStamp.DateTime));
             if (timeSlot is null)
                 return Result.Failure(DomainErrors.TimeSlot.NotFoundByTime);
 
@@ -128,7 +129,11 @@ public sealed class UpdateStaffRecordCommandHandler(
             if (updateStaffIntervalsResult.IsFailure)
                 return Result.Failure(updateStaffIntervalsResult.Error);
 
-            result = record.SetTime(startTimeStamp, endTimeStamp);
+            var venue = await venueReadOnlyRepository.GetByIdAsync(timeSlot.VenueId, cancellationToken);
+            if (venue is null)
+                return Result.Failure(DomainErrors.Venue.NotFound(timeSlot.VenueId));
+            
+            result = record.SetTime(TimeZoneInfo.ConvertTimeToUtc(startTimeStamp.DateTime, venue.TimeZone), TimeZoneInfo.ConvertTimeToUtc(endTimeStamp.DateTime, venue.TimeZone));
             if (result.IsFailure)
                 return result;
         }
@@ -144,7 +149,7 @@ public sealed class UpdateStaffRecordCommandHandler(
             return recordIntervalResult;
 
         var oldStaffTimeSlot =
-            staff.TimeSlots.FirstOrDefault(ts => ts.Date == DateOnly.FromDateTime(record.StartTimestamp));
+            staff.TimeSlots.FirstOrDefault(ts => ts.Date == DateOnly.FromDateTime(record.StartTimestamp.DateTime));
         if (oldStaffTimeSlot is null)
             return Result.Failure(DomainErrors.TimeSlot.NotFoundByTime);
 

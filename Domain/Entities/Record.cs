@@ -49,8 +49,8 @@ public sealed class Record : AggregateRoot, IAuditableEntity
     public Guid ServiceId { get; private set; }
     public RecordStatus Status { get; private set; }
     public RecordComment? Comment { get; private set; }
-    public DateTime StartTimestamp { get; private set; }
-    public DateTime EndTimestamp { get; private set; }
+    public DateTimeOffset StartTimestamp { get; private set; }
+    public DateTimeOffset EndTimestamp { get; private set; }
 
     public User User { get; private set; } = null!;
     public Staff Staff { get; private set; } = null!;

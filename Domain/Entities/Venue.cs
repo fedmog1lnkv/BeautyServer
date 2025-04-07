@@ -1,6 +1,7 @@
 using Domain.Errors;
 using Domain.Primitives;
 using Domain.Repositories.Organizations;
+using Domain.Repositories.Utils;
 using Domain.Shared;
 using Domain.ValueObjects;
 
@@ -16,6 +17,7 @@ public class Venue : AggregateRoot, IAuditableEntity
         VenueName name,
         VenueTheme theme,
         Location location,
+        TimeZoneInfo tz,
         VenueDescription? description,
         DateTime createdOnUtc) : base(id)
     {
@@ -23,6 +25,7 @@ public class Venue : AggregateRoot, IAuditableEntity
         Name = name;
         Theme = theme;
         Location = location;
+        TimeZone = tz;
         Description = description;
         
         CreatedOnUtc = createdOnUtc;
@@ -37,6 +40,7 @@ public class Venue : AggregateRoot, IAuditableEntity
     public VenueDescription? Description { get; private set; }
     public VenueTheme Theme { get; private set; }
     public Location Location { get; private set; }
+    public TimeZoneInfo TimeZone { get; private set; }
     
     public DateTime CreatedOnUtc { get; set; }
     public DateTime? ModifiedOnUtc { get; set; }
@@ -50,7 +54,8 @@ public class Venue : AggregateRoot, IAuditableEntity
         double latitude,
         double longitude,
         DateTime createdOnUtc,
-        IOrganizationReadOnlyRepository repository)
+        IOrganizationReadOnlyRepository repository,
+        ILocationRepository locationRepository)
     {
         if (organizationId == Guid.Empty)
             return Result.Failure<Venue>(DomainErrors.Venue.OrganizationIdEmpty);
@@ -71,12 +76,17 @@ public class Venue : AggregateRoot, IAuditableEntity
         if (locationResult.IsFailure)
             return Result.Failure<Venue>(locationResult.Error);
 
+        var tz = locationRepository.GetTimeZoneByLocation(
+            locationResult.Value.Latitude,
+            locationResult.Value.Longitude);
+
         return new Venue(
             id,
             organizationId,
             nameResult.Value,
             themeResult.Value,
             locationResult.Value,
+            tz,
             null,
             createdOnUtc);
     }

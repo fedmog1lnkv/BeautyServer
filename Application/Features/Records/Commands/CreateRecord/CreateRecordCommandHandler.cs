@@ -82,6 +82,10 @@ public class CreateRecordCommandHandler(
         var updateStaffIntervalsResult = staff.UpdateTimeSlotIntervals(timeSlot.Id, updatedIntervals);
         if (updateStaffIntervalsResult.IsFailure)
             return Result.Failure(updateStaffIntervalsResult.Error);
+        
+        var venue = await venueReadOnlyRepository.GetByIdAsync(timeSlot.VenueId, cancellationToken);
+        if (venue is null)
+            return Result.Failure(DomainErrors.Venue.NotFound(timeSlot.VenueId));
 
         var createRecordResult = await Record.CreateAsync(
             Guid.NewGuid(),
@@ -91,8 +95,8 @@ public class CreateRecordCommandHandler(
             timeSlot.VenueId,
             service.Id,
             RecordStatus.Pending,
-            request.StartTimestamp.ToUniversalTime(),
-            endTimeStamp.ToUniversalTime(),
+            TimeZoneInfo.ConvertTimeToUtc(request.StartTimestamp, venue.TimeZone),
+            TimeZoneInfo.ConvertTimeToUtc(endTimeStamp, venue.TimeZone),
             DateTime.UtcNow,
             userReadOnlyRepository,
             staffReadOnlyRepository,

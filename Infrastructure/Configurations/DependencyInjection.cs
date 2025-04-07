@@ -8,6 +8,7 @@ using Domain.Repositories.Records;
 using Domain.Repositories.Services;
 using Domain.Repositories.Staffs;
 using Domain.Repositories.Users;
+using Domain.Repositories.Utils;
 using Domain.Repositories.Venues;
 using Infrastructure.Authentication.Staff;
 using Infrastructure.Authentication.User;
@@ -17,6 +18,7 @@ using Infrastructure.Repositories.Records;
 using Infrastructure.Repositories.Services;
 using Infrastructure.Repositories.Staffs;
 using Infrastructure.Repositories.Users;
+using Infrastructure.Repositories.Utils;
 using Infrastructure.Repositories.Venues;
 using Infrastructure.Utils;
 using Microsoft.EntityFrameworkCore;
@@ -94,6 +96,9 @@ public static class DependencyInjection
         // Record
         services.AddScoped<IRecordRepository, RecordRepository>();
         services.AddScoped<IRecordReadOnlyRepository, RecordReadOnlyRepository>();
+        
+        // Utils
+        services.AddScoped<ILocationRepository, LocationRepository>();
 
         services.AddSingleton<InMemoryDomainEventsQueue>();
         services.AddSingleton<IDomainEventBus, DomainEventBus>();

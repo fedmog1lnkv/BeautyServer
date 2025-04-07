@@ -13,8 +13,8 @@ public class RecordVm : IMapWith<Record>
     public RecordVmVenueLookupDto Venue { get; set; }
     public string Comment { get; set; }
     public string Status { get; set; }
-    public DateTime StartTimestamp { get; set; }
-    public DateTime EndTimestamp { get; set; }
+    public DateTimeOffset StartTimestamp { get; set; }
+    public DateTimeOffset EndTimestamp { get; set; }
 
     public void Mapping(Profile profile)
     {

@@ -40,6 +40,14 @@ public class VenueConfiguration : IEntityTypeConfiguration<Venue>
                     .IsRequired();
             });
 
+        builder.Property(v => v.TimeZone)
+            .HasConversion(
+                tz => tz.Id,
+                id => TimeZoneInfo.FindSystemTimeZoneById(id))
+            .HasColumnName("TimeZoneId")
+            .HasMaxLength(100)
+            .IsRequired();
+
         builder.OwnsOne(
             o => o.Theme,
             theme =>
@@ -54,7 +62,7 @@ public class VenueConfiguration : IEntityTypeConfiguration<Venue>
                     .HasMaxLength(2048)
                     .IsRequired(false);
             });
-        
+
         builder.Property(s => s.CreatedOnUtc)
             .IsRequired();
 

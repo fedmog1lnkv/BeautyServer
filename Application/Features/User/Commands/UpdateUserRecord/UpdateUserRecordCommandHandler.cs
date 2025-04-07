@@ -20,7 +20,7 @@ public sealed class UpdateUserRecordCommandHandler(
         if (record is null)
             return Result.Failure(DomainErrors.Record.NotFound);
 
-        if (record.Status == RecordStatus.Completed)
+        if (record.Status == RecordStatus.Completed || record.UserId != request.UserId)
             return Result.Failure(DomainErrors.Record.CannotUpdate);
 
         var initiatorStaff = await staffRepository.GetByIdAsync(record.StaffId, cancellationToken);
@@ -76,7 +76,7 @@ public sealed class UpdateUserRecordCommandHandler(
             return recordIntervalResult;
 
         var oldStaffTimeSlot =
-            staff.TimeSlots.FirstOrDefault(ts => ts.Date == DateOnly.FromDateTime(record.StartTimestamp));
+            staff.TimeSlots.FirstOrDefault(ts => ts.Date == DateOnly.FromDateTime(record.StartTimestamp.DateTime));
         if (oldStaffTimeSlot is null)
             return Result.Failure(DomainErrors.TimeSlot.NotFoundByTime);
 

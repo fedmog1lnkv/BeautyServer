@@ -2,6 +2,7 @@ using Application.Messaging.Command;
 using Domain.Entities;
 using Domain.Errors;
 using Domain.Repositories.Organizations;
+using Domain.Repositories.Utils;
 using Domain.Repositories.Venues;
 using Domain.Shared;
 
@@ -9,7 +10,8 @@ namespace Application.Features.Venues.Commands.CreateVenue;
 
 public class CreateVenueCommandHandler(
     IVenueRepository venueRepository,
-    IOrganizationReadOnlyRepository organizationReadOnlyRepository)
+    IOrganizationReadOnlyRepository organizationReadOnlyRepository,
+    ILocationRepository locationRepository)
     : ICommandHandler<CreateVenueCommand, Result>
 {
     public async Task<Result> Handle(CreateVenueCommand request, CancellationToken cancellationToken)
@@ -29,7 +31,8 @@ public class CreateVenueCommandHandler(
             request.Latitude,
             request.Longitude,
             DateTime.UtcNow,
-            organizationReadOnlyRepository);
+            organizationReadOnlyRepository,
+            locationRepository);
 
         if (createVenueResult.IsFailure)
             return Result.Failure(createVenueResult.Error);
