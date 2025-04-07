@@ -14,6 +14,7 @@ public class RecordReadOnlyRepository(ApplicationDbContext dbContext) : IRecordR
         CancellationToken cancellationToken = default)
     {
         return await dbContext.Set<Record>()
+            .AsNoTracking()
             .Where(r => r.StaffId == staffId)
             .Include(r => r.User)
             .Include(r => r.Service)
@@ -32,6 +33,7 @@ public class RecordReadOnlyRepository(ApplicationDbContext dbContext) : IRecordR
         bool isPending,
         CancellationToken cancellationToken = default) =>
         await dbContext.Set<Record>()
+            .AsNoTracking()
             .Where(r => r.UserId == userId)
             .Include(r => r.Staff)
             .Include(r => r.Service)
@@ -45,6 +47,7 @@ public class RecordReadOnlyRepository(ApplicationDbContext dbContext) : IRecordR
         Guid id,
         CancellationToken cancellationToken = default) =>
         await dbContext.Set<Record>()
+            .AsNoTracking()
             .Where(r => r.Id == id)
             .Include(r => r.User)
             .Include(r => r.Staff)

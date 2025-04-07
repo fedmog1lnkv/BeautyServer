@@ -288,6 +288,9 @@ public class DomainErrors
         
         public static readonly Error IntervalsOverlap = Error.Validation(
             "TimeSlot.IntervalsOverlap", "Intervals cannot overlap.");
+        
+        public static readonly Error NotSameDay = Error.Validation(
+            "TimeSlot.NotSameDay", "Start and End timestamps must be on the same day.");
     }
     
     public static class Record
@@ -309,6 +312,9 @@ public class DomainErrors
         
         public static readonly Error NotFound = Error.NotFound(
             "Record.NotFound", "Record not found by id.");
+        
+        public static readonly Error CannotUpdate = Error.Failure(
+            "Record.CannotUpdate", "You do not have permission to update this record data.");
     }
     
     public static class RecordComment

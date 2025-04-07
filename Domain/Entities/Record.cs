@@ -151,6 +151,17 @@ public sealed class Record : AggregateRoot, IAuditableEntity
 
         return Result.Success();
     }
+    
+    public Result Completed(string? commentText)
+    {
+        var setCommentResult = SetComment(commentText!);
+        if (setCommentResult.IsFailure)
+            return setCommentResult;
+
+        Status = RecordStatus.Completed;
+
+        return Result.Success();
+    }
 
     public Result SetComment(string? commentText)
     {
@@ -162,6 +173,18 @@ public sealed class Record : AggregateRoot, IAuditableEntity
             return createCommentResult;
 
         Comment = createCommentResult.Value;
+
+        return Result.Success();
+    }
+    
+    public Result SetTime(DateTime newStartTimestamp, DateTime newEndTimestamp)
+    {
+        if (newStartTimestamp >= newEndTimestamp)
+            return Result.Failure(DomainErrors.TimeSlot.IntervalsOverlap);
+
+        StartTimestamp = newStartTimestamp;
+        EndTimestamp = newEndTimestamp;
+        ModifiedOnUtc = DateTime.UtcNow;
 
         return Result.Success();
     }

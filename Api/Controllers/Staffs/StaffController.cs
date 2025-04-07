@@ -8,6 +8,7 @@ using Application.Features.Staffs.Commands.Auth;
 using Application.Features.Staffs.Commands.GeneratePhoneChallenge;
 using Application.Features.Staffs.Commands.RefreshToken;
 using Application.Features.Staffs.Commands.UpdateStaff;
+using Application.Features.Staffs.Commands.UpdateStaffRecord;
 using Application.Features.Staffs.Queries.GetStaffWithServicesById;
 using Application.Features.Staffs.Queries.GetStaffWithTimeSlotsByIdAndVenueId;
 using AutoMapper;
@@ -118,6 +119,21 @@ public class StaffController(IMapper mapper) : BaseController
         var records = mapper.Map<List<StaffRecordsLookupDto>>(result.Value);
 
         return Ok(records);
+    }
+    
+    [HttpPatch("/record")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [StaffValidationFilter]
+    public async Task<IActionResult> Update([FromBody] UpdateStaffRecordDto request)
+    {
+        request.InitiatorId = HttpContext.GetStaffId();
+        var command = mapper.Map<UpdateStaffRecordCommand>(request);
+
+        var result = await Sender.Send(command);
+
+        return result.IsFailure
+            ? HandleFailure(result)
+            : NoContent();
     }
 
     [HttpGet("{id}")]

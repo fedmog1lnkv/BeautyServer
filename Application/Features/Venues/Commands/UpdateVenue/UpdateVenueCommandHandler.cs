@@ -39,7 +39,6 @@ public class UpdateVenueCommandHandler(
                 return colorResult;
         }
 
-
         if (!string.IsNullOrWhiteSpace(request.Photo))
         {
             var isBase64 = request.Photo.Length % 4 == 0 &&
