@@ -1,4 +1,5 @@
 using Domain.Entities;
+using Domain.Enums;
 using Domain.Repositories.Records;
 using Microsoft.EntityFrameworkCore;
 
@@ -55,4 +56,14 @@ public class RecordReadOnlyRepository(ApplicationDbContext dbContext) : IRecordR
             .Include(r => r.Venue)
             .AsSplitQuery()
             .FirstOrDefaultAsync(cancellationToken);
+
+    public Task<List<Record>> GetApprovedRecordsFromTime(
+        DateTime dateTime,
+        CancellationToken cancellationToken = default) =>
+        dbContext.Set<Record>()
+            .AsNoTracking()
+            .Where(r => r.Status == RecordStatus.Approved && r.StartTimestamp >= dateTime)
+            .Include(r => r.User)
+            .Include(r => r.Venue)
+            .ToListAsync(cancellationToken: cancellationToken);
 }

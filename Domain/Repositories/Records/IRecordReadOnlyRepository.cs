@@ -22,4 +22,6 @@ public interface IRecordReadOnlyRepository : IReadOnlyRepository<Record>
     Task<Record?> GetRecordById(
         Guid id,
         CancellationToken cancellationToken = default);
+
+    Task<List<Record>> GetApprovedRecordsFromTime(DateTime dateTime, CancellationToken cancellationToken = default);
 }

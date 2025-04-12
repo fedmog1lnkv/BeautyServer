@@ -34,13 +34,15 @@ public class UserRecordsStaffLookupDto : IMapWith<Staff>
     public Guid Id { get; set; }
     public string Name { get; set; }
     public string PhoneNumber { get; set; }
+    public string Photo { get; set; }
     
     public void Mapping(Profile profile)
     {
         profile.CreateMap<Staff, UserRecordsStaffLookupDto>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.Value))
-            .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber.Value));
+            .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber.Value))
+            .ForMember(dest => dest.Photo, opt => opt.MapFrom(src => src.Photo.Value));
     }
 }
 

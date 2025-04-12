@@ -1,4 +1,6 @@
+using Api.BackgroundServices;
 using Api.OptionsSetup;
+using Api.Storages;
 using Application.Common.Mappings;
 using Application.Configurations;
 using Domain.Entities;
@@ -22,6 +24,9 @@ builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
 builder.Services.Configure<TwoFaSettings>(builder.Configuration.GetSection("2fa"));
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddApplication();
+
+builder.Services.AddSingleton<NotificationSchedulerStorage>();
+builder.Services.AddHostedService<RecordScheduleNotificationBackgroundService>();
 
 #endregion
 #region Logging

@@ -61,6 +61,12 @@ public class DomainErrors
             "UserPhoneNumber.InvalidFormat", "Invalid user phone number format.");
     }
     
+    public static class UserSettings
+    {
+        public static readonly Error FirebaseTokenEmpty = Error.Validation(
+            "UserSettings.FirebaseTokenEmpty", "Firebase token cannot be empty if provided.");
+    }
+    
     public static class Organization
     {
         public static Error NotFound(Guid id) => Error.NotFound(

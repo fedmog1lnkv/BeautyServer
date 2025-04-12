@@ -10,6 +10,8 @@ using Domain.Repositories.Staffs;
 using Domain.Repositories.Users;
 using Domain.Repositories.Utils;
 using Domain.Repositories.Venues;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Infrastructure.Authentication.Staff;
 using Infrastructure.Authentication.User;
 using Infrastructure.Repositories.Organizations;
@@ -25,6 +27,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json;
 
 namespace Infrastructure.Configurations;
 
@@ -65,6 +68,16 @@ public static class DependencyInjection
         });
         
         services.AddScoped<S3StorageUtils>();
+        
+        var firebaseConfigJson = configuration.GetSection("Firebase").GetChildren()
+            .ToDictionary(x => x.Key, x => x.Value);
+        
+        var firebaseConfigJsonString = JsonConvert.SerializeObject(firebaseConfigJson);
+
+        FirebaseApp.Create(new AppOptions
+        {
+            Credential = GoogleCredential.FromJson(firebaseConfigJsonString)
+        });
 
         services.AddTransient<IUserJwtProvider, UserJwtProvider>();
         services.AddTransient<IStaffJwtProvider, StaffJwtProvider>();
@@ -99,6 +112,7 @@ public static class DependencyInjection
         
         // Utils
         services.AddScoped<ILocationRepository, LocationRepository>();
+        services.AddScoped<INotificationRepository, NotificationRepository>();
 
         services.AddSingleton<InMemoryDomainEventsQueue>();
         services.AddSingleton<IDomainEventBus, DomainEventBus>();

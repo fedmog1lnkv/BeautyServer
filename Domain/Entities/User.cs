@@ -12,16 +12,23 @@ public sealed class User : AggregateRoot, IAuditableEntity
         Guid id,
         UserName name,
         UserPhoneNumber phoneNumber,
+        UserSettings settings,
         DateTime createdOnUtc) : base(id)
     {
         Name = name;
         PhoneNumber = phoneNumber;
+        Settings = settings;
         
         CreatedOnUtc = createdOnUtc;
     }
+    
+#pragma warning disable CS8618
+    private User() { }
+#pragma warning restore 
 
     public UserName Name { get; private set; }
     public UserPhoneNumber PhoneNumber { get; private set; }
+    public UserSettings Settings { get; private set; }
     public DateTime CreatedOnUtc { get; set; }
     public DateTime? ModifiedOnUtc { get; set; }
 
@@ -45,10 +52,15 @@ public sealed class User : AggregateRoot, IAuditableEntity
         if (!isUniquePhone)
             return Result.Failure<User>(DomainErrors.User.PhoneNumberNotUnique);
 
+        var createSettingsResult = UserSettings.Create(null, true, true);
+        if (!createSettingsResult.IsFailure)
+            return Result.Failure<User>(createSettingsResult.Error);
+
         var user = new User(
             id,
             createNameResult.Value,
             createPhoneNumberResult.Value,
+            createSettingsResult.Value,
             createdOnUtc);
 
         return Result.Success(user);
@@ -64,6 +76,48 @@ public sealed class User : AggregateRoot, IAuditableEntity
             return Result.Success();
 
         Name = nameResult.Value;
+        return Result.Success();
+    }
+    
+    public Result SetSettings(string? firebaseToken, bool receiveOrderNotifications, bool receivePromoNotifications)
+    {
+        var settingsResult = UserSettings.Create(firebaseToken, receiveOrderNotifications, receivePromoNotifications);
+        
+        if (settingsResult.IsFailure)
+            return settingsResult;
+        
+        if (Settings.Equals(settingsResult.Value))
+            return Result.Success();
+
+        Settings = settingsResult.Value;
+
+        return Result.Success();
+    }
+
+    public Result SetFirebaseToken(string? firebaseToken)
+    {
+        var settingsResult = UserSettings.Create(firebaseToken, Settings.ReceiveOrderNotifications, Settings.ReceivePromoNotifications);
+        
+        if (settingsResult.IsFailure)
+            return settingsResult;
+
+        Settings = settingsResult.Value;
+
+        return Result.Success();
+    }
+
+    public Result SetNotificationPreferences(bool? receiveOrderNotifications, bool? receivePromoNotifications)
+    {
+        var newReceiveOrderNotifications = receiveOrderNotifications ?? Settings.ReceiveOrderNotifications;
+        var newReceivePromoNotifications = receivePromoNotifications ?? Settings.ReceivePromoNotifications;
+
+        var settingsResult = UserSettings.Create(Settings.FirebaseToken, newReceiveOrderNotifications, newReceivePromoNotifications);
+
+        if (settingsResult.IsFailure)
+            return settingsResult;
+
+        Settings = settingsResult.Value;
+
         return Result.Success();
     }
 }

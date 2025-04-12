@@ -31,6 +31,19 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(15)
             .IsRequired();
         
+        builder.OwnsOne(u => u.Settings, settings =>
+        {
+            settings.Property(s => s.FirebaseToken)
+                .HasMaxLength(1000)
+                .IsRequired(false);
+
+            settings.Property(s => s.ReceiveOrderNotifications)
+                .IsRequired();
+
+            settings.Property(s => s.ReceivePromoNotifications)
+                .IsRequired();
+        });
+        
         builder.HasIndex(u => u.PhoneNumber)
             .IsUnique();
         

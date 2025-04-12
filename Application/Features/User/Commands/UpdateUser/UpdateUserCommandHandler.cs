@@ -24,6 +24,22 @@ public sealed class UpdateUserCommandHandler(IUserRepository userRepository)
                 return result;
         }
 
+        if (request.FirebaseToken != null)
+        {
+            result = user.SetFirebaseToken(request.FirebaseToken);
+            if (result.IsFailure)
+                return result;
+        }
+
+        if (request.ReceiveOrderNotifications.HasValue || request.ReceivePromoNotifications.HasValue)
+        {
+            result = user.SetNotificationPreferences(
+                request.ReceiveOrderNotifications,
+                request.ReceivePromoNotifications);
+            if (result.IsFailure)
+                return result;
+        }
+
         return result;
     }
 }
