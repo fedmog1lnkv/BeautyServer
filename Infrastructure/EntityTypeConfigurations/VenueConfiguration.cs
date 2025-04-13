@@ -68,5 +68,10 @@ public class VenueConfiguration : IEntityTypeConfiguration<Venue>
 
         builder.Property(s => s.ModifiedOnUtc)
             .IsRequired(false);
+        
+        builder.HasMany(v => v.Photos)
+            .WithOne()
+            .HasForeignKey(v => v.VenueId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

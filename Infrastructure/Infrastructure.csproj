@@ -29,4 +29,8 @@
       <ProjectReference Include="..\Domain\Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="Migrations\20250413074429_AddVenuePhotos1.Designer.cs" />
+    </ItemGroup>
+
 </Project>

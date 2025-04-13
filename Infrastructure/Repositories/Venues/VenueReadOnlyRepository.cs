@@ -52,6 +52,7 @@ public class VenueReadOnlyRepository(ApplicationDbContext dbContext) : IVenueRea
     public async Task<Venue?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
         await dbContext.Set<Venue>()
             .AsNoTracking()
+            .Include(v => v.Photos)
             .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
 
     public async Task<Venue?> GetByIdWithServicesAsync(Guid id, CancellationToken cancellationToken = default) =>

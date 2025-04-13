@@ -14,7 +14,7 @@ public class UpdateVenueCommandHandler(
 {
     public async Task<Result> Handle(UpdateVenueCommand request, CancellationToken cancellationToken)
     {
-        var venue = await venueRepository.GetByIdWithServicesAsync(request.Id, cancellationToken);
+        var venue = await venueRepository.GetByIdWithServicesAndPhotosAsync(request.Id, cancellationToken);
         if (venue is null)
             return Result.Failure(DomainErrors.Venue.NotFound(request.Id));
 
@@ -81,6 +81,13 @@ public class UpdateVenueCommandHandler(
             var setServicesResult = venue.SetServices(newServices);
             if (setServicesResult.IsFailure)
                 return setServicesResult;
+        }
+
+        if (request.Photos is not null)
+        {
+            var reorderPhotoResult = venue.ReorderPhotos(request.Photos);
+            if (reorderPhotoResult.IsFailure)
+                return reorderPhotoResult;
         }
 
         return Result.Success();

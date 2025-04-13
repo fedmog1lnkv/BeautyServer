@@ -44,6 +44,43 @@ public sealed class S3StorageUtils(IAmazonS3 s3Client, IConfiguration configurat
         }
     }
 
+    public async Task<bool> RemovePhoto(string photoUrl, string folder)
+    {
+        try
+        {
+            var fileName = ExtractFilePathFromUrl(photoUrl, folder);
+
+            if (string.IsNullOrEmpty(fileName))
+                return false;
+
+            var deleteRequest = new DeleteObjectRequest
+            {
+                BucketName = _bucketName,
+                Key = fileName
+            };
+
+            await s3Client.DeleteObjectAsync(deleteRequest);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error while deleting photo: {ex.Message}");
+            return false;
+        }
+    }
+
+    private string ExtractFilePathFromUrl(string url, string folder)
+    {
+        var uri = new Uri(url);
+        var path = uri.AbsolutePath.TrimStart('/');
+
+        if (path.StartsWith(folder + "/"))
+            return path;
+
+        return string.Empty;
+    }
+
     private static string GetContentType(byte[] photoBytes)
     {
         if (photoBytes.Length > 2 && photoBytes[0] == 0xFF && photoBytes[1] == 0xD8)

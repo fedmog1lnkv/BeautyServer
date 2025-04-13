@@ -15,6 +15,7 @@ public class UpdateVenueDto : IMapWith<UpdateVenueCommand>
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }
     public List<Guid>? ServiceIds { get; set; }
+    public List<Guid>? Photos { get; set; }
 
     public void Mapping(Profile profile) =>
         profile.CreateMap<UpdateVenueDto, UpdateVenueCommand>()
@@ -25,5 +26,6 @@ public class UpdateVenueDto : IMapWith<UpdateVenueCommand>
             .ForMember(dest => dest.Photo, opt => opt.MapFrom(src => src.Photo))
             .ForMember(dest => dest.Latitude, opt => opt.MapFrom(src => src.Latitude))
             .ForMember(dest => dest.Longitude, opt => opt.MapFrom(src => src.Longitude))
-            .ForMember(dest => dest.ServiceIds, opt => opt.MapFrom(src => src.ServiceIds));
+            .ForMember(dest => dest.ServiceIds, opt => opt.MapFrom(src => src.ServiceIds))
+            .ForMember(dest => dest.Photos, opt => opt.MapFrom(src => src.Photos));
 }

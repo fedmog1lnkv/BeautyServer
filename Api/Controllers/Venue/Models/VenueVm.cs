@@ -11,6 +11,7 @@ public class VenueVm : IMapWith<Domain.Entities.Venue>
     public string? Description { get; set; }
     public ThemeVm Theme { get; set; } = new ThemeVm();
     public LocationVm Location { get; set; } = new LocationVm();
+    public List<string> Photos { get; set; }
 
     public void Mapping(Profile profile)
     {
@@ -36,6 +37,9 @@ public class VenueVm : IMapWith<Domain.Entities.Venue>
                     {
                         Latitude = src.Location.Latitude,
                         Longitude = src.Location.Longitude
-                    }));
+                    }))
+            .ForMember(
+                dest => dest.Photos,
+                opt => opt.MapFrom(src => src.Photos.OrderBy(vp => vp.Order).Select(vp => vp.PhotoUrl).ToList()));
     }
 }

@@ -73,7 +73,7 @@ public class DomainErrors
 
         public static readonly Error TooLong = Error.Validation(
             "UserPhoto.TooLong", 
-            $"The user photo is too long. It should not exceed {Domain.ValueObjects.StaffPhoto.MaxLength} characters.");
+            $"The user photo is too long. It should not exceed {ValueObjects.UserPhoto.MaxLength} characters.");
 
         public static readonly Error InvalidFormat = Error.Validation(
             "UserPhoto.InvalidFormat", 
@@ -148,6 +148,21 @@ public class DomainErrors
         public static Error ServiceNotFoundInOrganization(Guid venueId, Guid serviceId) => Error.NotFound(
             "Venue.ServiceNotFoundInOrganization",
             $"Service with Id '{serviceId}' was not found in Venue with Id '{venueId}'.");
+
+        public static readonly Error PhotoAlreadyExists = Error.Validation(
+            "Venue.PhotoAlreadyExists", "Photo with this url already exists.");
+
+        public static readonly Error PhotoNotFound = Error.NotFound(
+            "Venue.PhotoNotFound", "Photo not found.");
+        
+        public static readonly Error InvalidPhotoOrder = Error.Validation(
+            "Venue.InvalidPhotoOrder", "The number of photos and the number of ordered IDs do not match.");
+    
+        public static readonly Error DuplicatePhotoIds = Error.Validation(
+            "Venue.DuplicatePhotoIds", "There are duplicate photo IDs in the order.");
+        
+        public static readonly Error PhotoUploadFailed = Error.Failure(
+            "Venue.PhotoUploadFailed", "Failed to upload venue photo.");
     }
     
     public static class VenueName
@@ -181,6 +196,20 @@ public class DomainErrors
 
         public static readonly Error InvalidColorFormat = Error.Validation(
             "VenueTheme.InvalidColorFormat", "Venue theme color must be in HEX format (e.g., #FFAABB).");
+    }
+    
+    public static class VenuePhoto
+    {
+        public static readonly Error Empty = Error.Validation(
+            "VenuePhoto.Empty", 
+            "The venue photo is required and cannot be empty.");
+
+        public static readonly Error InvalidFormat = Error.Validation(
+            "VenuePhoto.InvalidFormat", 
+            "The venue photo URL format is invalid.");
+        
+        public static readonly Error InvalidOrder = Error.Validation(
+            "Venue.InvalidOrder", "Order must be a positive integer.");
     }
     
     public static class Location
@@ -277,6 +306,9 @@ public class DomainErrors
         
         public static readonly Error StaffCannotUpdate = Error.Failure(
             "Staff.StaffCannotUpdate", "You do not have permission to update this staff member's data.");
+        
+        public static readonly Error CannotUpdate = Error.Failure(
+            "Staff.StaffCannotUpdate", "You do not have permission to update this data.");
         
         public static readonly Error RejectAuthRequest = Error.Failure(
             "User.RejectAuthRequest", "User rejected auth request..");

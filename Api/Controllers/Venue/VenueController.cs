@@ -1,9 +1,12 @@
 using Api.Controllers.Base;
 using Api.Controllers.Venue.Models;
 using Api.Filters;
+using Api.Utils;
 using Application.Features.Services.Queries.GetServicesByVenueId;
 using Application.Features.Staffs.Queries.GetStaffWithServicesByVenueId;
+using Application.Features.Venues.Commands.AddVenuePhoto;
 using Application.Features.Venues.Commands.CreateVenue;
+using Application.Features.Venues.Commands.RemoveVenuePhoto;
 using Application.Features.Venues.Commands.UpdateVenue;
 using Application.Features.Venues.Queries.GetAllVenues;
 using Application.Features.Venues.Queries.GetVenueById;
@@ -74,6 +77,44 @@ public class VenueController(IMapper mapper) : BaseController
 
         var venueDto = mapper.Map<VenueVm>(result.Value);
         return Ok(venueDto);
+    }
+
+    [HttpPost("photo")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [StaffValidationFilter]
+    public async Task<IActionResult> AddPhoto([FromBody] AddVenuePhotoDto request)
+    {
+        var isManager = HttpContext.Items["is_manager"] as bool?;
+        if (!isManager!.Value)
+            return Unauthorized();
+
+        request.StaffId = HttpContext.GetStaffId();
+
+        var command = mapper.Map<AddVenuePhotoCommand>(request);
+        var result = await Sender.Send(command);
+
+        return result.IsFailure
+            ? HandleFailure(result)
+            : Ok();
+    }
+
+    [HttpDelete("{id}/photo/{photoId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [StaffValidationFilter]
+    public async Task<IActionResult> RemovePhoto(Guid id, Guid photoId)
+    {
+        var isManager = HttpContext.Items["is_manager"] as bool?;
+        if (!isManager!.Value)
+            return Unauthorized();
+
+        var command = new RemoveVenuePhotoCommand(HttpContext.GetStaffId(), id, photoId);
+        var result = await Sender.Send(command);
+
+        return result.IsFailure
+            ? HandleFailure(result)
+            : Ok();
     }
 
     [HttpGet("{id}/services")]

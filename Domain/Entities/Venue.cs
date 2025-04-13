@@ -10,6 +10,7 @@ namespace Domain.Entities;
 public class Venue : AggregateRoot, IAuditableEntity
 {
     private readonly List<Service> _services = [];
+    private readonly List<VenuePhoto> _photos = [];
 
     private Venue(
         Guid id,
@@ -27,7 +28,7 @@ public class Venue : AggregateRoot, IAuditableEntity
         Location = location;
         TimeZone = tz;
         Description = description;
-        
+
         CreatedOnUtc = createdOnUtc;
     }
 
@@ -41,10 +42,11 @@ public class Venue : AggregateRoot, IAuditableEntity
     public VenueTheme Theme { get; private set; }
     public Location Location { get; private set; }
     public TimeZoneInfo TimeZone { get; private set; }
-    
+
     public DateTime CreatedOnUtc { get; set; }
     public DateTime? ModifiedOnUtc { get; set; }
     public IReadOnlyCollection<Service> Services => _services.AsReadOnly();
+    public IReadOnlyCollection<VenuePhoto> Photos => _photos.AsReadOnly();
 
     public static async Task<Result<Venue>> CreateAsync(
         Guid id,
@@ -161,6 +163,70 @@ public class Venue : AggregateRoot, IAuditableEntity
 
         _services.Clear();
         _services.AddRange(validServices);
+
+        return Result.Success();
+    }
+
+    public Result AddPhoto(Guid id, string photoUrl)
+    {
+        if (_photos.Any(p => p.PhotoUrl == photoUrl))
+            return Result.Failure(DomainErrors.Venue.PhotoAlreadyExists);
+
+        var createPhotoResult = VenuePhoto.Create(
+            id,
+            Id,
+            _photos.Count + 1,
+            photoUrl);
+        if (createPhotoResult.IsFailure)
+            return createPhotoResult;
+
+        _photos.Add(createPhotoResult.Value);
+        return Result.Success();
+    }
+
+    public Result RemovePhoto(Guid photoId)
+    {
+        var photo = _photos.FirstOrDefault(p => p.Id == photoId);
+        if (photo == null)
+            return Result.Failure(DomainErrors.Venue.PhotoNotFound);
+
+        _photos.Remove(photo);
+        return ReorderPhotos();
+    }
+    
+    private Result ReorderPhotos()
+    {
+        for (int i = 0; i < _photos.Count; i++)
+        {
+            var photo = _photos[i];
+            var setOrderResult = photo.SetOrder(i + 1);
+            if (setOrderResult.IsFailure)
+                return setOrderResult;
+        }
+
+        return Result.Success();
+    }
+
+    public Result ReorderPhotos(List<Guid> orderedPhotoIds)
+    {
+        if (orderedPhotoIds.Count != _photos.Count)
+            return Result.Failure(DomainErrors.Venue.InvalidPhotoOrder);
+
+        if (orderedPhotoIds.Distinct().Count() != orderedPhotoIds.Count)
+            return Result.Failure(DomainErrors.Venue.DuplicatePhotoIds);
+
+        for (int i = 0; i < orderedPhotoIds.Count; i++)
+        {
+            var photoId = orderedPhotoIds[i];
+            var photo = _photos.FirstOrDefault(p => p.Id == photoId);
+
+            if (photo == null)
+                return Result.Failure(DomainErrors.Venue.PhotoNotFound);
+
+            var setOrderResult = photo.SetOrder(i + 1);
+            if (setOrderResult.IsFailure)
+                return setOrderResult;
+        }
 
         return Result.Success();
     }

@@ -79,7 +79,7 @@ public class GeneratePhoneChallengeCommandHandler(
 
         phoneChallengeRepository.Add(createPhoneChallengeResult.Value);
 
-        var sendCodeResult = await phoneChallengeRepository.SendCodeAsync(user.PhoneNumber.Value, code);
+        var sendCodeResult = await phoneChallengeRepository.SendCodeAsync(user.PhoneNumber.Value, code, cancellationToken);
         return !sendCodeResult
             ? Result.Failure(DomainErrors.PhoneChallenge.NotSend)
             : Result.Success();

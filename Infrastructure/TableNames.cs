@@ -9,4 +9,5 @@ public static class TableNames
     internal const string Services = nameof(Services);
     internal const string Staffs = nameof(Staffs);
     internal const string TimeSlots = nameof(TimeSlots);
+    internal const string VenuePhotos = nameof(VenuePhotos);
 }

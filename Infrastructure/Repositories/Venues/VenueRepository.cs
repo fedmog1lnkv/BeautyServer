@@ -13,9 +13,15 @@ public class VenueRepository(ApplicationDbContext dbContext, S3StorageUtils s3St
             .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
     }
 
-    public async Task<Venue?> GetByIdWithServicesAsync(Guid id, CancellationToken cancellationToken = default) =>
+    public async Task<Venue?> GetByIdWithServicesAndPhotosAsync(Guid id, CancellationToken cancellationToken = default) =>
         await dbContext.Set<Venue>()
             .Include(v => v.Services)
+            .Include(v => v.Photos)
+            .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
+
+    public async Task<Venue?> GetByIdWithPhotos(Guid id, CancellationToken cancellationToken = default) =>
+        await dbContext.Set<Venue>()
+            .Include(v => v.Photos)
             .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
 
     public async Task<List<Venue>> GetByOrganizationId(
@@ -33,4 +39,7 @@ public class VenueRepository(ApplicationDbContext dbContext, S3StorageUtils s3St
 
     public async Task<string?> UploadPhotoAsync(string base64Photo, string fileName) =>
         await s3StorageUtils.UploadPhotoAsync(base64Photo, fileName, "venues");
+
+    public async Task<bool> RemovePhoto(string photoUrl) =>
+        await s3StorageUtils.RemovePhoto(photoUrl, "venues");
 }
