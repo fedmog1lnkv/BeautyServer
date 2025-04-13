@@ -26,7 +26,8 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddApplication();
 
 builder.Services.AddSingleton<NotificationSchedulerStorage>();
-builder.Services.AddHostedService<RecordScheduleNotificationBackgroundService>();
+builder.Services.AddHostedService<RecordNotificationScheldueStorageBackgroundService>();
+builder.Services.AddHostedService<RecordReminderBackgroundService>();
 
 #endregion
 #region Logging

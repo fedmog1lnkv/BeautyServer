@@ -7,7 +7,7 @@ using Serilog;
 
 namespace Api.BackgroundServices;
 
-public class RecordScheduleNotificationBackgroundService(
+public class RecordNotificationScheldueStorageBackgroundService(
     IServiceScopeFactory scopeFactory,
     NotificationSchedulerStorage storage) : BackgroundService
 {
