@@ -27,9 +27,26 @@ public class GeneratePhoneChallengeCommandHandler(
         {
             var userName =
                 await phoneChallengeRepository.SendAuthRequestAsync(userPhoneNumber.Value, cancellationToken);
-            
+
             if (userName == "Пользователь не зарегистрирован в телеграм-боте")
-                return Result.Failure(DomainErrors.User.NotAuthorizeInTelegram );
+            {
+                var timeout = TimeSpan.FromMinutes(5);
+                var startTime = DateTime.UtcNow;
+
+                while (DateTime.UtcNow - startTime < timeout)
+                {
+                    userName = await phoneChallengeRepository.SendAuthRequestAsync(
+                        userPhoneNumber.Value,
+                        cancellationToken);
+
+                    if (userName != "Пользователь не зарегистрирован в телеграм-боте")
+                        break;
+
+                    await Task.Delay(TimeSpan.FromSeconds(3), cancellationToken);
+                }
+                if (userName == "Пользователь не зарегистрирован в телеграм-боте")
+                    return Result.Failure(DomainErrors.User.NotAuthorizeInTelegram);
+            }
             if (userName == null)
                 return Result.Failure(DomainErrors.User.RejectAuthRequest);
 
