@@ -23,6 +23,10 @@ public class DomainErrors
         
         public static readonly Error InvalidUserIdRefreshToken = Error.Failure(
             "User.InvalidUserIdRefreshToken", "Invalid user ID in refresh token.");
+        
+        public static readonly Error NotAuthorizeInTelegram = Error.Failure(
+            "User.NotAuthorizeInTelegram",
+            "User is not authorized in the Telegram bot.");
     }
     
     public static class PhoneChallenge
@@ -273,6 +277,13 @@ public class DomainErrors
         
         public static readonly Error StaffCannotUpdate = Error.Failure(
             "Staff.StaffCannotUpdate", "You do not have permission to update this staff member's data.");
+        
+        public static readonly Error RejectAuthRequest = Error.Failure(
+            "User.RejectAuthRequest", "User rejected auth request..");
+        
+        public static readonly Error NotAuthorizeInTelegram = Error.Failure(
+            "Staff.NotAuthorizeInTelegram",
+            "Staff is not authorized in the Telegram bot.");
     }
     
     public static class StaffName

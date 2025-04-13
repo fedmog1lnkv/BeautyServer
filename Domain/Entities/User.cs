@@ -56,7 +56,7 @@ public sealed class User : AggregateRoot, IAuditableEntity
             return Result.Failure<User>(DomainErrors.User.PhoneNumberNotUnique);
 
         var createSettingsResult = UserSettings.Create(null, true, true);
-        if (!createSettingsResult.IsFailure)
+        if (createSettingsResult.IsFailure)
             return Result.Failure<User>(createSettingsResult.Error);
 
         var user = new User(

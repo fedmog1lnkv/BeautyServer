@@ -27,6 +27,9 @@ public class GeneratePhoneChallengeCommandHandler(
         {
             var userName =
                 await phoneChallengeRepository.SendAuthRequestAsync(userPhoneNumber.Value, cancellationToken);
+            
+            if (userName == "Пользователь не зарегистрирован в телеграм-боте")
+                return Result.Failure(DomainErrors.User.NotAuthorizeInTelegram );
             if (userName == null)
                 return Result.Failure(DomainErrors.User.RejectAuthRequest);
 

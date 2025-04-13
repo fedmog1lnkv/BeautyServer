@@ -60,6 +60,11 @@ internal sealed class PhoneChallengeRepository(ApplicationDbContext dbContext, I
             var responseBody = await response.Content.ReadAsStringAsync();
             var authResponse = JsonConvert.DeserializeObject<AuthResponse>(responseBody);
 
+            if (authResponse?.SystemMessage == "Пользователь не зарегистрирован в телеграм-боте")
+            {
+                return authResponse.SystemMessage;
+            }
+            
             if (authResponse == null || !authResponse.IsSuccess)
             {
                 return null;
