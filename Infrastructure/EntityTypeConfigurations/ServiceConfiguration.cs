@@ -36,6 +36,13 @@ public class ServiceConfiguration : IEntityTypeConfiguration<Service>
                 value => value == null ? null : ServicePrice.Create((double)value).Value)
             .IsRequired(false);
         
+        builder.Property(s => s.Photo)
+            .HasConversion(
+                photo => photo != null ? photo.Value : null,
+                value => value != null ? ServicePhoto.Create(value).Value : null)
+            .HasMaxLength(StaffPhoto.MaxLength)
+            .IsRequired(false);
+        
         builder.HasOne<Organization>()
             .WithMany()
             .HasForeignKey(s => s.OrganizationId)

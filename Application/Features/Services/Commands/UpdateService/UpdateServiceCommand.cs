@@ -8,4 +8,5 @@ public record UpdateServiceCommand(
     string? Name,
     string? Description,
     int? Duration,
-    double? Price) : ICommand<Result>;
+    double? Price,
+    string? Photo) : ICommand<Result>;

@@ -61,6 +61,21 @@ public class DomainErrors
             "UserPhoneNumber.InvalidFormat", "Invalid user phone number format.");
     }
     
+    public static class UserPhoto
+    {
+        public static readonly Error Empty = Error.Validation(
+            "UserPhoto.Empty", 
+            "The user photo is required and cannot be empty.");
+
+        public static readonly Error TooLong = Error.Validation(
+            "UserPhoto.TooLong", 
+            $"The user photo is too long. It should not exceed {Domain.ValueObjects.StaffPhoto.MaxLength} characters.");
+
+        public static readonly Error InvalidFormat = Error.Validation(
+            "UserPhoto.InvalidFormat", 
+            "The user photo URL format is invalid.");
+    }
+    
     public static class UserSettings
     {
         public static readonly Error FirebaseTokenEmpty = Error.Validation(
@@ -219,6 +234,21 @@ public class DomainErrors
     {
         public static readonly Error TooLow = Error.Validation(
             "ServicePrice.TooLow", "The service price must be greater than zero.");
+    }
+    
+    public static class ServicePhoto
+    {
+        public static readonly Error Empty = Error.Validation(
+            "ServicePhoto.Empty", 
+            "The staff photo is required and cannot be empty.");
+
+        public static readonly Error TooLong = Error.Validation(
+            "ServicePhoto.TooLong", 
+            $"The service photo is too long. It should not exceed {Domain.ValueObjects.StaffPhoto.MaxLength} characters.");
+
+        public static readonly Error InvalidFormat = Error.Validation(
+            "ServicePhoto.InvalidFormat", 
+            "The service photo URL format is invalid.");
     }
     
     public static class Staff

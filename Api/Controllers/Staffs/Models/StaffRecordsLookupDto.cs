@@ -34,7 +34,7 @@ public class StaffRecordsStaffLookupDto : IMapWith<Staff>
     public Guid Id { get; set; }
     public string Name { get; set; }
     public string PhoneNumber { get; set; }
-    
+
     public void Mapping(Profile profile)
     {
         profile.CreateMap<Staff, StaffRecordsStaffLookupDto>()
@@ -51,15 +51,26 @@ public class StaffRecordsServiceLookupDto : IMapWith<Service>
     public string? Description { get; set; }
     public TimeSpan? Duration { get; set; }
     public double? Price { get; set; }
+    public string? Photo { get; set; }
 
     public void Mapping(Profile profile)
     {
         profile.CreateMap<Service, StaffRecordsServiceLookupDto>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.Value))
-            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description != null ? src.Description.Value : null))
+            .ForMember(
+                dest => dest.Description,
+                opt => opt.MapFrom(src => src.Description != null ? src.Description.Value : null))
             .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
-            .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price != null ? src.Price.Value : (double?)null));
+            .ForMember(
+                dest => dest.Price,
+                opt => opt.MapFrom(src => src.Price != null ? src.Price.Value : (double?)null))
+            .ForMember(
+                dest => dest.Photo,
+                opt =>
+                    opt.MapFrom(
+                        src => src.Photo != null ? src.Photo.Value :
+                            null));
     }
 }
 
@@ -70,23 +81,29 @@ public class StaffRecordsVenueLookupDto : IMapWith<Domain.Entities.Venue>
     public string Description { get; set; }
     public LocationVm Location { get; set; }
     public ThemeVm Theme { get; set; }
-    
+
     public void Mapping(Profile profile)
     {
         profile.CreateMap<Domain.Entities.Venue, StaffRecordsVenueLookupDto>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.Value))
             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description.Value))
-            .ForMember(dest => dest.Location, opt => opt.MapFrom(src => new LocationVm
-            {
-                Latitude = src.Location.Latitude,
-                Longitude = src.Location.Longitude
-            }))
-            .ForMember(dest => dest.Theme, opt => opt.MapFrom(src => new ThemeVm
-            {
-                Color = src.Theme.Color,
-                Photo = src.Theme.Photo
-            }));
+            .ForMember(
+                dest => dest.Location,
+                opt => opt.MapFrom(
+                    src => new LocationVm
+                    {
+                        Latitude = src.Location.Latitude,
+                        Longitude = src.Location.Longitude
+                    }))
+            .ForMember(
+                dest => dest.Theme,
+                opt => opt.MapFrom(
+                    src => new ThemeVm
+                    {
+                        Color = src.Theme.Color,
+                        Photo = src.Theme.Photo
+                    }));
     }
 }
 

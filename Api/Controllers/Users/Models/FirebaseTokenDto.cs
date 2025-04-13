@@ -16,6 +16,6 @@ public class FirebaseTokenDto : IMapWith<UpdateUserCommand>
         profile.CreateMap<FirebaseTokenDto, UpdateUserCommand>()
             .ForMember(x => x.Id, opt => opt.MapFrom(y => y.Id))
             .ForMember(x => x.FirebaseToken, opt => opt.MapFrom(y => y.Token))
-            .ConstructUsing(src => new UpdateUserCommand(src.Id, null, src.Token, null,null));
+            .ConstructUsing(src => new UpdateUserCommand(src.Id, null, src.Token, null, null, null));
     }
 }

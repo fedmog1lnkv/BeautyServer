@@ -18,6 +18,7 @@ public class Service : AggregateRoot, IAuditableEntity
         ServiceDescription? description,
         TimeSpan? duration,
         ServicePrice? price,
+        ServicePhoto? photo,
         DateTime createdOnUtc) : base(id)
     {
         OrganizationId = organizationId;
@@ -25,6 +26,7 @@ public class Service : AggregateRoot, IAuditableEntity
         Description = description;
         Duration = duration;
         Price = price;
+        Photo = photo;
 
         CreatedOnUtc = createdOnUtc;
     }
@@ -38,6 +40,7 @@ public class Service : AggregateRoot, IAuditableEntity
     public ServiceDescription? Description { get; private set; }
     public TimeSpan? Duration { get; private set; }
     public ServicePrice? Price { get; private set; }
+    public ServicePhoto? Photo { get; private set; }
     public DateTime CreatedOnUtc { get; set; }
     public DateTime? ModifiedOnUtc { get; set; }
 
@@ -66,6 +69,7 @@ public class Service : AggregateRoot, IAuditableEntity
             id,
             organizationId,
             nameResult.Value,
+            null,
             null,
             null,
             null,
@@ -121,6 +125,19 @@ public class Service : AggregateRoot, IAuditableEntity
             return Result.Success();
 
         Price = priceResult.Value;
+        return Result.Success();
+    }
+    
+    public Result SetPhoto(string photoUrl)
+    {
+        var photoResult = ServicePhoto.Create(photoUrl);
+        if (photoResult.IsFailure)
+            return photoResult;
+
+        if (Photo is not null && Photo.Equals(photoResult.Value))
+            return Result.Success();
+
+        Photo = photoResult.Value;
         return Result.Success();
     }
 }

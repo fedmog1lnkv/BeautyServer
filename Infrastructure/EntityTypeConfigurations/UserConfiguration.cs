@@ -31,6 +31,13 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(15)
             .IsRequired();
         
+        builder.Property(s => s.Photo)
+            .HasConversion(
+                photo => photo != null ? photo.Value : null,
+                value => value != null ? UserPhoto.Create(value).Value : null)
+            .HasMaxLength(StaffPhoto.MaxLength)
+            .IsRequired(false);
+        
         builder.OwnsOne(u => u.Settings, settings =>
         {
             settings.Property(s => s.FirebaseToken)

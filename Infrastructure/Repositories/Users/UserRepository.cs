@@ -1,34 +1,33 @@
+using Domain.Entities;
 using Domain.Repositories.Users;
 using Domain.ValueObjects;
+using Infrastructure.Utils;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories.Users;
 
-internal sealed class UserRepository(ApplicationDbContext dbContext) : IUserRepository
+internal sealed class UserRepository(ApplicationDbContext dbContext, S3StorageUtils s3StorageUtils) : IUserRepository
 {
-    public async Task<Domain.Entities.User?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await dbContext.Set<Domain.Entities.User>()
+        return await dbContext.Set<User>()
             .FirstOrDefaultAsync(user => user.Id == id, cancellationToken);
     }
 
-    public async Task<Domain.Entities.User?> GetByPhoneNumberAsync(
+    public async Task<User?> GetByPhoneNumberAsync(
         UserPhoneNumber phoneNumber,
         CancellationToken cancellationToken = default)
     {
-        return await dbContext.Set<Domain.Entities.User>()
+        return await dbContext.Set<User>()
             .FirstOrDefaultAsync(user => user.PhoneNumber == phoneNumber, cancellationToken);
     }
 
-    public void Add(Domain.Entities.User user)
-    {
-        dbContext.Set<Domain.Entities.User>().Add(user);
-        dbContext.SaveChanges();
-    }
+    public void Add(User user) =>
+        dbContext.Set<User>().Add(user);
 
-    public void Remove(Domain.Entities.User user)
-    {
-        dbContext.Set<Domain.Entities.User>().Remove(user);
-        dbContext.SaveChanges();
-    }
+    public void Remove(User user) =>
+        dbContext.Set<User>().Remove(user);
+
+    public async Task<string?> UploadPhotoAsync(string base64Photo, string fileName) =>
+        await s3StorageUtils.UploadPhotoAsync(base64Photo, fileName, "users");
 }

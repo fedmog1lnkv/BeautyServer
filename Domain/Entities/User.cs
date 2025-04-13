@@ -12,22 +12,25 @@ public sealed class User : AggregateRoot, IAuditableEntity
         Guid id,
         UserName name,
         UserPhoneNumber phoneNumber,
+        UserPhoto? photo,
         UserSettings settings,
         DateTime createdOnUtc) : base(id)
     {
         Name = name;
         PhoneNumber = phoneNumber;
+        Photo = photo;
         Settings = settings;
-        
+
         CreatedOnUtc = createdOnUtc;
     }
-    
+
 #pragma warning disable CS8618
     private User() { }
-#pragma warning restore 
+#pragma warning restore
 
     public UserName Name { get; private set; }
     public UserPhoneNumber PhoneNumber { get; private set; }
+    public UserPhoto? Photo { get; private set; }
     public UserSettings Settings { get; private set; }
     public DateTime CreatedOnUtc { get; set; }
     public DateTime? ModifiedOnUtc { get; set; }
@@ -60,12 +63,13 @@ public sealed class User : AggregateRoot, IAuditableEntity
             id,
             createNameResult.Value,
             createPhoneNumberResult.Value,
+            null,
             createSettingsResult.Value,
             createdOnUtc);
 
         return Result.Success(user);
     }
-    
+
     public Result SetName(string name)
     {
         var nameResult = UserName.Create(name);
@@ -78,14 +82,17 @@ public sealed class User : AggregateRoot, IAuditableEntity
         Name = nameResult.Value;
         return Result.Success();
     }
-    
-    public Result SetSettings(string? firebaseToken, bool receiveOrderNotifications, bool receivePromoNotifications)
+
+    public Result SetSettings(
+        string? firebaseToken,
+        bool receiveOrderNotifications,
+        bool receivePromoNotifications)
     {
         var settingsResult = UserSettings.Create(firebaseToken, receiveOrderNotifications, receivePromoNotifications);
-        
+
         if (settingsResult.IsFailure)
             return settingsResult;
-        
+
         if (Settings.Equals(settingsResult.Value))
             return Result.Success();
 
@@ -96,8 +103,11 @@ public sealed class User : AggregateRoot, IAuditableEntity
 
     public Result SetFirebaseToken(string? firebaseToken)
     {
-        var settingsResult = UserSettings.Create(firebaseToken, Settings.ReceiveOrderNotifications, Settings.ReceivePromoNotifications);
-        
+        var settingsResult = UserSettings.Create(
+            firebaseToken,
+            Settings.ReceiveOrderNotifications,
+            Settings.ReceivePromoNotifications);
+
         if (settingsResult.IsFailure)
             return settingsResult;
 
@@ -111,13 +121,29 @@ public sealed class User : AggregateRoot, IAuditableEntity
         var newReceiveOrderNotifications = receiveOrderNotifications ?? Settings.ReceiveOrderNotifications;
         var newReceivePromoNotifications = receivePromoNotifications ?? Settings.ReceivePromoNotifications;
 
-        var settingsResult = UserSettings.Create(Settings.FirebaseToken, newReceiveOrderNotifications, newReceivePromoNotifications);
+        var settingsResult = UserSettings.Create(
+            Settings.FirebaseToken,
+            newReceiveOrderNotifications,
+            newReceivePromoNotifications);
 
         if (settingsResult.IsFailure)
             return settingsResult;
 
         Settings = settingsResult.Value;
 
+        return Result.Success();
+    }
+
+    public Result SetPhoto(string photoUrl)
+    {
+        var photoResult = UserPhoto.Create(photoUrl);
+        if (photoResult.IsFailure)
+            return photoResult;
+
+        if (Photo is not null && Photo.Equals(photoResult.Value))
+            return Result.Success();
+
+        Photo = photoResult.Value;
         return Result.Success();
     }
 }

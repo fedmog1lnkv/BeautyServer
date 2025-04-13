@@ -44,6 +44,18 @@ public sealed class UpdateServiceCommandHandler(IServiceRepository serviceReposi
             if (result.IsFailure)
                 return result;
         }
+        
+        if (request.Photo != null)
+        {
+            var photoUrl = await serviceRepository.UploadPhotoAsync(request.Photo, service.Id.ToString());
+
+            if (string.IsNullOrEmpty(photoUrl))
+                return Result.Failure(DomainErrors.Staff.PhotoUploadFailed);
+
+            var setPhotoResult = service.SetPhoto(photoUrl);
+            if (setPhotoResult.IsFailure)
+                return setPhotoResult;
+        }
 
         return result;
     }

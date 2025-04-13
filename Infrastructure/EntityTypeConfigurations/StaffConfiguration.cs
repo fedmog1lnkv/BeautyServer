@@ -40,8 +40,8 @@ public class StaffConfiguration : IEntityTypeConfiguration<Staff>
 
         builder.Property(s => s.Photo)
             .HasConversion(
-                photo => photo.Value,
-                value => StaffPhoto.Create(value).Value)
+                photo => photo != null ? photo.Value : null,
+                value => value != null ? StaffPhoto.Create(value).Value : null)
             .HasMaxLength(StaffPhoto.MaxLength)
             .IsRequired(false);
 
