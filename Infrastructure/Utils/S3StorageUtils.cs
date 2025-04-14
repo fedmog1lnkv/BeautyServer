@@ -1,6 +1,14 @@
 using Amazon.S3;
 using Amazon.S3.Model;
 using Microsoft.Extensions.Configuration;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Formats.Bmp;
+using SixLabors.ImageSharp.Formats.Gif;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.Formats.Tiff;
+using SixLabors.ImageSharp.Processing;
 using System.Net;
 
 namespace Infrastructure.Utils;
@@ -20,28 +28,49 @@ public sealed class S3StorageUtils(IAmazonS3 s3Client, IConfiguration configurat
             var contentType = GetContentType(photoBytes);
             var fileExtension = GetFileExtension(contentType);
 
-            var filePath = $"{folder}/{fileName}.{fileExtension}";
+            var originalFilePath = $"{folder}/{fileName}.{fileExtension}";
+            var originalUploadResult = await UploadSinglePhotoToS3(photoBytes, originalFilePath, contentType);
 
-            var putRequest = new PutObjectRequest
-            {
-                BucketName = _bucketName,
-                Key = filePath,
-                InputStream = new MemoryStream(photoBytes),
-                ContentType = contentType,
-                CannedACL = S3CannedACL.PublicRead
-            };
+            if (originalUploadResult == null)
+                return null;
 
-            var response = await s3Client.PutObjectAsync(putRequest);
+            var thumbnail256 = ResizeImage(photoBytes, 256, fileExtension);
+            var thumbnail600 = ResizeImage(photoBytes, 600, fileExtension);
 
-            return response.HttpStatusCode == HttpStatusCode.OK
-                ? $"https://{_bucketName}.storage.yandexcloud.net/{filePath}"
-                : null;
+            var thumbnail256Path = $"{folder}/{fileName}_256.jpg";
+            var thumbnail600Path = $"{folder}/{fileName}_600.jpg";
+
+            var thumbnail256UploadResult = await UploadSinglePhotoToS3(thumbnail256, thumbnail256Path, contentType);
+            var thumbnail600UploadResult = await UploadSinglePhotoToS3(thumbnail600, thumbnail600Path, contentType);
+
+            return originalUploadResult;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Ошибка при загрузке фотографии: {ex.Message}");
+            Console.WriteLine($"Ошибка при загрузке фотографий: {ex.Message}");
             return null;
         }
+    }
+
+    private async Task<string?> UploadSinglePhotoToS3(
+        byte[] photoBytes,
+        string filePath,
+        string contentType)
+    {
+        var putRequest = new PutObjectRequest
+        {
+            BucketName = _bucketName,
+            Key = filePath,
+            InputStream = new MemoryStream(photoBytes),
+            ContentType = contentType,
+            CannedACL = S3CannedACL.PublicRead
+        };
+
+        var response = await s3Client.PutObjectAsync(putRequest);
+
+        return response.HttpStatusCode == HttpStatusCode.OK
+            ? $"https://{_bucketName}.storage.yandexcloud.net/{filePath}"
+            : null;
     }
 
     public async Task<bool> RemovePhoto(string photoUrl, string folder)
@@ -116,5 +145,30 @@ public sealed class S3StorageUtils(IAmazonS3 s3Client, IConfiguration configurat
             "image/tiff" => "tiff",
             _ => "bin"
         };
+    }
+
+    private byte[] ResizeImage(
+        byte[] imageBytes,
+        int height,
+        string fileExtension)
+    {
+        using var image = Image.Load(imageBytes);
+        var width = (int)((double)height / image.Height * image.Width);
+
+        image.Mutate(x => x.Resize(width, height));
+
+        using var ms = new MemoryStream();
+        IImageEncoder encoder = fileExtension.ToLower() switch
+        {
+            "jpg" or "jpeg" => new JpegEncoder(),
+            "png" => new PngEncoder(),
+            "gif" => new GifEncoder(),
+            "bmp" => new BmpEncoder(),
+            "tiff" => new TiffEncoder(),
+            _ => throw new NotSupportedException($"Формат {fileExtension} не поддерживается")
+        };
+
+        image.Save(ms, encoder);
+        return ms.ToArray();
     }
 }
