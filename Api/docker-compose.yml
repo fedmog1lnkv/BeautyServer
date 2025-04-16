@@ -18,11 +18,24 @@
     networks:
       - beauty_network
   api:
-    image: api
+    image: beauty-server
     build:
       context: .
       dockerfile: Api/Dockerfile
-      
+    container_name: beauty_api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+    ports:
+      - "8228:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: on-failure
+    networks:
+      - beauty_network
+    volumes:
+      - ./appsettings.json:/app/appsettings.json
+
 networks:
   beauty_network:
     driver: bridge
