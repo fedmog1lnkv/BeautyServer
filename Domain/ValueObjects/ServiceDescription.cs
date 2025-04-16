@@ -6,7 +6,7 @@ namespace Domain.ValueObjects;
 
 public class ServiceDescription : ValueObject
 {
-    public const int MaxLength = 50;
+    public const int MaxLength = 1000;
     public const int MinLength = 3;
 
     private ServiceDescription(string value) =>
