@@ -27,6 +27,18 @@ public class RecordReadOnlyRepository(ApplicationDbContext dbContext) : IRecordR
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<List<Record>> GetRecordsWithVenueByStaffIdAndDate(
+        Guid staffId,
+        DateOnly date,
+        CancellationToken cancellationToken = default) =>
+        await dbContext.Set<Record>()
+            .AsNoTracking()
+            .Where(
+                r => r.StaffId == staffId &&
+                     r.StartTimestamp.Date == date.ToDateTime(TimeOnly.MinValue).Date)
+            .Include(r => r.Venue)
+            .ToListAsync(cancellationToken: cancellationToken);
+
     public async Task<List<Record>> GetByUserIdAsync(
         Guid userId,
         int limit,

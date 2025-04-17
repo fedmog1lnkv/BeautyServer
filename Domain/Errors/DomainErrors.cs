@@ -362,6 +362,9 @@ public class DomainErrors
         public static readonly Error Overlap = Error.Conflict(
             "TimeSlot.Overlap", "Time slot overlap.");
         
+        public static readonly Error AlreadyExists = Error.Conflict(
+            "TimeSlot.AlreadyExists", "Time slot already exists.");
+        
         public static readonly Error NotFoundByTime = Error.NotFound(
             "TimeSlot.NotFound", "Time slot not found by time.");
         

@@ -11,6 +11,11 @@ public interface IRecordReadOnlyRepository : IReadOnlyRepository<Record>
         int offset,
         bool isPending,
         CancellationToken cancellationToken = default);
+    
+    Task<List<Record>> GetRecordsWithVenueByStaffIdAndDate(
+        Guid staffId,
+        DateOnly date,
+        CancellationToken cancellationToken = default);
 
     Task<List<Record>> GetByUserIdAsync(
         Guid userId,

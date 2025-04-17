@@ -9,4 +9,4 @@ public record AddTimeSlotCommand(
     Guid StaffId,
     Guid VenueId,
     DateOnly Date,
-    List<IntervalsDto> Intervals) : ICommand<Result>;
+    List<AddIntervalsDto> Intervals) : ICommand<Result>;

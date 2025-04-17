@@ -1,4 +1,3 @@
-using Api.Controllers.Users.Models;
 using Application.Common.Mappings;
 using AutoMapper;
 using Domain.Entities;
@@ -35,13 +34,15 @@ public class RecordVmStaffLookupDto : IMapWith<Staff>
     public Guid Id { get; set; }
     public string Name { get; set; }
     public string PhoneNumber { get; set; }
-    
+    public string Photo { get; set; }
+
     public void Mapping(Profile profile)
     {
         profile.CreateMap<Staff, RecordVmStaffLookupDto>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.Value))
-            .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber.Value));
+            .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber.Value))
+            .ForMember(dest => dest.Photo, opt => opt.MapFrom(src => src.Photo.Value));
     }
 }
 
@@ -52,15 +53,24 @@ public class RecordVmServiceLookupDto : IMapWith<Service>
     public string? Description { get; set; }
     public TimeSpan? Duration { get; set; }
     public double? Price { get; set; }
+    public string? Photo { get; set; }
 
     public void Mapping(Profile profile)
     {
         profile.CreateMap<Service, RecordVmServiceLookupDto>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.Value))
-            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description != null ? src.Description.Value : null))
+            .ForMember(
+                dest => dest.Description,
+                opt => opt.MapFrom(src => src.Description != null ? src.Description.Value : null))
             .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
-            .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price != null ? src.Price.Value : (double?)null));
+            .ForMember(
+                dest => dest.Price,
+                opt => opt.MapFrom(src => src.Price != null ? src.Price.Value : (double?)null)).ForMember(
+                dest => dest.Photo,
+                opt => opt.MapFrom(
+                    src => src.Photo != null ? src.Photo.Value :
+                        null));
     }
 }
 
@@ -71,23 +81,29 @@ public class RecordVmVenueLookupDto : IMapWith<Domain.Entities.Venue>
     public string Description { get; set; }
     public LocationVm Location { get; set; }
     public ThemeVm Theme { get; set; }
-    
+
     public void Mapping(Profile profile)
     {
         profile.CreateMap<Domain.Entities.Venue, RecordVmVenueLookupDto>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.Value))
             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description.Value))
-            .ForMember(dest => dest.Location, opt => opt.MapFrom(src => new LocationVm
-            {
-                Latitude = src.Location.Latitude,
-                Longitude = src.Location.Longitude
-            }))
-            .ForMember(dest => dest.Theme, opt => opt.MapFrom(src => new ThemeVm
-            {
-                Color = src.Theme.Color,
-                Photo = src.Theme.Photo
-            }));
+            .ForMember(
+                dest => dest.Location,
+                opt => opt.MapFrom(
+                    src => new LocationVm
+                    {
+                        Latitude = src.Location.Latitude,
+                        Longitude = src.Location.Longitude
+                    }))
+            .ForMember(
+                dest => dest.Theme,
+                opt => opt.MapFrom(
+                    src => new ThemeVm
+                    {
+                        Color = src.Theme.Color,
+                        Photo = src.Theme.Photo
+                    }));
     }
 }
 

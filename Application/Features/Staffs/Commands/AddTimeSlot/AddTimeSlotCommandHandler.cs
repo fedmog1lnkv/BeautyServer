@@ -1,12 +1,9 @@
 using Application.Messaging.Command;
-using Domain.Entities;
 using Domain.Enums;
 using Domain.Errors;
 using Domain.Repositories.Staffs;
 using Domain.Repositories.Venues;
 using Domain.Shared;
-using Domain.ValueObjects;
-using System.Runtime.InteropServices.ComTypes;
 
 namespace Application.Features.Staffs.Commands.AddTimeSlot;
 
@@ -21,17 +18,24 @@ public class AddTimeSlotCommandHandler(
         if (initiatorStaff is null)
             return Result.Failure(DomainErrors.Staff.NotFound(request.InitiatorId));
 
-        var staff = await staffRepository.GetByIdAsync(request.StaffId, cancellationToken);
+        var staff = await staffRepository.GetByIdWithTimeSlotsAsync(request.StaffId, cancellationToken);
         if (staff is null)
             return Result.Failure(DomainErrors.Staff.NotFound(request.StaffId));
 
-        if (initiatorStaff.Id != staff.Id && 
-            (initiatorStaff.OrganizationId != staff.OrganizationId || 
+        if (initiatorStaff.Id != staff.Id &&
+            (initiatorStaff.OrganizationId != staff.OrganizationId ||
              initiatorStaff.Role != StaffRole.Manager))
             return Result.Failure(DomainErrors.Staff.StaffCannotUpdate);
+        
+        var staffTimeSlot = staff.TimeSlots.FirstOrDefault(ts => ts.Date == request.Date);
+
+        if (staffTimeSlot is not null)
+            return Result.Failure(DomainErrors.TimeSlot.AlreadyExists);
+
+        var timeSlotId = Guid.NewGuid();
 
         var addTimeSlotResult = await staff.AddTimeSlotAsync(
-            Guid.NewGuid(),
+            timeSlotId,
             request.VenueId,
             request.Date,
             venueReadOnlyRepository,
@@ -40,15 +44,10 @@ public class AddTimeSlotCommandHandler(
         if (addTimeSlotResult.IsFailure)
             return addTimeSlotResult;
 
-        var staffTimeSlot = staff.TimeSlots.FirstOrDefault(ts => ts.Date == request.Date);
-
-        if (staffTimeSlot is null)
-            return Result.Failure(DomainErrors.TimeSlot.NotFound(Guid.Empty));
-
         foreach (var intervalDto in request.Intervals)
         {
             var addIntervalResult = staff.AddTimeSlotInterval(
-                staffTimeSlot.Id,
+                timeSlotId,
                 intervalDto.StartTime,
                 intervalDto.EndTime);
 

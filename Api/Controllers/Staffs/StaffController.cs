@@ -9,11 +9,11 @@ using Application.Features.Staffs.Commands.GeneratePhoneChallenge;
 using Application.Features.Staffs.Commands.RefreshToken;
 using Application.Features.Staffs.Commands.UpdateStaff;
 using Application.Features.Staffs.Commands.UpdateStaffRecord;
+using Application.Features.Staffs.Commands.UpdateTimeSlot;
 using Application.Features.Staffs.Queries.GetStaffWithServicesById;
 using Application.Features.Staffs.Queries.GetStaffWithTimeSlotsByIdAndVenueId;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using TimeSlotDto = Api.Controllers.Staffs.Models.TimeSlotDto;
 
 namespace Api.Controllers.Staffs;
 
@@ -66,10 +66,26 @@ public class StaffController(IMapper mapper) : BaseController
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     [StaffValidationFilter]
-    public async Task<IActionResult> AddTimeSlot([FromBody] TimeSlotDto request)
+    public async Task<IActionResult> AddTimeSlot([FromBody] AddTimeSlotDto request)
     {
         request.InitiatorId = HttpContext.GetStaffId();
         var command = mapper.Map<AddTimeSlotCommand>(request);
+
+        var result = await Sender.Send(command);
+
+        return result.IsFailure
+            ? HandleFailure(result)
+            : Ok();
+    }
+    
+    [HttpPatch("schedule")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    [StaffValidationFilter]
+    public async Task<IActionResult> UpdateTimeSlot([FromBody] UpdateTimeSlotDto request)
+    {
+        request.InitiatorId = HttpContext.GetStaffId();
+        var command = mapper.Map<UpdateTimeSlotCommand>(request);
 
         var result = await Sender.Send(command);
 
