@@ -28,5 +28,5 @@ public class ServiceRepository(ApplicationDbContext dbContext, S3StorageUtils s3
         await s3StorageUtils.UploadPhotoAsync(base64Photo, fileName, "services");
     
     public async Task<bool> DeletePhoto(string photoUrl) =>
-        await s3StorageUtils.DatelePhoto(photoUrl, "services");
+        await s3StorageUtils.DeletePhoto(photoUrl, "services");
 }

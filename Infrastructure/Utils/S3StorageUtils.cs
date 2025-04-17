@@ -73,28 +73,48 @@ public sealed class S3StorageUtils(IAmazonS3 s3Client, IConfiguration configurat
             : null;
     }
 
-    public async Task<bool> DatelePhoto(string photoUrl, string folder)
+    public async Task<bool> DeletePhoto(string photoUrl, string folder)
     {
         try
         {
             var fileName = ExtractFilePathFromUrl(photoUrl, folder);
-
             if (string.IsNullOrEmpty(fileName))
                 return false;
 
-            var deleteRequest = new DeleteObjectRequest
+            var deletedAny = false;
+            
+            var nameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
+            var fileKeys = new[]
             {
-                BucketName = _bucketName,
-                Key = fileName
+                $"{fileName}",
+                $"{folder}/{nameWithoutExtension}_256.jpg",
+                $"{folder}/{nameWithoutExtension}_600.jpg"
             };
 
-            await s3Client.DeleteObjectAsync(deleteRequest);
+            foreach (var key in fileKeys)
+            {
+                try
+                {
+                    var deleteRequest = new DeleteObjectRequest
+                    {
+                        BucketName = _bucketName,
+                        Key = key
+                    };
 
-            return true;
+                    await s3Client.DeleteObjectAsync(deleteRequest);
+                    deletedAny = true;
+                }
+                catch (Exception ex)
+                {
+                    // ignored
+                }
+            }
+
+            return deletedAny;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error while deleting photo: {ex.Message}");
+            Console.WriteLine($"Ошибка при удалении файлов: {ex.Message}");
             return false;
         }
     }

@@ -40,7 +40,7 @@ public class DomainErrors
         public static readonly Error InvalidCode = Error.Validation(
             "PhoneChallenge.InvalidCode", "The verification code is incorrect.");
         
-        public static readonly Error NotSend = Error.Conflict(
+        public static readonly Error NotSend = Error.Failure(
             "PhoneChallenge.NotSend", "Error sending verification code.");
     }
     

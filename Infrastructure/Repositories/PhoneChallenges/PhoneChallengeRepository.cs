@@ -17,11 +17,11 @@ internal sealed class PhoneChallengeRepository(ApplicationDbContext dbContext, I
         Timeout = TimeSpan.FromSeconds(90)
     };
 
-    public async Task<Domain.Entities.PhoneChallenge?> GetByPhoneNumberAsync(
+    public async Task<PhoneChallenge?> GetByPhoneNumberAsync(
         string phoneNumber,
         CancellationToken cancellationToken = default)
     {
-        return await dbContext.Set<Domain.Entities.PhoneChallenge>()
+        return await dbContext.Set<PhoneChallenge>()
             .FirstOrDefaultAsync(pc => pc.PhoneNumber == phoneNumber, cancellationToken);
     }
 
@@ -64,7 +64,7 @@ internal sealed class PhoneChallengeRepository(ApplicationDbContext dbContext, I
             {
                 return authResponse.SystemMessage;
             }
-            
+
             if (authResponse == null || !authResponse.IsSuccess)
             {
                 return null;
@@ -118,14 +118,14 @@ internal sealed class PhoneChallengeRepository(ApplicationDbContext dbContext, I
             request.Headers.Add("accessToken", token);
 
             // Отправляем запрос
-            var response = await Client.SendAsync(request);
+            var response = await Client.SendAsync(request, cancellationToken);
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception($"Error sending SMS. Status code: {response.StatusCode}");
+                return false;
             }
 
             // Обрабатываем ответ
-            var responseBody = await response.Content.ReadAsStringAsync();
+            var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
             var responseData = JsonConvert.DeserializeObject<Dictionary<string, object>>(responseBody);
 
             if (responseData != null && responseData.ContainsKey("isSuccess") &&
@@ -145,15 +145,15 @@ internal sealed class PhoneChallengeRepository(ApplicationDbContext dbContext, I
         }
     }
 
-    public void Add(Domain.Entities.PhoneChallenge phoneChallenge)
+    public void Add(PhoneChallenge phoneChallenge)
     {
-        dbContext.Set<Domain.Entities.PhoneChallenge>().Add(phoneChallenge);
+        dbContext.Set<PhoneChallenge>().Add(phoneChallenge);
         dbContext.SaveChanges();
     }
 
-    public void Remove(Domain.Entities.PhoneChallenge phoneChallenge)
+    public void Remove(PhoneChallenge phoneChallenge)
     {
-        dbContext.Set<Domain.Entities.PhoneChallenge>().Remove(phoneChallenge);
+        dbContext.Set<PhoneChallenge>().Remove(phoneChallenge);
         dbContext.SaveChanges();
     }
 }
