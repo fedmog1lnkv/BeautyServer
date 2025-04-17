@@ -22,4 +22,7 @@ public class OrganizationRepository(
 
     public async Task<string?> UploadPhotoAsync(string base64Photo, string fileName) =>
         await s3StorageUtils.UploadPhotoAsync(base64Photo, fileName, "organizations");
+    
+    public async Task<bool> DeletePhoto(string photoUrl) =>
+        await s3StorageUtils.DatelePhoto(photoUrl, "organizations");
 }

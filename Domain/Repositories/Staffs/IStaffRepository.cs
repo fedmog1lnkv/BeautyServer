@@ -12,4 +12,5 @@ public interface IStaffRepository : IRepository<Staff>
     Task<Staff?> GetByPhoneNumberAsync(StaffPhoneNumber phoneNumber, CancellationToken cancellationToken = default);
     void Add(Staff staff);
     Task<string?> UploadPhotoAsync(string base64Photo, string fileName);
+    Task<bool> DeletePhoto(string photoUrl);
 }

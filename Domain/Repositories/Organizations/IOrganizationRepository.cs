@@ -10,4 +10,5 @@ public interface IOrganizationRepository : IRepository<Organization>
     void Remove(Organization organization);
     
     Task<string?> UploadPhotoAsync(string base64Photo, string fileName);
+    Task<bool> DeletePhoto(string photoUrl);
 }

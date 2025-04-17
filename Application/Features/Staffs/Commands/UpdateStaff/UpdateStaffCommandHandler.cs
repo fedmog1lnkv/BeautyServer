@@ -60,7 +60,9 @@ public sealed class UpdateStaffCommandHandler(
 
         if (request.Photo != null)
         {
-            var photoUrl = await staffRepository.UploadPhotoAsync(request.Photo, staff.Id.ToString());
+            var oldPhotoUrl = staff.Photo?.Value;
+            var photoId = Guid.NewGuid();
+            var photoUrl = await staffRepository.UploadPhotoAsync(request.Photo, photoId.ToString());
 
             if (string.IsNullOrEmpty(photoUrl))
                 return Result.Failure(DomainErrors.Staff.PhotoUploadFailed);
@@ -68,6 +70,9 @@ public sealed class UpdateStaffCommandHandler(
             var setPhotoResult = staff.SetPhoto(photoUrl);
             if (setPhotoResult.IsFailure)
                 return setPhotoResult;
+            
+            if (oldPhotoUrl is not null)
+                await staffRepository.DeletePhoto(oldPhotoUrl);
         }
 
         return result;

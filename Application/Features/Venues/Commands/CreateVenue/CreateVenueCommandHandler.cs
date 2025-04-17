@@ -39,14 +39,24 @@ public class CreateVenueCommandHandler(
 
         var venue = createVenueResult.Value;
 
+        if (request.Description is not null)
+        {
+            var result = venue.SetDescription(request.Description);
+            if (result.IsFailure)
+                return Result.Failure(result.Error);
+        }
+        
         if (request.Photo is not null)
         {
             var isBase64 = request.Photo.Length % 4 == 0 &&
                            request.Photo.Replace(" ", "").Replace("\n", "").Replace("\r", "").All(
                                c => char.IsLetterOrDigit(c) || c == '+' || c == '/' || c == '=');
 
+            var oldPhotoUrl = venue.Theme.Photo;
+            var photoId = Guid.NewGuid();
+
             var photoUrl = isBase64
-                ? await venueRepository.UploadPhotoAsync(request.Photo, venue.Id.ToString())
+                ? await venueRepository.UploadPhotoAsync(request.Photo, photoId.ToString())
                 : request.Photo;
 
             if (string.IsNullOrEmpty(photoUrl))
@@ -55,17 +65,13 @@ public class CreateVenueCommandHandler(
             var result = venue.SetPhoto(photoUrl);
             if (result.IsFailure)
                 return Result.Failure(result.Error);
+            
+            if (oldPhotoUrl is not null)
+                await venueRepository.DeletePhoto(oldPhotoUrl);
         }
         else
         {
             var result = venue.SetPhoto(organization.Theme.Photo);
-            if (result.IsFailure)
-                return Result.Failure(result.Error);
-        }
-
-        if (request.Description is not null)
-        {
-            var result = venue.SetDescription(request.Description);
             if (result.IsFailure)
                 return Result.Failure(result.Error);
         }

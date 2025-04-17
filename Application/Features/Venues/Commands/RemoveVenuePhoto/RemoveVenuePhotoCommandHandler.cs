@@ -33,7 +33,7 @@ public class RemoveVenuePhotoCommandHandler(
         if (removePhotoResult.IsFailure)
             return removePhotoResult;
         
-        await venueRepository.RemovePhoto(photo.PhotoUrl);
+        await venueRepository.DeletePhoto(photo.PhotoUrl);
 
         return Result.Success();
     }

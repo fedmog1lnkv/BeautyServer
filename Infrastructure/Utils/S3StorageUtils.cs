@@ -73,7 +73,7 @@ public sealed class S3StorageUtils(IAmazonS3 s3Client, IConfiguration configurat
             : null;
     }
 
-    public async Task<bool> RemovePhoto(string photoUrl, string folder)
+    public async Task<bool> DatelePhoto(string photoUrl, string folder)
     {
         try
         {

@@ -42,7 +42,9 @@ public sealed class UpdateUserCommandHandler(IUserRepository userRepository)
         
         if (request.Photo != null)
         {
-            var photoUrl = await userRepository.UploadPhotoAsync(request.Photo, user.Id.ToString());
+            var oldPhotoUrl = user.Photo?.Value;
+            var photoId = Guid.NewGuid();
+            var photoUrl = await userRepository.UploadPhotoAsync(request.Photo, photoId.ToString());
 
             if (string.IsNullOrEmpty(photoUrl))
                 return Result.Failure(DomainErrors.Staff.PhotoUploadFailed);
@@ -50,6 +52,9 @@ public sealed class UpdateUserCommandHandler(IUserRepository userRepository)
             var setPhotoResult = user.SetPhoto(photoUrl);
             if (setPhotoResult.IsFailure)
                 return setPhotoResult;
+            
+            if (oldPhotoUrl is not null)
+                await userRepository.DeletePhoto(oldPhotoUrl);
         }
 
         return result;

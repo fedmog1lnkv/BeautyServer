@@ -88,6 +88,9 @@ public sealed class UpdateOrganizationCommandHandler(IOrganizationRepository org
                     organizationPhotoOld,
                     organization.Theme.Photo!),
                 cancellationToken);
+            
+            if (organizationPhotoOld is not null)
+                await organizationRepository.DeletePhoto(organizationPhotoOld);
         }
 
 

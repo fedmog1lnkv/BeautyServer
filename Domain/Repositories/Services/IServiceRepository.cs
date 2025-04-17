@@ -10,4 +10,5 @@ public interface IServiceRepository : IRepository<Service>
     void Add(Service service);
     void Remove(Service service);
     Task<string?> UploadPhotoAsync(string base64Photo, string fileName);
+    Task<bool> DeletePhoto(string photoUrl);
 }

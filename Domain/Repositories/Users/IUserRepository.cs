@@ -11,4 +11,5 @@ public interface IUserRepository : IRepository<User>
     void Remove(User user);
     Task<User?> GetByPhoneNumberAsync(UserPhoneNumber phoneNumber, CancellationToken cancellationToken = default);
     Task<string?> UploadPhotoAsync(string base64Photo, string fileName);
+    Task<bool> DeletePhoto(string photoUrl);
 }

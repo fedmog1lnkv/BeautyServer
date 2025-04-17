@@ -14,5 +14,5 @@ public interface IVenueRepository : IRepository<Venue>
     void Remove(Venue venue);
 
     Task<string?> UploadPhotoAsync(string base64Photo, string fileName);
-    Task<bool> RemovePhoto(string photoUrl);
+    Task<bool> DeletePhoto(string photoUrl);
 }

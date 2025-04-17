@@ -47,6 +47,6 @@ public class VenueRepository(ApplicationDbContext dbContext, S3StorageUtils s3St
     public async Task<string?> UploadPhotoAsync(string base64Photo, string fileName) =>
         await s3StorageUtils.UploadPhotoAsync(base64Photo, fileName, "venues");
 
-    public async Task<bool> RemovePhoto(string photoUrl) =>
-        await s3StorageUtils.RemovePhoto(photoUrl, "venues");
+    public async Task<bool> DeletePhoto(string photoUrl) =>
+        await s3StorageUtils.DatelePhoto(photoUrl, "venues");
 }

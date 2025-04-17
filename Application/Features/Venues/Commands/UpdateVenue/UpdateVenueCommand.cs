@@ -12,4 +12,5 @@ public record UpdateVenueCommand(
     double? Latitude,
     double? Longitude,
     List<Guid>? ServiceIds,
-    List<Guid>? Photos) : ICommand<Result>;
+    List<Guid>? Photos // for ordering
+) : ICommand<Result>;

@@ -47,7 +47,9 @@ public sealed class UpdateServiceCommandHandler(IServiceRepository serviceReposi
         
         if (request.Photo != null)
         {
-            var photoUrl = await serviceRepository.UploadPhotoAsync(request.Photo, service.Id.ToString());
+            var oldPhotoUrl = service.Photo?.Value;
+            var photoId = Guid.NewGuid();
+            var photoUrl = await serviceRepository.UploadPhotoAsync(request.Photo, photoId.ToString());
 
             if (string.IsNullOrEmpty(photoUrl))
                 return Result.Failure(DomainErrors.Staff.PhotoUploadFailed);
@@ -55,6 +57,9 @@ public sealed class UpdateServiceCommandHandler(IServiceRepository serviceReposi
             var setPhotoResult = service.SetPhoto(photoUrl);
             if (setPhotoResult.IsFailure)
                 return setPhotoResult;
+            
+            if (oldPhotoUrl is not null)
+                await serviceRepository.DeletePhoto(oldPhotoUrl);
         }
 
         return result;
