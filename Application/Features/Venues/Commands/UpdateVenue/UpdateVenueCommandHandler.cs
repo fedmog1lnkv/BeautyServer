@@ -9,7 +9,7 @@ namespace Application.Features.Venues.Commands.UpdateVenue;
 
 public class UpdateVenueCommandHandler(
     IVenueRepository venueRepository,
-    IServiceReadOnlyRepository serviceReadOnlyRepository) : ICommandHandler<UpdateVenueCommand,
+    IServiceRepository serviceRepository) : ICommandHandler<UpdateVenueCommand,
     Result>
 {
     public async Task<Result> Handle(UpdateVenueCommand request, CancellationToken cancellationToken)
@@ -66,7 +66,7 @@ public class UpdateVenueCommandHandler(
         if (request.ServiceIds is not null)
         {
             var availableServices =
-                await serviceReadOnlyRepository.GetByOrganizationIdAsync(venue.OrganizationId, cancellationToken);
+                await serviceRepository.GetByOrganizationId(venue.OrganizationId, cancellationToken);
             var serviceDict = availableServices.ToDictionary(s => s.Id);
 
             var newServices = new List<Service>();

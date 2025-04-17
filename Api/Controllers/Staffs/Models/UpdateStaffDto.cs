@@ -12,6 +12,7 @@ public class UpdateStaffDto : IMapWith<UpdateStaffCommand>
     public required Guid StaffId { get; set; }
     public string? Name { get; set; }
     public string? Photo { get; set; }
+    public List<Guid>? ServiceIds { get; set; }
 
     public static void Mapping(Profile profile) =>
         profile
@@ -19,5 +20,6 @@ public class UpdateStaffDto : IMapWith<UpdateStaffCommand>
             .ForMember(x => x.InitiatorId, opt => opt.MapFrom(y => y.InitiatorId))
             .ForMember(x => x.StaffId, opt => opt.MapFrom(y => y.StaffId))
             .ForMember(x => x.Name, opt => opt.MapFrom(y => y.Name))
-            .ForMember(x => x.Photo, opt => opt.MapFrom(y => y.Photo));
+            .ForMember(x => x.Photo, opt => opt.MapFrom(y => y.Photo))
+            .ForMember(dest => dest.ServiceIds, opt => opt.MapFrom(src => src.ServiceIds));
 }

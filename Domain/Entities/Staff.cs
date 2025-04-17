@@ -176,22 +176,15 @@ public class Staff : AggregateRoot, IAuditableEntity
         return Result.Success();
     }
 
-    public Result AddService(Service service)
+    public Result SetServices(IEnumerable<Service> services)
     {
-        if (_services.Any(s => s.Id == service.Id))
-            return Result.Success();
+        var validServices = services.Where(s => s.OrganizationId == OrganizationId)
+            .DistinctBy(s => s.Id)
+            .ToList();
 
-        _services.Add(service);
-        return Result.Success();
-    }
+        _services.Clear();
+        _services.AddRange(validServices);
 
-    public Result RemoveService(Service service)
-    {
-        var existingService = _services.FirstOrDefault(s => s.Id == service.Id);
-        if (existingService is null)
-            return Result.Success();
-
-        _services.Remove(existingService);
         return Result.Success();
     }
 }

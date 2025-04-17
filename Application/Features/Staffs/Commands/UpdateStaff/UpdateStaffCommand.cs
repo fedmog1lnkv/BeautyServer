@@ -8,4 +8,5 @@ public record UpdateStaffCommand(
         InitiatorId, // Тот кто инициировал запрос на обновление данных о персонале (может делать либо менеджер, либо сам персонал)
     Guid StaffId,
     string? Name,
-    string? Photo) : ICommand<Result>;
+    string? Photo,
+    List<Guid>? ServiceIds) : ICommand<Result>;

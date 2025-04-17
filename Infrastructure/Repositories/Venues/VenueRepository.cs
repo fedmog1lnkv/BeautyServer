@@ -13,10 +13,17 @@ public class VenueRepository(ApplicationDbContext dbContext, S3StorageUtils s3St
             .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
     }
 
-    public async Task<Venue?> GetByIdWithServicesAndPhotosAsync(Guid id, CancellationToken cancellationToken = default) =>
+    public async Task<Venue?> GetByIdWithServicesAndPhotosAsync(
+        Guid id,
+        CancellationToken cancellationToken = default) =>
         await dbContext.Set<Venue>()
             .Include(v => v.Services)
             .Include(v => v.Photos)
+            .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
+
+    public async Task<Venue?> GetByIdWithServices(Guid id, CancellationToken cancellationToken = default) =>
+        await dbContext.Set<Venue>()
+            .Include(v => v.Services)
             .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
 
     public async Task<Venue?> GetByIdWithPhotos(Guid id, CancellationToken cancellationToken = default) =>

@@ -316,6 +316,10 @@ public class DomainErrors
         public static readonly Error NotAuthorizeInTelegram = Error.Failure(
             "Staff.NotAuthorizeInTelegram",
             "Staff is not authorized in the Telegram bot.");
+        
+        public static Error ServiceNotFoundInOrganization(Guid organizationId, Guid serviceId) => Error.NotFound(
+            "Venue.ServiceNotFoundInOrganization",
+            $"Service with Id '{serviceId}' was not found in organization with Id '{organizationId}'.");
     }
     
     public static class StaffName
