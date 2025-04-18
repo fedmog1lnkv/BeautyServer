@@ -14,12 +14,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        run: |
+          git clone https://github.com/${{ github.repository }} .
 
       - name: Set up Docker
-        uses: docker/setup-buildx-action@v1
-
-      - name: Build Docker image
         run: |
           docker build -t beauty-server:latest .
 
@@ -28,35 +26,24 @@ jobs:
           docker save -o beauty-server.tar beauty-server:latest
 
       - name: Upload Docker image as artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: beauty-server-image
-          path: beauty-server.tar
+        run: |
+          mkdir -p $HOME/artifacts
+          mv beauty-server.tar $HOME/artifacts/
 
-      - name: Set up SSH Key
-        uses: shimataro/ssh-key-action@v2
-        with:
-          key: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
-          known_hosts: ${{ secrets.SERVER_IP }}
-
-      - name: Adding Known Hosts
+      - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
+          echo "${{ secrets.SERVER_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
-
-      - name: Download Docker image artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: beauty-server-image
 
       - name: Copy Docker image to the server
         run: |
-          scp -i ${{ secrets.SERVER_SSH_PRIVATE_KEY }} -o StrictHostKeyChecking=no beauty-server.tar ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/home/${{ secrets.SERVER_USER }}/beauty_server/
+          scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $HOME/artifacts/beauty-server.tar ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/home/${{ secrets.SERVER_USER }}/beauty_server/
 
       - name: Run deployment commands on the server
         run: |
-          ssh -i ${{ secrets.SERVER_SSH_PRIVATE_KEY }} -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
             cd ~/beauty_server
             sudo docker-compose stop api || true
             sudo docker-compose rm -f api || true
