@@ -45,10 +45,12 @@ jobs:
           ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
-      - name: Copy Docker image to the server
+      - name: Download Docker image artifact
         uses: actions/download-artifact@v2
         with:
           name: beauty-server-image
+
+      - name: Copy Docker image to the server
         run: |
           scp -i ${{ secrets.SERVER_SSH_PRIVATE_KEY }} -o StrictHostKeyChecking=no beauty-server.tar ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/home/${{ secrets.SERVER_USER }}/beauty_server/
 
@@ -60,6 +62,6 @@ jobs:
             sudo docker-compose rm -f api || true
             sudo docker rmi beauty-server || true
             sudo docker system prune -f
-            sudo docker load -i beauty-server.tar
+            sudo docker load -i beauty_server/beauty-server.tar
             sudo docker-compose up -d api
-          EOF 
+          EOF
