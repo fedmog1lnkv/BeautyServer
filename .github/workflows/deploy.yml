@@ -19,7 +19,7 @@ jobs:
 
       - name: Set up Docker
         run: |
-          docker build -t beauty-server:latest .
+          docker build -f Api/Dockerfile -t beauty-server:latest .
 
       - name: Save Docker image to file
         run: |
