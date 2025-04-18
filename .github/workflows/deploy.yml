@@ -1,0 +1,65 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build Docker image
+        run: |
+          docker build -t beauty-server:latest .
+
+      - name: Save Docker image to file
+        run: |
+          docker save -o beauty-server.tar beauty-server:latest
+
+      - name: Upload Docker image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: beauty-server-image
+          path: beauty-server.tar
+
+      - name: Set up SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.SERVER_IP }}
+
+      - name: Adding Known Hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Copy Docker image to the server
+        uses: actions/download-artifact@v2
+        with:
+          name: beauty-server-image
+        run: |
+          scp -i ${{ secrets.SERVER_SSH_PRIVATE_KEY }} -o StrictHostKeyChecking=no beauty-server.tar ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/home/${{ secrets.SERVER_USER }}/beauty_server/
+
+      - name: Run deployment commands on the server
+        run: |
+          ssh -i ${{ secrets.SERVER_SSH_PRIVATE_KEY }} -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+            cd ~/beauty_server
+            sudo docker-compose stop api || true
+            sudo docker-compose rm -f api || true
+            sudo docker rmi beauty-server || true
+            sudo docker system prune -f
+            sudo docker load -i beauty-server.tar
+            sudo docker-compose up -d api
+          EOF
