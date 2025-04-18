@@ -49,6 +49,6 @@ jobs:
             sudo docker-compose rm -f api || true
             sudo docker rmi beauty-server || true
             sudo docker system prune -f
-            sudo docker load -i beauty_server/beauty-server.tar
+            sudo docker load -i beauty-server.tar
             sudo docker-compose up -d api
           EOF
