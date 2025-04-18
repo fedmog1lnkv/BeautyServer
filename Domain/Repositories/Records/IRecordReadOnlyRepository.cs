@@ -5,8 +5,9 @@ namespace Domain.Repositories.Records;
 
 public interface IRecordReadOnlyRepository : IReadOnlyRepository<Record>
 {
-    Task<List<Record>> GetByStaffIdAsync(
+    Task<List<Record>> GetByStaffIdAndDateAsync(
         Guid staffId,
+        DateOnly date,
         int limit,
         int offset,
         bool isPending,

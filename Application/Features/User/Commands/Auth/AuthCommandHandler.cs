@@ -28,7 +28,7 @@ public class AuthCommandHandler(
         var userPhoneNumber = userPhoneNumberResult.Value;
 
         var phoneChallenge = await phoneChallengeRepository.GetByPhoneNumberAsync(userPhoneNumber.Value);
-        if (phoneChallenge == null)
+        if (phoneChallenge is null)
             return Result.Failure<AuthVm>(DomainErrors.PhoneChallenge.NotFound);
 
         if (phoneChallenge.ExpiredAt < DateTime.UtcNow)

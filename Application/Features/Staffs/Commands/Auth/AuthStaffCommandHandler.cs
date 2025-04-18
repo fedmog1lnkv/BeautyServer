@@ -28,7 +28,7 @@ public class AuthStaffCommandHandler(
 
         var phoneChallenge =
             await phoneChallengeRepository.GetByPhoneNumberAsync(staffPhoneNumber.Value, cancellationToken);
-        if (phoneChallenge == null)
+        if (phoneChallenge is null)
             return Result.Failure<AuthVm>(DomainErrors.PhoneChallenge.NotFound);
 
         if (phoneChallenge.ExpiredAt < DateTime.UtcNow)

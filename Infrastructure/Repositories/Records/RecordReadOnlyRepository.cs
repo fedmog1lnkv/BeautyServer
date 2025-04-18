@@ -7,8 +7,9 @@ namespace Infrastructure.Repositories.Records;
 
 public class RecordReadOnlyRepository(ApplicationDbContext dbContext) : IRecordReadOnlyRepository
 {
-    public async Task<List<Record>> GetByStaffIdAsync(
+    public async Task<List<Record>> GetByStaffIdAndDateAsync(
         Guid staffId,
+        DateOnly date,
         int limit,
         int offset,
         bool isPending,
@@ -16,8 +17,9 @@ public class RecordReadOnlyRepository(ApplicationDbContext dbContext) : IRecordR
     {
         return await dbContext.Set<Record>()
             .AsNoTracking()
-            .Where(r => r.StaffId == staffId)
+            .Where(r => r.StaffId == staffId && r.StartTimestamp.Date == date.ToDateTime(TimeOnly.MinValue).Date)
             .Include(r => r.User)
+            .Include(r => r.Staff)
             .Include(r => r.Service)
             .Include(r => r.Venue)
             .Include(r => r.Organization)

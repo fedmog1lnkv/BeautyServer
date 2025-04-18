@@ -9,6 +9,7 @@ public class StaffVm : IMapWith<Staff>
     public Guid Id { get; set; }
     public string Name { get; set; }
     public string PhoneNumber { get; set; }
+    public string Role { get; set; }
     public string? Photo { get; set; }
     public List<Guid> Services { get; set; }
 
@@ -18,6 +19,7 @@ public class StaffVm : IMapWith<Staff>
             .ForMember(d => d.Id, opt => opt.MapFrom(s => s.Id))
             .ForMember(d => d.Name, opt => opt.MapFrom(s => s.Name.Value))
             .ForMember(d => d.PhoneNumber, opt => opt.MapFrom(s => s.PhoneNumber.Value))
+            .ForMember(d => d.Role, opt => opt.MapFrom(s => s.Role.ToString()))
             .ForMember(
                 d => d.Photo,
                 opt => opt.MapFrom(

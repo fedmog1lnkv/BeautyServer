@@ -113,6 +113,7 @@ public class StaffController(IMapper mapper) : BaseController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     [StaffValidationFilter]
     public async Task<IActionResult> GetRecords(
+        [FromQuery] DateOnly date,
         [FromQuery] int limit,
         [FromQuery] int offset,
         [FromQuery] bool isPending)
@@ -126,7 +127,7 @@ public class StaffController(IMapper mapper) : BaseController
         if (staffId == Guid.Empty)
             return Unauthorized();
 
-        var query = new GetRecordsByStaffIdQuery(staffId, limit, offset, isPending);
+        var query = new GetRecordsByStaffIdQuery(date, staffId, limit, offset, isPending);
 
         var result = await Sender.Send(query);
         if (result.IsFailure)

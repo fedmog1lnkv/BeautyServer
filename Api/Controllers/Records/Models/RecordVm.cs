@@ -8,6 +8,7 @@ public class RecordVm : IMapWith<Record>
 {
     public Guid Id { get; set; }
     public RecordVmStaffLookupDto Staff { get; set; }
+    public RecordVmUserLookupDto User { get; set; }
     public RecordVmServiceLookupDto Service { get; set; }
     public RecordVmVenueLookupDto Venue { get; set; }
     public string Comment { get; set; }
@@ -20,12 +21,30 @@ public class RecordVm : IMapWith<Record>
         profile.CreateMap<Record, RecordVm>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Staff, opt => opt.MapFrom(src => src.Staff))
+            .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User))
             .ForMember(dest => dest.Service, opt => opt.MapFrom(src => src.Service))
             .ForMember(dest => dest.Venue, opt => opt.MapFrom(src => src.Venue))
             .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Comment))
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
             .ForMember(dest => dest.StartTimestamp, opt => opt.MapFrom(src => src.StartTimestamp))
             .ForMember(dest => dest.EndTimestamp, opt => opt.MapFrom(src => src.EndTimestamp));
+    }
+}
+
+public class RecordVmUserLookupDto : IMapWith<Staff>
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public string PhoneNumber { get; set; }
+    public string Photo { get; set; }
+
+    public void Mapping(Profile profile)
+    {
+        profile.CreateMap<Staff, RecordVmUserLookupDto>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.Value))
+            .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber.Value))
+            .ForMember(dest => dest.Photo, opt => opt.MapFrom(src => src.Photo.Value));
     }
 }
 

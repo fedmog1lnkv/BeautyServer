@@ -8,6 +8,7 @@ public class StaffRecordsLookupDto : IMapWith<Record>
 {
     public Guid Id { get; set; }
     public StaffRecordsStaffLookupDto Staff { get; set; }
+    public StaffRecordsUserLookupDto User { get; set; }
     public StaffRecordsServiceLookupDto Service { get; set; }
     public StaffRecordsVenueLookupDto Venue { get; set; }
     public string Comment { get; set; }
@@ -20,6 +21,7 @@ public class StaffRecordsLookupDto : IMapWith<Record>
         profile.CreateMap<Record, StaffRecordsLookupDto>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Staff, opt => opt.MapFrom(src => src.Staff))
+            .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User))
             .ForMember(dest => dest.Service, opt => opt.MapFrom(src => src.Service))
             .ForMember(dest => dest.Venue, opt => opt.MapFrom(src => src.Venue))
             .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Comment))
@@ -29,18 +31,37 @@ public class StaffRecordsLookupDto : IMapWith<Record>
     }
 }
 
+public class StaffRecordsUserLookupDto : IMapWith<User>
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public string PhoneNumber { get; set; }
+    public string Photo { get; set; }
+
+    public void Mapping(Profile profile)
+    {
+        profile.CreateMap<User, StaffRecordsUserLookupDto>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.Value))
+            .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber.Value))
+            .ForMember(dest => dest.Photo, opt => opt.MapFrom(src => src.Photo.Value));
+    }
+}
+
 public class StaffRecordsStaffLookupDto : IMapWith<Staff>
 {
     public Guid Id { get; set; }
     public string Name { get; set; }
     public string PhoneNumber { get; set; }
+    public string Photo { get; set; }
 
     public void Mapping(Profile profile)
     {
         profile.CreateMap<Staff, StaffRecordsStaffLookupDto>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.Value))
-            .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber.Value));
+            .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber.Value))
+            .ForMember(dest => dest.Photo, opt => opt.MapFrom(src => src.Photo.Value));
     }
 }
 

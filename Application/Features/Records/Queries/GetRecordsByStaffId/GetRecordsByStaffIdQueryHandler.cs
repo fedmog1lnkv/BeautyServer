@@ -16,8 +16,9 @@ public class GetRecordsByStaffIdQueryHandler(IRecordReadOnlyRepository repositor
         CancellationToken cancellationToken)
     {
         var records =
-            await repository.GetByStaffIdAsync(
+            await repository.GetByStaffIdAndDateAsync(
                 request.StaffId,
+                request.Date,
                 request.Limit,
                 request.Offset,
                 request.IsPending,
