@@ -37,6 +37,10 @@ public sealed class UpdateStaffRecordCommandHandler(
              initiatorStaff.Role != StaffRole.Manager))
             return Result.Failure(DomainErrors.Record.CannotUpdate);
 
+        var venue = await venueReadOnlyRepository.GetByIdAsync(record.VenueId, cancellationToken);
+        if (venue is null)
+            return Result.Failure(DomainErrors.Venue.NotFound(record.VenueId));
+        
         var result = Result.Success();
 
         if (request.Status is not null)
@@ -56,7 +60,7 @@ public sealed class UpdateStaffRecordCommandHandler(
 
             if (record.Status == RecordStatus.Discarded)
             {
-                var removeOldRecordResult = RemoveRecordFromIntervals(staff, record);
+                var removeOldRecordResult = RemoveRecordFromIntervals(staff, venue, record);
                 if (removeOldRecordResult.IsFailure)
                     return removeOldRecordResult;
             }
@@ -71,7 +75,8 @@ public sealed class UpdateStaffRecordCommandHandler(
 
         if (request.StartTimestamp.HasValue || request.EndTimeStamp.HasValue)
         {
-            var removeOldRecordResult = RemoveRecordFromIntervals(staff, record);
+
+            var removeOldRecordResult = RemoveRecordFromIntervals(staff, venue, record);
             if (removeOldRecordResult.IsFailure)
                 return removeOldRecordResult;
 
@@ -84,7 +89,8 @@ public sealed class UpdateStaffRecordCommandHandler(
             var startTime = startTimeStamp.TimeOfDay;
             var endTime = endTimeStamp.TimeOfDay;
 
-            var timeSlot = staff.TimeSlots.FirstOrDefault(ts => ts.Date == DateOnly.FromDateTime(startTimeStamp.DateTime));
+            var timeSlot =
+                staff.TimeSlots.FirstOrDefault(ts => ts.Date == DateOnly.FromDateTime(startTimeStamp.DateTime));
             if (timeSlot is null)
                 return Result.Failure(DomainErrors.TimeSlot.NotFoundByTime);
 
@@ -129,11 +135,9 @@ public sealed class UpdateStaffRecordCommandHandler(
             if (updateStaffIntervalsResult.IsFailure)
                 return Result.Failure(updateStaffIntervalsResult.Error);
 
-            var venue = await venueReadOnlyRepository.GetByIdAsync(timeSlot.VenueId, cancellationToken);
-            if (venue is null)
-                return Result.Failure(DomainErrors.Venue.NotFound(timeSlot.VenueId));
-            
-            result = record.SetTime(TimeZoneInfo.ConvertTimeToUtc(startTimeStamp.DateTime, venue.TimeZone), TimeZoneInfo.ConvertTimeToUtc(endTimeStamp.DateTime, venue.TimeZone));
+            result = record.SetTime(
+                TimeZoneInfo.ConvertTimeToUtc(startTimeStamp.DateTime, venue.TimeZone),
+                TimeZoneInfo.ConvertTimeToUtc(endTimeStamp.DateTime, venue.TimeZone));
             if (result.IsFailure)
                 return result;
         }
@@ -142,14 +146,22 @@ public sealed class UpdateStaffRecordCommandHandler(
     }
 
     // TODO : move to helper
-    private Result RemoveRecordFromIntervals(Staff staff, Record record)
+    private Result RemoveRecordFromIntervals(
+        Staff staff,
+        Venue venue,
+        Record record)
     {
-        var recordIntervalResult = Interval.Create(record.StartTimestamp.TimeOfDay, record.EndTimestamp.TimeOfDay);
+        var recordStartTimeStamp = TimeZoneInfo.ConvertTimeFromUtc(record.StartTimestamp.DateTime, venue.TimeZone);
+        var recordEndTimeStamp = TimeZoneInfo.ConvertTimeFromUtc(record.EndTimestamp.DateTime, venue.TimeZone);
+
+        var recordIntervalResult = Interval.Create(
+            recordStartTimeStamp.TimeOfDay,
+            recordEndTimeStamp.TimeOfDay);
         if (recordIntervalResult.IsFailure)
             return recordIntervalResult;
 
         var oldStaffTimeSlot =
-            staff.TimeSlots.FirstOrDefault(ts => ts.Date == DateOnly.FromDateTime(record.StartTimestamp.DateTime));
+            staff.TimeSlots.FirstOrDefault(ts => ts.Date == DateOnly.FromDateTime(recordStartTimeStamp));
         if (oldStaffTimeSlot is null)
             return Result.Failure(DomainErrors.TimeSlot.NotFoundByTime);
 
@@ -201,7 +213,7 @@ public sealed class UpdateStaffRecordCommandHandler(
                 var createIntervalResult = Interval.Create(updatedIntervals[i - 1].Start, updatedIntervals[i].End);
                 if (createIntervalResult.IsFailure)
                     return Result.Failure<List<Interval>>(createIntervalResult.Error);
-                
+
                 updatedIntervals.RemoveAt(i);
                 updatedIntervals[i - 1] = createIntervalResult.Value;
                 i--;

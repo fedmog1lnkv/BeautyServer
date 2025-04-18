@@ -4,6 +4,7 @@ using Domain.Enums;
 using Domain.Errors;
 using Domain.Repositories.Records;
 using Domain.Repositories.Staffs;
+using Domain.Repositories.Venues;
 using Domain.Shared;
 using Domain.ValueObjects;
 
@@ -12,7 +13,8 @@ namespace Application.Features.User.Commands.UpdateUserRecord;
 public sealed class UpdateUserRecordCommandHandler(
     IStaffRepository staffRepository,
     IRecordRepository
-        recordRepository) : ICommandHandler<UpdateUserRecordCommand, Result>
+        recordRepository,
+    IVenueReadOnlyRepository venueReadOnlyRepository) : ICommandHandler<UpdateUserRecordCommand, Result>
 {
     public async Task<Result> Handle(UpdateUserRecordCommand request, CancellationToken cancellationToken)
     {
@@ -47,8 +49,9 @@ public sealed class UpdateUserRecordCommandHandler(
                 result = record.Discard(request.Comment);
                 if (result.IsFailure)
                     return result;
-                
-                result = RemoveRecordFromIntervals(staff, record);
+
+                var venue = await venueReadOnlyRepository.GetByIdAsync(record.VenueId, cancellationToken);
+                result = RemoveRecordFromIntervals(staff, venue, record);
                 if (result.IsFailure)
                     return result;
             }
@@ -64,19 +67,27 @@ public sealed class UpdateUserRecordCommandHandler(
             if (result.IsFailure)
                 return result;
         }
-        
+
         return Result.Success();
     }
 
     // TODO : move to helper
-    private Result RemoveRecordFromIntervals(Staff staff, Record record)
+    private Result RemoveRecordFromIntervals(
+        Staff staff,
+        Venue venue,
+        Record record)
     {
-        var recordIntervalResult = Interval.Create(record.StartTimestamp.ToLocalTime().TimeOfDay, record.EndTimestamp.ToLocalTime().TimeOfDay);
+        var recordStartTimeStamp = TimeZoneInfo.ConvertTimeFromUtc(record.StartTimestamp.DateTime, venue.TimeZone);
+        var recordEndTimeStamp = TimeZoneInfo.ConvertTimeFromUtc(record.EndTimestamp.DateTime, venue.TimeZone);
+
+        var recordIntervalResult = Interval.Create(
+            recordStartTimeStamp.TimeOfDay,
+            recordEndTimeStamp.TimeOfDay);
         if (recordIntervalResult.IsFailure)
             return recordIntervalResult;
 
         var oldStaffTimeSlot =
-            staff.TimeSlots.FirstOrDefault(ts => ts.Date == DateOnly.FromDateTime(record.StartTimestamp.DateTime));
+            staff.TimeSlots.FirstOrDefault(ts => ts.Date == DateOnly.FromDateTime(recordStartTimeStamp));
         if (oldStaffTimeSlot is null)
             return Result.Failure(DomainErrors.TimeSlot.NotFoundByTime);
 
@@ -128,7 +139,7 @@ public sealed class UpdateUserRecordCommandHandler(
                 var createIntervalResult = Interval.Create(updatedIntervals[i - 1].Start, updatedIntervals[i].End);
                 if (createIntervalResult.IsFailure)
                     return Result.Failure<List<Interval>>(createIntervalResult.Error);
-                
+
                 updatedIntervals.RemoveAt(i);
                 updatedIntervals[i - 1] = createIntervalResult.Value;
                 i--;
