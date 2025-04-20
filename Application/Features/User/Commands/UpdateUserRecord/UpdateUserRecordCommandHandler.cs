@@ -58,11 +58,14 @@ public sealed class UpdateUserRecordCommandHandler(
                     return result;
 
                 if (staff.Settings.FirebaseToken != null)
+                {
+                    var recordStartLocalTime = TimeZoneInfo.ConvertTimeFromUtc(record.StartTimestamp.DateTime, venue.TimeZone);
                     await notificationRepository.SendOrderNotificationAsync(
                         record.Id,
                         staff.Settings.FirebaseToken,
                         "Клиент отменил запись",
-                        $"Клиент отменил запись на услугу «{record.Service.Name.Value}», назначенную на {record.StartTimestamp:dd.MM.yyyy в HH:mm}.");
+                        $"Клиент отменил запись на услугу «{record.Service.Name.Value}», назначенную на {recordStartLocalTime:dd.MM.yyyy в HH:mm}.");
+                }
             }
             else
             {

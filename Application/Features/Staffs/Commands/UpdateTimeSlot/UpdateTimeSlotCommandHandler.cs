@@ -43,13 +43,13 @@ public sealed class UpdateTimeSlotCommandHandler(
         var baseDate = staffTimeSlot.Date.ToDateTime(TimeOnly.MinValue);
         foreach (var interval in request.Intervals)
         {
-            foreach (var record in records)
+            foreach (var record in records.Where(r => r.Status != RecordStatus.Discarded).ToList())
             {
-                var newStart = TimeZoneInfo.ConvertTime(baseDate + interval.StartTime, record.Venue.TimeZone);
-                var newEnd = TimeZoneInfo.ConvertTime(baseDate + interval.EndTime, record.Venue.TimeZone);
+                var newStart = TimeZoneInfo.ConvertTimeFromUtc(baseDate + interval.StartTime, record.Venue.TimeZone);
+                var newEnd = TimeZoneInfo.ConvertTimeFromUtc(baseDate + interval.EndTime, record.Venue.TimeZone);
                 
-                var existingStart = TimeZoneInfo.ConvertTime(record.StartTimestamp, record.Venue.TimeZone);
-                var existingEnd = TimeZoneInfo.ConvertTime(record.EndTimestamp, record.Venue.TimeZone);
+                var existingStart = TimeZoneInfo.ConvertTimeFromUtc(record.StartTimestamp.DateTime, record.Venue.TimeZone);
+                var existingEnd = TimeZoneInfo.ConvertTimeFromUtc(record.EndTimestamp.DateTime, record.Venue.TimeZone);
 
                 if (newStart < existingEnd && newEnd > existingStart)
                     return Result.Failure(DomainErrors.TimeSlot.Overlap);

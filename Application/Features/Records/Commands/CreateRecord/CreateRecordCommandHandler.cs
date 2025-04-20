@@ -115,11 +115,12 @@ public class CreateRecordCommandHandler(
         var record = createRecordResult.Value;
         if (record.Staff.Settings.FirebaseToken != null)
         {
+            var recordStartLocalTime = TimeZoneInfo.ConvertTimeFromUtc(record.StartTimestamp.DateTime, venue.TimeZone);
             await notificationRepository.SendOrderNotificationAsync(
                 record.Id,
                 record.Staff.Settings.FirebaseToken,
                 "Новая запись",
-                $"У вас новая запись на услугу «{record.Service.Name.Value}» от клиента {record.User.Name} на {record.StartTimestamp:dd.MM.yyyy в HH:mm}.");
+                $"У вас новая запись на услугу «{record.Service.Name.Value}» от клиента {record.User.Name} на {recordStartLocalTime:dd.MM.yyyy в HH:mm}.");
         }
 
         return Result.Success();

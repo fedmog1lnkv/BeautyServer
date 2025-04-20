@@ -76,20 +76,26 @@ public sealed class UpdateStaffRecordCommandHandler(
             else if (record.Status == RecordStatus.Approved)
             {
                 if (record.User.Settings.FirebaseToken != null)
+                {
+                    var recordStartLocalTime = TimeZoneInfo.ConvertTimeFromUtc(record.StartTimestamp.DateTime, venue.TimeZone);
                     await notificationRepository.SendOrderNotificationAsync(
                         record.Id,
                         record.User.Settings.FirebaseToken,
                         "Запись подтверждена",
-                        $"Ваша запись на услугу «{record.Service.Name.Value}» подтверждена и состоится {record.StartTimestamp:dd.MM.yyyy в HH:mm}.");
+                        $"Ваша запись на услугу «{record.Service.Name.Value}» подтверждена и состоится {recordStartLocalTime:dd.MM.yyyy в HH:mm}.");
+                }
             }
             else if (record.Status == RecordStatus.Completed)
             {
                 if (record.User.Settings.FirebaseToken != null)
+                {
+                    var recordStartLocalTime = TimeZoneInfo.ConvertTimeFromUtc(record.StartTimestamp.DateTime, venue.TimeZone);
                     await notificationRepository.SendOrderNotificationAsync(
                         record.Id,
                         record.User.Settings.FirebaseToken,
                         "Услуга оказана",
-                        $"Ваша запись на услугу «{record.Service.Name.Value}» от {record.StartTimestamp:dd.MM.yyyy в HH:mm} отмечена как завершённая. Спасибо, что воспользовались нашими услугами!");
+                        $"Ваша запись на услугу «{record.Service.Name.Value}» от {recordStartLocalTime:dd.MM.yyyy в HH:mm} отмечена как завершённая. Спасибо, что воспользовались нашими услугами!");
+                }
             }
         }
 
@@ -168,11 +174,14 @@ public sealed class UpdateStaffRecordCommandHandler(
                 return result;
 
             if (record.User.Settings.FirebaseToken != null)
+            {
+                var recordStartLocalTime = TimeZoneInfo.ConvertTimeFromUtc(record.StartTimestamp.DateTime, venue.TimeZone);
                 await notificationRepository.SendOrderNotificationAsync(
                     record.Id,
                     record.User.Settings.FirebaseToken,
                     "Запись перенесена",
-                    $"Ваша запись на услугу «{record.Service.Name.Value}» была перенесена на {startTimeStamp:dd.MM.yyyy} в {startTimeStamp:HH:mm}.");
+                    $"Ваша запись на услугу «{record.Service.Name.Value}» была перенесена на {recordStartLocalTime:dd.MM.yyyy в HH:mm}.");
+            }
         }
 
         return Result.Success();
