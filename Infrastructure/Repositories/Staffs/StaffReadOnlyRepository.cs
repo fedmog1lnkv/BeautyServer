@@ -36,6 +36,12 @@ public class StaffReadOnlyRepository(ApplicationDbContext dbContext) : IStaffRea
             .AsNoTracking()
             .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
 
+    public async Task<Staff?> GetByIdWithTimeSlots(Guid id, CancellationToken cancellationToken = default) =>
+        await dbContext.Set<Staff>()
+            .AsNoTracking()
+            .Include(s => s.TimeSlots)
+            .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
+
     public async Task<List<Staff>> GetByVenueIdWithServicesAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var today = DateOnly.FromDateTime(DateTime.UtcNow);

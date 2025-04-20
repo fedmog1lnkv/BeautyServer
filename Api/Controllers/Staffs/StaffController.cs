@@ -10,8 +10,10 @@ using Application.Features.Staffs.Commands.RefreshToken;
 using Application.Features.Staffs.Commands.UpdateStaff;
 using Application.Features.Staffs.Commands.UpdateStaffRecord;
 using Application.Features.Staffs.Commands.UpdateTimeSlot;
+using Application.Features.Staffs.Queries.GetStaffScheduleByIdAndDate;
 using Application.Features.Staffs.Queries.GetStaffWithServicesById;
 using Application.Features.Staffs.Queries.GetStaffWithTimeSlotsByIdAndVenueId;
+using Application.Features.Staffs.Queries.GetStaffWorkloadById;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
@@ -107,6 +109,44 @@ public class StaffController(IMapper mapper) : BaseController
         var timeSlots = mapper.Map<List<TimeSlotsVm>>(result.Value.TimeSlots);
         return Ok(timeSlots);
     }
+    
+    [HttpGet("schedule/workload/{year}/{month}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [StaffValidationFilter]
+    public async Task<IActionResult> GetStaffWorkload(int year, int month, [FromQuery] Guid? staffId)
+    {
+        if (staffId is not null && !HttpContext.IsManager())
+            return Unauthorized();
+        
+        staffId ??= HttpContext.GetStaffId();
+        
+        var query = new GetStaffWorkloadByIdQuery(staffId.Value, year, month);
+
+        var result = await Sender.Send(query);
+        if (result.IsFailure)
+            return HandleFailure(result);
+
+        return Ok(result.Value.Days);
+    }
+    
+    [HttpGet("schedule/workload/{year}/{month}/{day}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [StaffValidationFilter]
+    public async Task<IActionResult> GetStaffScheduleByDate(int year, int month, int day, [FromQuery] Guid? staffId)
+    {
+        if (staffId is not null && !HttpContext.IsManager())
+            return Unauthorized();
+        
+        staffId ??= HttpContext.GetStaffId();
+        
+        var query = new GetStaffScheduleByIdAndDateQuery(staffId.Value, year, month, day);
+
+        var result = await Sender.Send(query);
+        if (result.IsFailure)
+            return HandleFailure(result);
+
+        return Ok(result.Value);
+    }
 
     [HttpGet("records")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -138,7 +178,7 @@ public class StaffController(IMapper mapper) : BaseController
         return Ok(records);
     }
     
-    [HttpPatch("/record")]
+    [HttpPatch("record")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [StaffValidationFilter]
     public async Task<IActionResult> Update([FromBody] UpdateStaffRecordDto request)

@@ -29,6 +29,21 @@ public class RecordReadOnlyRepository(ApplicationDbContext dbContext) : IRecordR
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<List<Record>> GetByStaffIdAndMonth(
+        Guid staffId,
+        int year,
+        int month,
+        CancellationToken cancellationToken = default)
+    {
+        var startMonth = new DateTimeOffset(new DateTime(year, month, 1)).ToUniversalTime();
+        var endMonth = startMonth.AddMonths(1).AddDays(-1);
+        
+        return await dbContext.Set<Record>()
+            .AsNoTracking()
+            .Where(r => r.StaffId == staffId && r.StartTimestamp >= startMonth && r.EndTimestamp <= endMonth)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<List<Record>> GetRecordsWithVenueByStaffIdAndDate(
         Guid staffId,
         DateOnly date,

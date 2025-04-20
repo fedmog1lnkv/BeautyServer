@@ -16,4 +16,9 @@ public static class HttpContextExtensions
     {
         return Guid.Parse(context.Items["staff_id"]?.ToString() ?? string.Empty);
     }
+    
+    public static bool IsManager(this HttpContext context)
+    {
+        return context.Items.TryGetValue("is_manager", out var isManager) && isManager is bool manager && manager;
+    }
 }
