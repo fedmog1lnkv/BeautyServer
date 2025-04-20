@@ -11,7 +11,7 @@ public class UpdateStaffRecordDto : IMapWith<UpdateStaffRecordCommand>
     [SwaggerIgnore]
     public Guid InitiatorId { get; set; }
 
-    public Guid Id { get; set; }
+    public Guid RecordId { get; set; }
     public string? Status { get; set; }
     public string? Comment { get; set; }
 
@@ -22,7 +22,7 @@ public class UpdateStaffRecordDto : IMapWith<UpdateStaffRecordCommand>
     public void Mapping(Profile profile) =>
         profile.CreateMap<UpdateStaffRecordDto, UpdateStaffRecordCommand>()
             .ForMember(dest => dest.InitiatorId, opt => opt.MapFrom(src => src.InitiatorId))
-            .ForMember(dest => dest.RecordId, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.RecordId, opt => opt.MapFrom(src => src.RecordId))
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
             .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Comment))
             .ForMember(dest => dest.StartTimestamp, opt => opt.MapFrom(src => src.StartTimestamp))

@@ -4,6 +4,7 @@ using Domain.Enums;
 using Domain.Errors;
 using Domain.Repositories.Records;
 using Domain.Repositories.Staffs;
+using Domain.Repositories.Utils;
 using Domain.Repositories.Venues;
 using Domain.Shared;
 using Domain.ValueObjects;
@@ -14,7 +15,8 @@ public sealed class UpdateUserRecordCommandHandler(
     IStaffRepository staffRepository,
     IRecordRepository
         recordRepository,
-    IVenueReadOnlyRepository venueReadOnlyRepository) : ICommandHandler<UpdateUserRecordCommand, Result>
+    IVenueReadOnlyRepository venueReadOnlyRepository,
+    INotificationRepository notificationRepository) : ICommandHandler<UpdateUserRecordCommand, Result>
 {
     public async Task<Result> Handle(UpdateUserRecordCommand request, CancellationToken cancellationToken)
     {
@@ -54,6 +56,13 @@ public sealed class UpdateUserRecordCommandHandler(
                 result = RemoveRecordFromIntervals(staff, venue, record);
                 if (result.IsFailure)
                     return result;
+
+                if (staff.Settings.FirebaseToken != null)
+                    await notificationRepository.SendOrderNotificationAsync(
+                        record.Id,
+                        staff.Settings.FirebaseToken,
+                        "Клиент отменил запись",
+                        $"Клиент отменил запись на услугу «{record.Service.Name.Value}», назначенную на {record.StartTimestamp:dd.MM.yyyy в HH:mm}.");
             }
             else
             {

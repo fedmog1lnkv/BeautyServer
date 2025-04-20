@@ -7,6 +7,7 @@ using Domain.Repositories.Records;
 using Domain.Repositories.Services;
 using Domain.Repositories.Staffs;
 using Domain.Repositories.Users;
+using Domain.Repositories.Utils;
 using Domain.Repositories.Venues;
 using Domain.Shared;
 using Domain.ValueObjects;
@@ -20,7 +21,8 @@ public class CreateRecordCommandHandler(
     IOrganizationReadOnlyRepository organizationReadOnlyRepository,
     IVenueReadOnlyRepository venueReadOnlyRepository,
     IServiceReadOnlyRepository serviceReadOnlyRepository,
-    IRecordRepository recordRepository) : ICommandHandler<CreateRecordCommand, Result>
+    IRecordRepository recordRepository,
+    INotificationRepository notificationRepository) : ICommandHandler<CreateRecordCommand, Result>
 {
     public async Task<Result> Handle(CreateRecordCommand request, CancellationToken cancellationToken)
     {
@@ -109,6 +111,16 @@ public class CreateRecordCommandHandler(
             return createRecordResult;
 
         recordRepository.Add(createRecordResult.Value);
+        
+        var record = createRecordResult.Value;
+        if (record.Staff.Settings.FirebaseToken != null)
+        {
+            await notificationRepository.SendOrderNotificationAsync(
+                record.Id,
+                record.Staff.Settings.FirebaseToken,
+                "Новая запись",
+                $"У вас новая запись на услугу «{record.Service.Name.Value}» от клиента {record.User.Name} на {record.StartTimestamp:dd.MM.yyyy в HH:mm}.");
+        }
 
         return Result.Success();
     }

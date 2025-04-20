@@ -4,6 +4,7 @@ using Domain.Enums;
 using Domain.Errors;
 using Domain.Repositories.Records;
 using Domain.Repositories.Staffs;
+using Domain.Repositories.Utils;
 using Domain.Repositories.Venues;
 using Domain.Shared;
 using Domain.ValueObjects;
@@ -13,7 +14,8 @@ namespace Application.Features.Staffs.Commands.UpdateStaffRecord;
 public sealed class UpdateStaffRecordCommandHandler(
     IStaffRepository staffRepository,
     IRecordRepository recordRepository,
-    IVenueReadOnlyRepository venueReadOnlyRepository) : ICommandHandler<UpdateStaffRecordCommand, Result>
+    IVenueReadOnlyRepository venueReadOnlyRepository,
+    INotificationRepository notificationRepository) : ICommandHandler<UpdateStaffRecordCommand, Result>
 {
     public async Task<Result> Handle(UpdateStaffRecordCommand request, CancellationToken cancellationToken)
     {
@@ -40,7 +42,7 @@ public sealed class UpdateStaffRecordCommandHandler(
         var venue = await venueReadOnlyRepository.GetByIdAsync(record.VenueId, cancellationToken);
         if (venue is null)
             return Result.Failure(DomainErrors.Venue.NotFound(record.VenueId));
-        
+
         var result = Result.Success();
 
         if (request.Status is not null)
@@ -63,6 +65,31 @@ public sealed class UpdateStaffRecordCommandHandler(
                 var removeOldRecordResult = RemoveRecordFromIntervals(staff, venue, record);
                 if (removeOldRecordResult.IsFailure)
                     return removeOldRecordResult;
+
+                if (record.User.Settings.FirebaseToken != null)
+                    await notificationRepository.SendOrderNotificationAsync(
+                        record.Id,
+                        record.User.Settings.FirebaseToken,
+                        "Запись отменена",
+                        $"Ваша запись на услугу «{record.Service.Name.Value}» была отменена");
+            }
+            else if (record.Status == RecordStatus.Approved)
+            {
+                if (record.User.Settings.FirebaseToken != null)
+                    await notificationRepository.SendOrderNotificationAsync(
+                        record.Id,
+                        record.User.Settings.FirebaseToken,
+                        "Запись подтверждена",
+                        $"Ваша запись на услугу «{record.Service.Name.Value}» подтверждена и состоится {record.StartTimestamp:dd.MM.yyyy в HH:mm}.");
+            }
+            else if (record.Status == RecordStatus.Completed)
+            {
+                if (record.User.Settings.FirebaseToken != null)
+                    await notificationRepository.SendOrderNotificationAsync(
+                        record.Id,
+                        record.User.Settings.FirebaseToken,
+                        "Услуга оказана",
+                        $"Ваша запись на услугу «{record.Service.Name.Value}» от {record.StartTimestamp:dd.MM.yyyy в HH:mm} отмечена как завершённая. Спасибо, что воспользовались нашими услугами!");
             }
         }
 
@@ -75,7 +102,6 @@ public sealed class UpdateStaffRecordCommandHandler(
 
         if (request.StartTimestamp.HasValue || request.EndTimeStamp.HasValue)
         {
-
             var removeOldRecordResult = RemoveRecordFromIntervals(staff, venue, record);
             if (removeOldRecordResult.IsFailure)
                 return removeOldRecordResult;
@@ -140,6 +166,13 @@ public sealed class UpdateStaffRecordCommandHandler(
                 TimeZoneInfo.ConvertTimeToUtc(endTimeStamp.DateTime, venue.TimeZone));
             if (result.IsFailure)
                 return result;
+
+            if (record.User.Settings.FirebaseToken != null)
+                await notificationRepository.SendOrderNotificationAsync(
+                    record.Id,
+                    record.User.Settings.FirebaseToken,
+                    "Запись перенесена",
+                    $"Ваша запись на услугу «{record.Service.Name.Value}» была перенесена на {startTimeStamp:dd.MM.yyyy} в {startTimeStamp:HH:mm}.");
         }
 
         return Result.Success();
