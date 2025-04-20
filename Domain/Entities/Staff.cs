@@ -21,6 +21,7 @@ public class Staff : AggregateRoot, IAuditableEntity
         StaffPhoneNumber phoneNumber,
         StaffRole role,
         StaffPhoto? photo,
+        StaffSettings settings,
         DateTime createdOnUtc) : base(id)
     {
         OrganizationId = organizationId;
@@ -28,6 +29,7 @@ public class Staff : AggregateRoot, IAuditableEntity
         PhoneNumber = phoneNumber;
         Role = role;
         Photo = photo;
+        Settings = settings;
 
         CreatedOnUtc = createdOnUtc;
     }
@@ -41,6 +43,7 @@ public class Staff : AggregateRoot, IAuditableEntity
     public StaffPhoneNumber PhoneNumber { get; private set; }
     public StaffRole Role { get; private set; }
     public StaffPhoto? Photo { get; private set; }
+    public StaffSettings Settings { get; private set; }
     public DateTime CreatedOnUtc { get; set; }
     public DateTime? ModifiedOnUtc { get; set; }
     public IReadOnlyCollection<Service> Services => _services.AsReadOnly();
@@ -74,6 +77,10 @@ public class Staff : AggregateRoot, IAuditableEntity
         var staffNameResult = StaffName.Create(name);
         if (staffNameResult.IsFailure)
             return Result.Failure<Staff>(staffNameResult.Error);
+        
+        var createSettingsResult = StaffSettings.Create(null);
+        if (createSettingsResult.IsFailure)
+            return Result.Failure<Staff>(createSettingsResult.Error);
 
         return new Staff(
             id,
@@ -82,6 +89,7 @@ public class Staff : AggregateRoot, IAuditableEntity
             staffPhoneResult.Value,
             StaffRole.Unknown,
             null,
+            createSettingsResult.Value,
             createdOnUtc);
     }
 
@@ -98,6 +106,18 @@ public class Staff : AggregateRoot, IAuditableEntity
         return Result.Success();
     }
 
+    public Result SetFirebaseToken(string? firebaseToken)
+    {
+        var settingsResult = StaffSettings.Create(firebaseToken);
+
+        if (settingsResult.IsFailure)
+            return settingsResult;
+
+        Settings = settingsResult.Value;
+
+        return Result.Success();
+    }
+
     public Result SetRole(StaffRole role)
     {
         if (Role == role)
@@ -106,7 +126,7 @@ public class Staff : AggregateRoot, IAuditableEntity
         Role = role;
         return Result.Success();
     }
-    
+
     public Result SetPhoto(string photoUrl)
     {
         var photoResult = StaffPhoto.Create(photoUrl);
@@ -129,7 +149,7 @@ public class Staff : AggregateRoot, IAuditableEntity
     {
         if (TimeSlots.Any(ts => ts.Id == id || ts.Date == date))
             return Result.Failure(DomainErrors.TimeSlot.Overlap);
-        
+
         var createTimeSlotResult = await TimeSlot.CreateAsync(
             id,
             Id,

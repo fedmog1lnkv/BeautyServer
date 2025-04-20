@@ -322,6 +322,12 @@ public class DomainErrors
             $"Service with Id '{serviceId}' was not found in organization with Id '{organizationId}'.");
     }
     
+    public static class StaffSettings
+    {
+        public static readonly Error FirebaseTokenEmpty = Error.Validation(
+            "StaffSettings.FirebaseTokenEmpty", "Firebase token cannot be empty if provided.");
+    }
+    
     public static class StaffName
     {
         public static readonly Error Empty = Error.Validation(

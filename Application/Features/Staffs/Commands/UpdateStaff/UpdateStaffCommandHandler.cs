@@ -74,6 +74,13 @@ public sealed class UpdateStaffCommandHandler(
             if (oldPhotoUrl is not null)
                 await staffRepository.DeletePhoto(oldPhotoUrl);
         }
+        
+        if (request.FirebaseToken != null)
+        {
+            result = staff.SetFirebaseToken(request.FirebaseToken);
+            if (result.IsFailure)
+                return result;
+        }
 
         return result;
     }

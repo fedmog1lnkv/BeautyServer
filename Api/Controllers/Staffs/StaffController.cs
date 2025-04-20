@@ -63,6 +63,22 @@ public class StaffController(IMapper mapper) : BaseController
             ? HandleFailure(result)
             : Ok(result.Value);
     }
+    
+    [HttpPost("firebase_token")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [StaffValidationFilter]
+    public async Task<IActionResult> FirebaseToken([FromBody] FirebaseTokenDto request)
+    {
+        request.Id = HttpContext.GetUserId();
+
+        var command = mapper.Map<UpdateStaffCommand>(request);
+
+        var result = await Sender.Send(command);
+
+        return result.IsFailure
+            ? HandleFailure(result)
+            : NoContent();
+    }
 
     [HttpPost("schedule")]
     [ProducesResponseType(StatusCodes.Status200OK)]

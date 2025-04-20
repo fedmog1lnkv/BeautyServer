@@ -31,7 +31,7 @@ public class RecordVm : IMapWith<Record>
     }
 }
 
-public class RecordVmUserLookupDto : IMapWith<Staff>
+public class RecordVmUserLookupDto : IMapWith<User>
 {
     public Guid Id { get; set; }
     public string Name { get; set; }
@@ -40,7 +40,7 @@ public class RecordVmUserLookupDto : IMapWith<Staff>
 
     public void Mapping(Profile profile)
     {
-        profile.CreateMap<Staff, RecordVmUserLookupDto>()
+        profile.CreateMap<User, RecordVmUserLookupDto>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.Value))
             .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber.Value))

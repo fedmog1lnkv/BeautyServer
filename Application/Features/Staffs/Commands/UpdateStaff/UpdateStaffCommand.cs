@@ -9,4 +9,5 @@ public record UpdateStaffCommand(
     Guid StaffId,
     string? Name,
     string? Photo,
+    string? FirebaseToken,
     List<Guid>? ServiceIds) : ICommand<Result>;

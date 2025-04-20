@@ -44,6 +44,13 @@ public class StaffConfiguration : IEntityTypeConfiguration<Staff>
                 value => value != null ? StaffPhoto.Create(value).Value : null)
             .HasMaxLength(StaffPhoto.MaxLength)
             .IsRequired(false);
+        
+        builder.OwnsOne(s => s.Settings, settings =>
+        {
+            settings.Property(ss => ss.FirebaseToken)
+                .HasMaxLength(1000)
+                .IsRequired(false);
+        });
 
         builder.HasOne<Organization>()
             .WithMany()
