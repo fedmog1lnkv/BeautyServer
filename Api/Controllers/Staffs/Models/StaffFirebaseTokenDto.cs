@@ -5,7 +5,7 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace Api.Controllers.Staffs.Models;
 
-public class FirebaseTokenDto : IMapWith<UpdateStaffCommand>
+public class StaffFirebaseTokenDto : IMapWith<UpdateStaffCommand>
 {
     [SwaggerIgnore]
     public Guid Id { get; set; }
@@ -13,7 +13,7 @@ public class FirebaseTokenDto : IMapWith<UpdateStaffCommand>
 
     public static void Mapping(Profile profile)
     {
-        profile.CreateMap<FirebaseTokenDto, UpdateStaffCommand>()
+        profile.CreateMap<StaffFirebaseTokenDto, UpdateStaffCommand>()
             .ForMember(x => x.InitiatorId, opt => opt.MapFrom(y => y.Id))
             .ForMember(x => x.StaffId, opt => opt.MapFrom(y => y.Id))
             .ForMember(x => x.FirebaseToken, opt => opt.MapFrom(y => y.Token))

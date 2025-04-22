@@ -67,7 +67,7 @@ public class StaffController(IMapper mapper) : BaseController
     [HttpPost("firebase_token")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [StaffValidationFilter]
-    public async Task<IActionResult> FirebaseToken([FromBody] FirebaseTokenDto request)
+    public async Task<IActionResult> FirebaseToken([FromBody] StaffFirebaseTokenDto request)
     {
         request.Id = HttpContext.GetUserId();
 
