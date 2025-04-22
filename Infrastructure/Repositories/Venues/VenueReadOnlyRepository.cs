@@ -49,6 +49,22 @@ public class VenueReadOnlyRepository(ApplicationDbContext dbContext) : IVenueRea
             .Take(limit)
             .ToListAsync(cancellationToken);
 
+    public async Task<List<Venue>> GetInBounds(
+        double minLatitude,
+        double minLongitude,
+        double maxLatitude,
+        double maxLongitude,
+        CancellationToken cancellationToken = default) =>
+        await dbContext.Set<Venue>()
+            .AsNoTracking()
+            .Where(
+                v =>
+                    v.Location.Latitude >= minLatitude &&
+                    v.Location.Latitude <= maxLatitude &&
+                    v.Location.Longitude >= minLongitude &&
+                    v.Location.Longitude <= maxLongitude)
+            .ToListAsync(cancellationToken);
+
     public async Task<Venue?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
         await dbContext.Set<Venue>()
             .AsNoTracking()

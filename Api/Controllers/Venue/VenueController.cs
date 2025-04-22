@@ -10,6 +10,7 @@ using Application.Features.Venues.Commands.RemoveVenuePhoto;
 using Application.Features.Venues.Commands.UpdateVenue;
 using Application.Features.Venues.Queries.GetAllVenues;
 using Application.Features.Venues.Queries.GetVenueById;
+using Application.Features.Venues.Queries.GetVenueClustersInBounds;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
@@ -97,6 +98,32 @@ public class VenueController(IMapper mapper) : BaseController
         return result.IsFailure
             ? HandleFailure(result)
             : Ok();
+    }
+
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [UserValidationFilter]
+    public async Task<IActionResult> GetClustersInBounds(
+        [FromQuery] double minLatitude,
+        [FromQuery] double minLongitude,
+        [FromQuery] double maxLatitude,
+        [FromQuery] double maxLongitude,
+        [FromQuery] int zoom)
+    {
+        var query = new GetVenueClustersInBoundsQuery(minLatitude, minLongitude, maxLatitude, maxLongitude, zoom);
+
+        var result = await Sender.Send(query);
+
+        if (result.IsFailure)
+            return HandleFailure(result);
+
+        var response = new
+        {
+            result.Value.Clusters,
+            Venues = mapper.Map<List<VenueLookupDto>>(result.Value.Venues)
+        };
+
+        return Ok(response);
     }
 
     [HttpDelete("{id}/photo/{photoId}")]

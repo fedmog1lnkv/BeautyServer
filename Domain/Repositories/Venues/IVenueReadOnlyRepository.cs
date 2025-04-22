@@ -20,6 +20,13 @@ public interface IVenueReadOnlyRepository : IReadOnlyRepository<Venue>
         int limit,
         int offset,
         CancellationToken cancellationToken = default);
+    
+    Task<List<Venue>> GetInBounds(
+        double minLatitude,
+        double minLongitude,
+        double maxLatitude,
+        double maxLongitude,
+        CancellationToken cancellationToken = default);
 
     Task<Venue?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<Venue?> GetByIdWithServicesAsync(Guid id, CancellationToken cancellationToken = default);
