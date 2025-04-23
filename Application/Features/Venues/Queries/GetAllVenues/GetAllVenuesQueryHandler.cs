@@ -13,7 +13,7 @@ public class GetAllVenuesQueryHandler(IVenueReadOnlyRepository repository) : IQu
         List<Venue> venues;
         if (!request.Latitude.HasValue || !request.Longitude.HasValue)
         {
-            venues = await repository.GetAll(request.Limit, request.Offset, cancellationToken);
+            venues = await repository.GetAll(request.Limit, request.Offset, request.Search, cancellationToken);
         }
         else
         {
@@ -22,6 +22,7 @@ public class GetAllVenuesQueryHandler(IVenueReadOnlyRepository repository) : IQu
                 (double)request.Longitude!,
                 request.Limit,
                 request.Offset,
+                request.Search,
                 cancellationToken);
         }
 

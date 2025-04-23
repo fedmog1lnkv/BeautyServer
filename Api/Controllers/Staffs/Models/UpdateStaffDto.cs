@@ -21,5 +21,6 @@ public class UpdateStaffDto : IMapWith<UpdateStaffCommand>
             .ForMember(x => x.StaffId, opt => opt.MapFrom(y => y.StaffId))
             .ForMember(x => x.Name, opt => opt.MapFrom(y => y.Name))
             .ForMember(x => x.Photo, opt => opt.MapFrom(y => y.Photo))
-            .ForMember(dest => dest.ServiceIds, opt => opt.MapFrom(src => src.ServiceIds));
+            .ForMember(dest => dest.ServiceIds, opt => opt.MapFrom(src => src.ServiceIds))
+            .ConstructUsing(src => new UpdateStaffCommand(src.InitiatorId, src.StaffId, src.Name, src.Photo, null, src.ServiceIds));
 }

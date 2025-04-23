@@ -18,6 +18,7 @@ public sealed class GetVenueClustersInBoundsQueryHandler(IVenueReadOnlyRepositor
             request.MinLongitude,
             request.MaxLatitude,
             request.MaxLongitude,
+            request.Search,
             cancellationToken);
 
         var vm = new VenueClustersVm();

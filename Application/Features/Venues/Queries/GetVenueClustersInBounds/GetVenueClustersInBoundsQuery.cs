@@ -9,4 +9,5 @@ public record GetVenueClustersInBoundsQuery(
     double MinLongitude,
     double MaxLatitude,
     double MaxLongitude,
-    int Zoom) : IQuery<Result<VenueClustersVm>>;
+    int Zoom,
+    string? Search) : IQuery<Result<VenueClustersVm>>;

@@ -14,11 +14,13 @@ public interface IVenueReadOnlyRepository : IReadOnlyRepository<Venue>
         double longitude,
         int limit,
         int offset,
+        string? search,
         CancellationToken cancellationToken = default);
 
     Task<List<Venue>> GetAll(
         int limit,
         int offset,
+        string? search,
         CancellationToken cancellationToken = default);
     
     Task<List<Venue>> GetInBounds(
@@ -26,6 +28,7 @@ public interface IVenueReadOnlyRepository : IReadOnlyRepository<Venue>
         double minLongitude,
         double maxLatitude,
         double maxLongitude,
+        string? search,
         CancellationToken cancellationToken = default);
 
     Task<Venue?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);

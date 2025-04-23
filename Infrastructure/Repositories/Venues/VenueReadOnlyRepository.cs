@@ -14,10 +14,16 @@ public class VenueReadOnlyRepository(ApplicationDbContext dbContext) : IVenueRea
         double longitude,
         int limit,
         int offset,
+        string? search,
         CancellationToken cancellationToken = default)
     {
-        var venues = await dbContext.Set<Venue>()
-            .AsNoTracking()
+        var query = dbContext.Set<Venue>()
+            .AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(search))
+            query = query.Where(v => v.Name.Value.ToLower().Contains(search.ToLower()));
+
+        var venues = await query
             .ToListAsync(cancellationToken);
 
         var result = venues
@@ -42,28 +48,43 @@ public class VenueReadOnlyRepository(ApplicationDbContext dbContext) : IVenueRea
     public async Task<List<Venue>> GetAll(
         int limit,
         int offset,
-        CancellationToken cancellationToken = default) =>
-        await dbContext.Set<Venue>()
-            .AsNoTracking()
+        string? search,
+        CancellationToken cancellationToken = default)
+    {
+        var query = dbContext.Set<Venue>()
+            .AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(search))
+            query = query.Where(v => v.Name.Value.ToLower().Contains(search.ToLower()));
+
+        return await query
             .Skip(offset)
             .Take(limit)
             .ToListAsync(cancellationToken);
+    }
 
     public async Task<List<Venue>> GetInBounds(
         double minLatitude,
         double minLongitude,
         double maxLatitude,
         double maxLongitude,
-        CancellationToken cancellationToken = default) =>
-        await dbContext.Set<Venue>()
+        string? search,
+        CancellationToken cancellationToken = default)
+    {
+        var query = dbContext.Set<Venue>()
             .AsNoTracking()
             .Where(
                 v =>
                     v.Location.Latitude >= minLatitude &&
                     v.Location.Latitude <= maxLatitude &&
                     v.Location.Longitude >= minLongitude &&
-                    v.Location.Longitude <= maxLongitude)
-            .ToListAsync(cancellationToken);
+                    v.Location.Longitude <= maxLongitude);
+
+        if (!string.IsNullOrWhiteSpace(search))
+            query = query.Where(v => v.Name.Value.ToLower().Contains(search.ToLower()));
+
+        return await query.ToListAsync(cancellationToken);
+    }
 
     public async Task<Venue?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
         await dbContext.Set<Venue>()

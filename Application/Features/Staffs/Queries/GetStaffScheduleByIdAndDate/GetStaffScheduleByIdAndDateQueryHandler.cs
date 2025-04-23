@@ -5,6 +5,7 @@ using Domain.Errors;
 using Domain.Repositories.Records;
 using Domain.Repositories.Staffs;
 using Domain.Shared;
+using System.Globalization;
 
 namespace Application.Features.Staffs.Queries.GetStaffScheduleByIdAndDate;
 
@@ -46,11 +47,19 @@ public class GetStaffScheduleByIdAndDateQueryHandler(
                     record => new WorkloadTimeSlotDto
                     {
                         Type = WorkloadTimeSlotType.Record.ToString(),
-                        RecordId = record.Id,
+                        RecordInfo = new RecordInfo
+                        {
+                            Id = record.Id,
+                            Status = record.Status.ToString(),
+                            ClientName = record.User.Name.Value,
+                            ServiceName = record.Service.Name.Value
+                        },
                         Interval = new TimeIntervalDto
                         {
-                            Start = record.StartTimestamp.TimeOfDay.ToString(),
-                            End = record.EndTimestamp.TimeOfDay.ToString()
+                            Start = TimeZoneInfo.ConvertTimeFromUtc(
+                                record.StartTimestamp.DateTime, record.Venue.TimeZone).TimeOfDay.ToString(),
+                            End = TimeZoneInfo.ConvertTimeFromUtc(record.EndTimestamp.DateTime, record.Venue.TimeZone)
+                                .TimeOfDay.ToString()
                         }
                     }));
 
@@ -59,7 +68,7 @@ public class GetStaffScheduleByIdAndDateQueryHandler(
                 freeTime => new WorkloadTimeSlotDto
                 {
                     Type = WorkloadTimeSlotType.FreeTime.ToString(),
-                    RecordId = null,
+                    RecordInfo = null,
                     Interval = new TimeIntervalDto
                     {
                         Start = freeTime.Start.ToString(),

@@ -8,4 +8,5 @@ public record GetAllVenuesQuery(
     int Limit,
     int Offset,
     double? Latitude,
-    double? Longitude) : IQuery<Result<List<Venue>>>;
+    double? Longitude,
+    string? Search) : IQuery<Result<List<Venue>>>;

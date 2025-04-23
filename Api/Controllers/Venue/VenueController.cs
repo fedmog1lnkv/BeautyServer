@@ -47,13 +47,14 @@ public class VenueController(IMapper mapper) : BaseController
     public async Task<IActionResult> GetAll(
         [FromQuery] double? latitude,
         [FromQuery] double? longitude,
+        [FromQuery] string? search,
         [FromQuery] int limit,
         [FromQuery] int offset)
     {
         if (limit <= 0 || offset < 0)
             return BadRequest("Limit must be greater than zero, and offset cannot be negative.");
 
-        var query = new GetAllVenuesQuery(limit, offset, latitude, longitude);
+        var query = new GetAllVenuesQuery(limit, offset, latitude, longitude, search);
 
         var result = await Sender.Send(query);
 
@@ -100,7 +101,7 @@ public class VenueController(IMapper mapper) : BaseController
             : Ok();
     }
 
-    [HttpGet]
+    [HttpGet("clusters")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [UserValidationFilter]
     public async Task<IActionResult> GetClustersInBounds(
@@ -108,9 +109,16 @@ public class VenueController(IMapper mapper) : BaseController
         [FromQuery] double minLongitude,
         [FromQuery] double maxLatitude,
         [FromQuery] double maxLongitude,
-        [FromQuery] int zoom)
+        [FromQuery] int zoom,
+        [FromQuery] string? search)
     {
-        var query = new GetVenueClustersInBoundsQuery(minLatitude, minLongitude, maxLatitude, maxLongitude, zoom);
+        var query = new GetVenueClustersInBoundsQuery(
+            minLatitude,
+            minLongitude,
+            maxLatitude,
+            maxLongitude,
+            zoom,
+            search);
 
         var result = await Sender.Send(query);
 

@@ -35,12 +35,15 @@ public class RecordReadOnlyRepository(ApplicationDbContext dbContext) : IRecordR
         int month,
         CancellationToken cancellationToken = default)
     {
-        var startMonth = new DateTimeOffset(new DateTime(year, month, 1)).ToUniversalTime();
-        var endMonth = startMonth.AddMonths(1).AddDays(-1);
-        
+        var startMonth = new DateTimeOffset(new DateTime(year, month, 1), TimeSpan.Zero);
+        var endMonth = new DateTimeOffset(new DateTime(year, month, DateTime.DaysInMonth(year, month)), TimeSpan.Zero);
+
         return await dbContext.Set<Record>()
             .AsNoTracking()
-            .Where(r => r.StaffId == staffId && r.StartTimestamp >= startMonth && r.EndTimestamp <= endMonth)
+            .Where(
+                r => r.StaffId == staffId
+                     && r.StartTimestamp.DateTime.Date >= startMonth
+                     && r.EndTimestamp.DateTime.Date <= endMonth)
             .ToListAsync(cancellationToken);
     }
 

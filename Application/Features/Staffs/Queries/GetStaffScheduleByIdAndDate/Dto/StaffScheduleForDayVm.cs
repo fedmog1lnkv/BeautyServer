@@ -9,8 +9,16 @@ public class StaffScheduleForDayVm
 public class WorkloadTimeSlotDto
 {
     public required string Type { get; set; }
-    public Guid? RecordId { get; set; }
+    public RecordInfo? RecordInfo { get; set; }
     public required TimeIntervalDto Interval { get; set; }
+}
+
+public class RecordInfo
+{
+    public Guid Id { get; set; }
+    public required string Status { get; set; }
+    public required string ClientName { get; set; }
+    public required string ServiceName { get; set; }
 }
 
 public class TimeIntervalDto
