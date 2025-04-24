@@ -10,7 +10,6 @@ public class UserRecordsLookupDto : IMapWith<Record>
     public UserRecordsStaffLookupDto Staff { get; set; }
     public UserRecordsServiceLookupDto Service { get; set; }
     public UserRecordsVenueLookupDto Venue { get; set; }
-    public string Comment { get; set; }
     public string Status { get; set; }
     public DateTimeOffset StartTimestamp { get; set; }
     public DateTimeOffset EndTimestamp { get; set; }
@@ -22,7 +21,6 @@ public class UserRecordsLookupDto : IMapWith<Record>
             .ForMember(dest => dest.Staff, opt => opt.MapFrom(src => src.Staff))
             .ForMember(dest => dest.Service, opt => opt.MapFrom(src => src.Service))
             .ForMember(dest => dest.Venue, opt => opt.MapFrom(src => src.Venue))
-            .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Comment.Value))
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
             .ForMember(dest => dest.StartTimestamp, opt => opt.MapFrom(src => src.StartTimestamp))
             .ForMember(dest => dest.EndTimestamp, opt => opt.MapFrom(src => src.EndTimestamp));

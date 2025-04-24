@@ -1,5 +1,6 @@
 using Application.Features.Venues.Queries.GetVenueClustersInBounds.Dto;
 using Application.Messaging.Query;
+using Domain.Entities;
 using Domain.Repositories.Venues;
 using Domain.Shared;
 
@@ -24,27 +25,44 @@ public sealed class GetVenueClustersInBoundsQueryHandler(IVenueReadOnlyRepositor
         var vm = new VenueClustersVm();
 
         if (request.Zoom >= 15)
+        {
             vm.Venues = venues;
+        }
         else
         {
             double gridSize = GetGridSize(request.Zoom);
 
-            var clusters = venues
+            var clustersOrSingles = venues
                 .GroupBy(
                     v => new
                     {
                         LatKey = Math.Floor(v.Location.Latitude / gridSize),
                         LngKey = Math.Floor(v.Location.Longitude / gridSize)
-                    })
-                .Select(
-                    g => new VenueClusterVm
-                    {
-                        Latitude = g.Average(v => v.Location.Latitude),
-                        Longitude = g.Average(v => v.Location.Longitude),
-                        Count = g.Count()
-                    })
-                .ToList();
+                    });
 
+            var clusters = new List<VenueClusterVm>();
+            var singles = new List<Venue>();
+
+            foreach (var group in clustersOrSingles)
+            {
+                if (group.Count() == 1)
+                {
+                    singles.Add(group.First());
+                }
+                else
+                {
+                    clusters.Add(
+                        new VenueClusterVm
+                        {
+                            Latitude = group.Average(v => v.Location.Latitude),
+                            Longitude = group.Average(v => v.Location.Longitude),
+                            Count = group.Count(),
+                            VenueIds = group.Select(v => v.Id).ToList()
+                        });
+                }
+            }
+
+            vm.Venues = singles;
             vm.Clusters = clusters;
         }
 

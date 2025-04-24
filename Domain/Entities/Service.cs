@@ -15,6 +15,7 @@ public class Service : AggregateRoot, IAuditableEntity
         Guid id,
         Guid organizationId,
         ServiceName name,
+        ServiceRating rating,
         ServiceDescription? description,
         TimeSpan? duration,
         ServicePrice? price,
@@ -23,6 +24,7 @@ public class Service : AggregateRoot, IAuditableEntity
     {
         OrganizationId = organizationId;
         Name = name;
+        Rating = rating;
         Description = description;
         Duration = duration;
         Price = price;
@@ -38,6 +40,7 @@ public class Service : AggregateRoot, IAuditableEntity
     public Guid OrganizationId { get; private set; }
     public ServiceName Name { get; private set; }
     public ServiceDescription? Description { get; private set; }
+    public ServiceRating Rating { get; private set; }
     public TimeSpan? Duration { get; private set; }
     public ServicePrice? Price { get; private set; }
     public ServicePhoto? Photo { get; private set; }
@@ -65,10 +68,15 @@ public class Service : AggregateRoot, IAuditableEntity
         if (nameResult.IsFailure)
             return Result.Failure<Service>(nameResult.Error);
 
+        var createRatingResult = ServiceRating.Create(0);
+        if (createRatingResult.IsFailure)
+            return Result.Failure<Service>(createRatingResult.Error);
+
         return new Service(
             id,
             organizationId,
             nameResult.Value,
+            createRatingResult.Value,
             null,
             null,
             null,
@@ -86,6 +94,19 @@ public class Service : AggregateRoot, IAuditableEntity
             return Result.Success();
 
         Name = nameResult.Value;
+        return Result.Success();
+    }
+
+    public Result SetRating(double rating)
+    {
+        var ratingResult = ServiceRating.Create(rating);
+        if (ratingResult.IsFailure)
+            return ratingResult;
+
+        if (Rating.Equals(ratingResult.Value))
+            return Result.Success();
+
+        Rating = ratingResult.Value;
         return Result.Success();
     }
 
@@ -127,7 +148,7 @@ public class Service : AggregateRoot, IAuditableEntity
         Price = priceResult.Value;
         return Result.Success();
     }
-    
+
     public Result SetPhoto(string photoUrl)
     {
         var photoResult = ServicePhoto.Create(photoUrl);

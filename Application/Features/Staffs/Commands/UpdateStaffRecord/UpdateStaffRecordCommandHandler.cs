@@ -51,9 +51,9 @@ public sealed class UpdateStaffRecordCommandHandler(
 
             result = status switch
             {
-                RecordStatus.Approved => record.Approve(request.Comment),
-                RecordStatus.Discarded => record.Discard(request.Comment),
-                RecordStatus.Completed => record.Completed(request.Comment),
+                RecordStatus.Approved => record.Approve(),
+                RecordStatus.Discarded => record.Discard(),
+                RecordStatus.Completed => record.Completed(),
                 _ => result
             };
 
@@ -97,13 +97,6 @@ public sealed class UpdateStaffRecordCommandHandler(
                         $"Ваша запись на услугу «{record.Service.Name.Value}» от {recordStartLocalTime:dd.MM.yyyy в HH:mm} отмечена как завершённая. Спасибо, что воспользовались нашими услугами!");
                 }
             }
-        }
-
-        if (!string.IsNullOrWhiteSpace(request.Comment))
-        {
-            result = record.SetComment(request.Comment);
-            if (result.IsFailure)
-                return result;
         }
 
         if (request.StartTimestamp.HasValue || request.EndTimeStamp.HasValue)

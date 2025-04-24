@@ -210,6 +210,12 @@ public class DomainErrors
             "VenueTheme.InvalidColorFormat", "Venue theme color must be in HEX format (e.g., #FFAABB).");
     }
     
+    public static class VenueRating
+    {
+        public static readonly Error InvalidRating = Error.Validation("VenueRating.InvalidRating", 
+            $"Rating must be between {ValueObjects.VenueRating.MinRating} and {ValueObjects.VenueRating.MaxRating}.");
+    }
+    
     public static class VenuePhoto
     {
         public static readonly Error Empty = Error.Validation(
@@ -289,11 +295,17 @@ public class DomainErrors
 
         public static readonly Error TooLong = Error.Validation(
             "ServicePhoto.TooLong", 
-            $"The service photo is too long. It should not exceed {Domain.ValueObjects.StaffPhoto.MaxLength} characters.");
+            $"The service photo is too long. It should not exceed {ValueObjects.StaffPhoto.MaxLength} characters.");
 
         public static readonly Error InvalidFormat = Error.Validation(
             "ServicePhoto.InvalidFormat", 
             "The service photo URL format is invalid.");
+    }
+    
+    public static class ServiceRating
+    {
+        public static readonly Error InvalidRating = Error.Validation("ServiceRating.InvalidRating", 
+            $"Rating must be between {ValueObjects.ServiceRating.MinRating} and {ValueObjects.ServiceRating.MaxRating}.");
     }
     
     public static class Staff
@@ -369,11 +381,17 @@ public class DomainErrors
 
         public static readonly Error TooLong = Error.Validation(
             "StaffPhoto.TooLong", 
-            $"The staff photo is too long. It should not exceed {Domain.ValueObjects.StaffPhoto.MaxLength} characters.");
+            $"The staff photo is too long. It should not exceed {ValueObjects.StaffPhoto.MaxLength} characters.");
 
         public static readonly Error InvalidFormat = Error.Validation(
             "StaffPhoto.InvalidFormat", 
             "The staff photo URL format is invalid.");
+    }
+    
+    public static class StaffRating
+    {
+        public static readonly Error InvalidRating = Error.Validation("StaffRating.InvalidRating", 
+            $"Rating must be between {ValueObjects.StaffRating.MinRating} and {ValueObjects.StaffRating.MaxRating}.");
     }
     
     public static class TimeSlot
@@ -431,5 +449,20 @@ public class DomainErrors
 
         public static readonly Error TooShort = Error.Validation(
             "RecordComment.TooShort", "Comment is too short.");
+    }
+    
+    public static class RecordReview
+    {
+        public static readonly Error InvalidRating = Error.Validation(
+            "RecordReview.InvalidRating",
+            $"Rating must be between {ValueObjects.RecordReview.MinRating} and {ValueObjects.RecordReview.MaxRating}.");
+
+        public static readonly Error CommentEmpty = Error.Validation(
+            "RecordReview.CommentEmpty",
+            "Comment cannot be empty.");
+
+        public static readonly Error CommentLengthOutOfRange = Error.Validation(
+            "RecordReview.CommentLengthOutOfRange",
+            $"Comment must be between {ValueObjects.RecordReview.MinLength} and {ValueObjects.RecordReview.MaxLength} characters long.");
     }
 }

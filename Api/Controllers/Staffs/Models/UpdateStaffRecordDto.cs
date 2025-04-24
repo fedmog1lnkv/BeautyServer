@@ -13,7 +13,6 @@ public class UpdateStaffRecordDto : IMapWith<UpdateStaffRecordCommand>
 
     public Guid RecordId { get; set; }
     public string? Status { get; set; }
-    public string? Comment { get; set; }
 
     public DateTime? StartTimestamp { get; set; }
 
@@ -24,7 +23,6 @@ public class UpdateStaffRecordDto : IMapWith<UpdateStaffRecordCommand>
             .ForMember(dest => dest.InitiatorId, opt => opt.MapFrom(src => src.InitiatorId))
             .ForMember(dest => dest.RecordId, opt => opt.MapFrom(src => src.RecordId))
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
-            .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Comment))
             .ForMember(dest => dest.StartTimestamp, opt => opt.MapFrom(src => src.StartTimestamp))
             .ForMember(dest => dest.EndTimeStamp, opt => opt.MapFrom(src => src.EndTimeStamp));
 }

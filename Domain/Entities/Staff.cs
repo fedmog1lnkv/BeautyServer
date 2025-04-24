@@ -20,6 +20,7 @@ public class Staff : AggregateRoot, IAuditableEntity
         StaffName name,
         StaffPhoneNumber phoneNumber,
         StaffRole role,
+        StaffRating rating,
         StaffPhoto? photo,
         StaffSettings settings,
         DateTime createdOnUtc) : base(id)
@@ -28,6 +29,7 @@ public class Staff : AggregateRoot, IAuditableEntity
         Name = name;
         PhoneNumber = phoneNumber;
         Role = role;
+        Rating = rating;
         Photo = photo;
         Settings = settings;
 
@@ -35,7 +37,10 @@ public class Staff : AggregateRoot, IAuditableEntity
     }
 
 #pragma warning disable CS8618
-    private Staff() { }
+    private Staff(StaffRating rating)
+    {
+        Rating = rating;
+    }
 #pragma warning restore CS8618
 
     public Guid OrganizationId { get; private set; }
@@ -44,6 +49,7 @@ public class Staff : AggregateRoot, IAuditableEntity
     public StaffRole Role { get; private set; }
     public StaffPhoto? Photo { get; private set; }
     public StaffSettings Settings { get; private set; }
+    public StaffRating Rating { get; private set; }
     public DateTime CreatedOnUtc { get; set; }
     public DateTime? ModifiedOnUtc { get; set; }
     public IReadOnlyCollection<Service> Services => _services.AsReadOnly();
@@ -82,12 +88,17 @@ public class Staff : AggregateRoot, IAuditableEntity
         if (createSettingsResult.IsFailure)
             return Result.Failure<Staff>(createSettingsResult.Error);
 
+        var createRatingResult = StaffRating.Create(0);
+        if (createRatingResult.IsFailure)
+            return Result.Failure<Staff>(createRatingResult.Error);
+
         return new Staff(
             id,
             organizationId,
             staffNameResult.Value,
             staffPhoneResult.Value,
             StaffRole.Unknown,
+            createRatingResult.Value,
             null,
             createSettingsResult.Value,
             createdOnUtc);
@@ -124,6 +135,19 @@ public class Staff : AggregateRoot, IAuditableEntity
             return Result.Success();
 
         Role = role;
+        return Result.Success();
+    }
+    
+    public Result SetRating(double rating)
+    {
+        var ratingResult = StaffRating.Create(rating);
+        if (ratingResult.IsFailure)
+            return ratingResult;
+
+        if (Rating.Equals(ratingResult.Value))
+            return Result.Success();
+
+        Rating = ratingResult.Value;
         return Result.Success();
     }
 

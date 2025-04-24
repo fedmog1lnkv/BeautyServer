@@ -93,13 +93,6 @@ public sealed class UpdateOrganizationCommandHandler(IOrganizationRepository org
                 await organizationRepository.DeletePhoto(organizationPhotoOld);
         }
 
-
-        // await integrationEventBus.SendAsync(
-        //     new OrganizationUpdatedIntegrationEvent(
-        //         Guid.NewGuid(),
-        //         organization.Id),
-        //     cancellationToken);
-
         return result;
     }
 }

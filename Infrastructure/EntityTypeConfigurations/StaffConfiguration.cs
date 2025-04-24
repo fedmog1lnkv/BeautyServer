@@ -38,19 +38,27 @@ public class StaffConfiguration : IEntityTypeConfiguration<Staff>
             .HasColumnType("varchar(10)")
             .IsRequired();
 
+        builder.Property(s => s.Rating)
+            .HasConversion(
+                v => v.Value,
+                v => StaffRating.Create(v).Value)
+            .HasColumnType("real")
+            .IsRequired();
+
         builder.Property(s => s.Photo)
             .HasConversion(
                 photo => photo != null ? photo.Value : null,
                 value => value != null ? StaffPhoto.Create(value).Value : null)
             .HasMaxLength(StaffPhoto.MaxLength)
             .IsRequired(false);
-        
-        builder.OwnsOne(s => s.Settings, settings =>
-        {
-            settings.Property(ss => ss.FirebaseToken)
-                .HasMaxLength(1000)
-                .IsRequired(false);
-        });
+
+        builder.OwnsOne(
+            s => s.Settings, settings =>
+            {
+                settings.Property(ss => ss.FirebaseToken)
+                    .HasMaxLength(1000)
+                    .IsRequired(false);
+            });
 
         builder.HasOne<Organization>()
             .WithMany()

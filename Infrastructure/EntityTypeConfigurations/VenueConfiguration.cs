@@ -26,6 +26,13 @@ public class VenueConfiguration : IEntityTypeConfiguration<Venue>
                 value => value == null ? null : VenueDescription.Create(value).Value)
             .HasMaxLength(VenueDescription.MaxLength)
             .IsRequired(false);
+        
+        builder.Property(v => v.Rating)
+            .HasConversion(
+                value => value.Value,
+                value => VenueRating.Create(value).Value)
+            .HasColumnType("real")
+            .IsRequired();
 
         builder.Property(v => v.Address)
             .HasConversion(

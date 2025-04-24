@@ -8,7 +8,6 @@ public record UpdateStaffRecordCommand(
     Guid InitiatorId,
     Guid RecordId,
     string? Status,
-    string? Comment,
     DateTime? StartTimestamp,
     DateTime? EndTimeStamp) :
     ICommand<Result>;

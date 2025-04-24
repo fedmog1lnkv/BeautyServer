@@ -21,7 +21,6 @@ public sealed class Record : AggregateRoot, IAuditableEntity
         Guid venueId,
         Guid serviceId,
         RecordStatus status,
-        RecordComment? comment,
         DateTime startTimestamp,
         DateTime endTimestamp,
         DateTime createdOnUtc) : base(id)
@@ -32,7 +31,6 @@ public sealed class Record : AggregateRoot, IAuditableEntity
         VenueId = venueId;
         ServiceId = serviceId;
         Status = status;
-        Comment = comment;
         StartTimestamp = startTimestamp;
         EndTimestamp = endTimestamp;
 
@@ -48,7 +46,7 @@ public sealed class Record : AggregateRoot, IAuditableEntity
     public Guid VenueId { get; private set; }
     public Guid ServiceId { get; private set; }
     public RecordStatus Status { get; private set; }
-    public RecordComment? Comment { get; private set; }
+    public RecordReview? Review { get; private set; }
     public DateTimeOffset StartTimestamp { get; private set; }
     public DateTimeOffset EndTimestamp { get; private set; }
 
@@ -122,7 +120,6 @@ public sealed class Record : AggregateRoot, IAuditableEntity
             venueId,
             serviceId,
             status,
-            null,
             startTimestamp,
             endTimestamp,
             createdOnUtc);
@@ -130,50 +127,34 @@ public sealed class Record : AggregateRoot, IAuditableEntity
         return Result.Success(record);
     }
 
-    public Result Approve(string? commentText)
+    public Result Approve()
     {
-        var setCommentResult = SetComment(commentText!);
-        if (setCommentResult.IsFailure)
-            return setCommentResult;
-
         Status = RecordStatus.Approved;
 
         return Result.Success();
     }
 
-    public Result Discard(string? commentText)
+    public Result Discard()
     {
-        var setCommentResult = SetComment(commentText!);
-        if (setCommentResult.IsFailure)
-            return setCommentResult;
-
         Status = RecordStatus.Discarded;
 
         return Result.Success();
     }
     
-    public Result Completed(string? commentText)
+    public Result Completed()
     {
-        var setCommentResult = SetComment(commentText!);
-        if (setCommentResult.IsFailure)
-            return setCommentResult;
-
         Status = RecordStatus.Completed;
 
         return Result.Success();
     }
 
-    public Result SetComment(string? commentText)
+    public Result SetReview(byte rating, string? comment)
     {
-        if (string.IsNullOrWhiteSpace(commentText))
-            return Result.Success();
-
-        var createCommentResult = RecordComment.Create(commentText!);
-        if (createCommentResult.IsFailure)
-            return createCommentResult;
-
-        Comment = createCommentResult.Value;
-
+        var reviewResult = RecordReview.Create(rating, comment);
+        if (reviewResult.IsFailure)
+            return reviewResult;
+        
+        Review = reviewResult.Value;
         return Result.Success();
     }
     

@@ -19,6 +19,7 @@ public class Venue : AggregateRoot, IAuditableEntity
         VenueTheme theme,
         Location location,
         TimeZoneInfo tz,
+        VenueRating rating,
         VenueAddress address,
         VenueDescription? description,
         DateTime createdOnUtc) : base(id)
@@ -28,6 +29,7 @@ public class Venue : AggregateRoot, IAuditableEntity
         Theme = theme;
         Location = location;
         TimeZone = tz;
+        Rating = rating;
         Address = address;
         Description = description;
 
@@ -45,6 +47,7 @@ public class Venue : AggregateRoot, IAuditableEntity
     public VenueTheme Theme { get; private set; }
     public Location Location { get; private set; }
     public TimeZoneInfo TimeZone { get; private set; }
+    public VenueRating Rating { get; private set; }
 
     public DateTime CreatedOnUtc { get; set; }
     public DateTime? ModifiedOnUtc { get; set; }
@@ -73,8 +76,8 @@ public class Venue : AggregateRoot, IAuditableEntity
         var nameResult = VenueName.Create(name);
         if (nameResult.IsFailure)
             return Result.Failure<Venue>(nameResult.Error);
-        
-        var addressResult = VenueAddress.Create(name);
+
+        var addressResult = VenueAddress.Create(address);
         if (addressResult.IsFailure)
             return Result.Failure<Venue>(addressResult.Error);
 
@@ -90,6 +93,10 @@ public class Venue : AggregateRoot, IAuditableEntity
             locationResult.Value.Latitude,
             locationResult.Value.Longitude);
 
+        var createRatingResult = VenueRating.Create(0);
+        if (createRatingResult.IsFailure)
+            return Result.Failure<Venue>(createRatingResult.Error);
+
         return new Venue(
             id,
             organizationId,
@@ -97,6 +104,7 @@ public class Venue : AggregateRoot, IAuditableEntity
             themeResult.Value,
             locationResult.Value,
             tz,
+            createRatingResult.Value,
             addressResult.Value,
             null,
             createdOnUtc);
@@ -127,7 +135,7 @@ public class Venue : AggregateRoot, IAuditableEntity
         Description = descriptionResult.Value;
         return Result.Success();
     }
-    
+
     public Result SetAddress(string address)
     {
         var addressResult = VenueAddress.Create(address);
@@ -151,6 +159,19 @@ public class Venue : AggregateRoot, IAuditableEntity
             return Result.Success();
 
         Location = locationResult.Value;
+        return Result.Success();
+    }
+    
+    public Result SetRating(double rating)
+    {
+        var ratingResult = VenueRating.Create(rating);
+        if (ratingResult.IsFailure)
+            return ratingResult;
+
+        if (Rating.Equals(ratingResult.Value))
+            return Result.Success();
+
+        Rating = ratingResult.Value;
         return Result.Success();
     }
 
@@ -215,7 +236,7 @@ public class Venue : AggregateRoot, IAuditableEntity
         _photos.Remove(photo);
         return ReorderPhotos();
     }
-    
+
     private Result ReorderPhotos()
     {
         for (int i = 0; i < _photos.Count; i++)

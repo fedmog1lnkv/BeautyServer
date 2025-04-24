@@ -36,6 +36,13 @@ public class ServiceConfiguration : IEntityTypeConfiguration<Service>
                 value => value == null ? null : ServicePrice.Create((double)value).Value)
             .IsRequired(false);
         
+        builder.Property(s => s.Rating)
+            .HasConversion(
+                v => v.Value,
+                v => ServiceRating.Create(v).Value)
+            .HasColumnType("real")
+            .IsRequired();
+        
         builder.Property(s => s.Photo)
             .HasConversion(
                 photo => photo != null ? photo.Value : null,

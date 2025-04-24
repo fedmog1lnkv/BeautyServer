@@ -1,4 +1,7 @@
+using Application.Abstractions;
 using Application.Messaging.Command;
+using Domain.DomainEvents.Organizations;
+using Domain.DomainEvents.Record;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Errors;
@@ -16,7 +19,8 @@ public sealed class UpdateUserRecordCommandHandler(
     IRecordRepository
         recordRepository,
     IVenueReadOnlyRepository venueReadOnlyRepository,
-    INotificationRepository notificationRepository) : ICommandHandler<UpdateUserRecordCommand, Result>
+    INotificationRepository notificationRepository,
+    IDomainEventBus eventBus) : ICommandHandler<UpdateUserRecordCommand, Result>
 {
     public async Task<Result> Handle(UpdateUserRecordCommand request, CancellationToken cancellationToken)
     {
@@ -48,7 +52,7 @@ public sealed class UpdateUserRecordCommandHandler(
 
             if (status == RecordStatus.Discarded)
             {
-                result = record.Discard(request.Comment);
+                result = record.Discard();
                 if (result.IsFailure)
                     return result;
 
@@ -59,7 +63,8 @@ public sealed class UpdateUserRecordCommandHandler(
 
                 if (staff.Settings.FirebaseToken != null)
                 {
-                    var recordStartLocalTime = TimeZoneInfo.ConvertTimeFromUtc(record.StartTimestamp.DateTime, venue.TimeZone);
+                    var recordStartLocalTime = TimeZoneInfo.ConvertTimeFromUtc(
+                        record.StartTimestamp.DateTime, venue.TimeZone);
                     await notificationRepository.SendOrderNotificationAsync(
                         record.Id,
                         staff.Settings.FirebaseToken,
@@ -73,12 +78,37 @@ public sealed class UpdateUserRecordCommandHandler(
             }
         }
 
-        if (!string.IsNullOrWhiteSpace(request.Comment))
+        if (record.Status == RecordStatus.Completed && request.Rating.HasValue)
         {
-            result = record.SetComment(request.Comment);
+            result = record.SetReview(request.Rating.Value, request.Comment);
             if (result.IsFailure)
                 return result;
+
+            await eventBus.SendAsync(
+                new RecordReviewAddedChangedEvent(
+                    Guid.NewGuid(),
+                    record.StaffId,
+                    record.ServiceId,
+                    record.VenueId,
+                    request.Rating.Value),
+                cancellationToken);
+
+            if (staff.Settings.FirebaseToken != null)
+            {
+                var venue = await venueReadOnlyRepository.GetByIdAsync(record.VenueId, cancellationToken);
+                if (venue is not null)
+                {
+                    var recordStartLocalTime = TimeZoneInfo.ConvertTimeFromUtc(
+                        record.StartTimestamp.DateTime, venue.TimeZone);
+                    await notificationRepository.SendOrderNotificationAsync(
+                        record.Id,
+                        staff.Settings.FirebaseToken,
+                        "Новый отзыв!",
+                        $"Клиент оставил отзыв по услуге «{record.Service.Name.Value}», которая была запланирована на {recordStartLocalTime:dd.MM.yyyy 'в' HH:mm}.");
+                }
+            }
         }
+
 
         return Result.Success();
     }

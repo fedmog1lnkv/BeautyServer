@@ -7,5 +7,6 @@ public record UpdateUserRecordCommand(
     Guid UserId,
     Guid RecordId,
     string? Status,
+    byte? Rating,
     string? Comment) :
     ICommand<Result>;

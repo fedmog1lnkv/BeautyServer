@@ -41,12 +41,19 @@ public class RecordConfiguration : IEntityTypeConfiguration<Record>
                 v => (RecordStatus)Enum.Parse(typeof(RecordStatus), v, true))
             .HasColumnType("varchar(10)")
             .IsRequired();
+        
+        builder.OwnsOne(
+            r => r.Review,
+            theme =>
+            {
+                theme.Property(rr => rr.Rating)
+                    .HasColumnName("Rating")
+                    .IsRequired();
 
-        builder.Property(s => s.Comment)
-            .HasConversion(
-                comment => comment == null ? null : comment.Value,
-                value => value == null ? null : RecordComment.Create(value).Value)
-            .HasMaxLength(RecordComment.MaxLength);
+                theme.Property(rr => rr.Comment)
+                    .HasColumnName("Comment")
+                    .IsRequired(false);
+            });
         
         builder.Property(s => s.CreatedOnUtc)
             .IsRequired();
