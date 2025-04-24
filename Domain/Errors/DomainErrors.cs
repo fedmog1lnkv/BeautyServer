@@ -189,6 +189,18 @@ public class DomainErrors
             "VenueDescription.TooShort", "Venue description is too short.");
     }
     
+    public static class VenueAddress
+    {
+        public static readonly Error Empty = Error.Validation(
+            "VenueAddress.Empty", "Venue address is empty.");
+
+        public static readonly Error TooLong = Error.Validation(
+            "VenueAddress.TooLong", "Venue address is too long.");
+
+        public static readonly Error TooShort = Error.Validation(
+            "VenueAddress.TooShort", "Venue address is too short.");
+    }
+    
     public static class VenueTheme
     {
         public static readonly Error ColorEmpty = Error.Validation(

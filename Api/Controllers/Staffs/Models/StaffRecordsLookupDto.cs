@@ -98,8 +98,9 @@ public class StaffRecordsServiceLookupDto : IMapWith<Service>
 public class StaffRecordsVenueLookupDto : IMapWith<Domain.Entities.Venue>
 {
     public Guid Id { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
+    public required string Name { get; set; }
+    public required string Description { get; set; }
+    public required string Address { get; set; }
     public LocationVm Location { get; set; }
     public ThemeVm Theme { get; set; }
 
@@ -109,6 +110,7 @@ public class StaffRecordsVenueLookupDto : IMapWith<Domain.Entities.Venue>
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.Value))
             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description.Value))
+            .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address.Value))
             .ForMember(
                 dest => dest.Location,
                 opt => opt.MapFrom(

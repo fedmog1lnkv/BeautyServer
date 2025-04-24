@@ -6,6 +6,7 @@ namespace Application.Features.Venues.Commands.CreateVenue;
 public record CreateVenueCommand(
     Guid OrganizationId,
     string Name,
+    string Address,
     string? Description,
     string? Color,
     string? Photo,

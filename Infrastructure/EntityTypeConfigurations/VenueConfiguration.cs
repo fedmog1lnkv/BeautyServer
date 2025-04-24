@@ -27,6 +27,13 @@ public class VenueConfiguration : IEntityTypeConfiguration<Venue>
             .HasMaxLength(VenueDescription.MaxLength)
             .IsRequired(false);
 
+        builder.Property(v => v.Address)
+            .HasConversion(
+                address => address.Value,
+                value => VenueAddress.Create(value).Value)
+            .HasMaxLength(VenueAddress.MaxLength)
+            .IsRequired();
+
         builder.OwnsOne(
             o => o.Location,
             theme =>
@@ -68,7 +75,7 @@ public class VenueConfiguration : IEntityTypeConfiguration<Venue>
 
         builder.Property(s => s.ModifiedOnUtc)
             .IsRequired(false);
-        
+
         builder.HasMany(v => v.Photos)
             .WithOne()
             .HasForeignKey(v => v.VenueId)

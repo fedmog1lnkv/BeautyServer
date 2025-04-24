@@ -31,6 +31,13 @@ public class UpdateVenueCommandHandler(
             if (descResult.IsFailure)
                 return descResult;
         }
+        
+        if (!string.IsNullOrWhiteSpace(request.Address))
+        {
+            var addressResult = venue.SetAddress(request.Address);
+            if (addressResult.IsFailure)
+                return addressResult;
+        }
 
         if (!string.IsNullOrWhiteSpace(request.Color))
         {

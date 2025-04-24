@@ -27,6 +27,7 @@ public class CreateVenueCommandHandler(
             Guid.NewGuid(),
             organization.Id,
             request.Name,
+            request.Address,
             venueColor,
             request.Latitude,
             request.Longitude,

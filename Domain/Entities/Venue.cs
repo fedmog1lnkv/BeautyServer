@@ -19,6 +19,7 @@ public class Venue : AggregateRoot, IAuditableEntity
         VenueTheme theme,
         Location location,
         TimeZoneInfo tz,
+        VenueAddress address,
         VenueDescription? description,
         DateTime createdOnUtc) : base(id)
     {
@@ -27,6 +28,7 @@ public class Venue : AggregateRoot, IAuditableEntity
         Theme = theme;
         Location = location;
         TimeZone = tz;
+        Address = address;
         Description = description;
 
         CreatedOnUtc = createdOnUtc;
@@ -39,6 +41,7 @@ public class Venue : AggregateRoot, IAuditableEntity
     public Guid OrganizationId { get; private set; }
     public VenueName Name { get; private set; }
     public VenueDescription? Description { get; private set; }
+    public VenueAddress Address { get; private set; }
     public VenueTheme Theme { get; private set; }
     public Location Location { get; private set; }
     public TimeZoneInfo TimeZone { get; private set; }
@@ -52,6 +55,7 @@ public class Venue : AggregateRoot, IAuditableEntity
         Guid id,
         Guid organizationId,
         string name,
+        string address,
         string defaultColor,
         double latitude,
         double longitude,
@@ -69,6 +73,10 @@ public class Venue : AggregateRoot, IAuditableEntity
         var nameResult = VenueName.Create(name);
         if (nameResult.IsFailure)
             return Result.Failure<Venue>(nameResult.Error);
+        
+        var addressResult = VenueAddress.Create(name);
+        if (addressResult.IsFailure)
+            return Result.Failure<Venue>(addressResult.Error);
 
         var themeResult = VenueTheme.Create(defaultColor, null);
         if (themeResult.IsFailure)
@@ -89,6 +97,7 @@ public class Venue : AggregateRoot, IAuditableEntity
             themeResult.Value,
             locationResult.Value,
             tz,
+            addressResult.Value,
             null,
             createdOnUtc);
     }
@@ -116,6 +125,19 @@ public class Venue : AggregateRoot, IAuditableEntity
             return Result.Success();
 
         Description = descriptionResult.Value;
+        return Result.Success();
+    }
+    
+    public Result SetAddress(string address)
+    {
+        var addressResult = VenueAddress.Create(address);
+        if (addressResult.IsFailure)
+            return addressResult;
+
+        if (Address.Equals(addressResult.Value))
+            return Result.Success();
+
+        Address = addressResult.Value;
         return Result.Success();
     }
 

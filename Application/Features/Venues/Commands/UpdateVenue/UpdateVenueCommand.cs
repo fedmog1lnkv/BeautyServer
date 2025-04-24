@@ -7,6 +7,7 @@ public record UpdateVenueCommand(
     Guid Id,
     string? Name,
     string? Description,
+    string? Address,
     string? Color,
     string? Photo,
     double? Latitude,
