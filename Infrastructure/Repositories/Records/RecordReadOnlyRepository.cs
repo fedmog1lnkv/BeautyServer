@@ -89,10 +89,10 @@ public class RecordReadOnlyRepository(ApplicationDbContext dbContext) : IRecordR
             .AsSplitQuery()
             .FirstOrDefaultAsync(cancellationToken);
 
-    public Task<List<Record>> GetApprovedRecordsFromTime(
+    public async Task<List<Record>> GetApprovedRecordsFromTime(
         DateTime dateTime,
         CancellationToken cancellationToken = default) =>
-        dbContext.Set<Record>()
+        await dbContext.Set<Record>()
             .AsNoTracking()
             .Where(r => r.Status == RecordStatus.Approved && r.StartTimestamp >= dateTime)
             .Include(r => r.User)

@@ -28,7 +28,6 @@ public interface IVenueReadOnlyRepository : IReadOnlyRepository<Venue>
         double minLongitude,
         double maxLatitude,
         double maxLongitude,
-        string? search,
         CancellationToken cancellationToken = default);
 
     Task<Venue?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);

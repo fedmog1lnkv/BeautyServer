@@ -20,13 +20,13 @@ public class VenueReadOnlyRepository(ApplicationDbContext dbContext) : IVenueRea
         var query = dbContext.Set<Venue>()
             .AsNoTracking();
 
-        if (!string.IsNullOrWhiteSpace(search))
-            query = query.Where(v => v.Name.Value.ToLower().Contains(search.ToLower()));
-
         var venues = await query
             .ToListAsync(cancellationToken);
 
         var result = venues
+            .Where(
+                v => string.IsNullOrWhiteSpace(search) ||
+                     v.Name.Value.Contains(search, StringComparison.OrdinalIgnoreCase))
             .Select(
                 v => new
                 {
@@ -54,8 +54,8 @@ public class VenueReadOnlyRepository(ApplicationDbContext dbContext) : IVenueRea
         var query = dbContext.Set<Venue>()
             .AsNoTracking();
 
-        if (!string.IsNullOrWhiteSpace(search))
-            query = query.Where(v => v.Name.Value.ToLower().Contains(search.ToLower()));
+        // if (!string.IsNullOrWhiteSpace(search))
+            // query = query.Where(v => v.Name.Value.ToLower().Contains(search.ToLower()));
 
         return await query
             .Skip(offset)
@@ -68,7 +68,6 @@ public class VenueReadOnlyRepository(ApplicationDbContext dbContext) : IVenueRea
         double minLongitude,
         double maxLatitude,
         double maxLongitude,
-        string? search,
         CancellationToken cancellationToken = default)
     {
         var query = dbContext.Set<Venue>()
@@ -79,9 +78,6 @@ public class VenueReadOnlyRepository(ApplicationDbContext dbContext) : IVenueRea
                     v.Location.Latitude <= maxLatitude &&
                     v.Location.Longitude >= minLongitude &&
                     v.Location.Longitude <= maxLongitude);
-
-        if (!string.IsNullOrWhiteSpace(search))
-            query = query.Where(v => v.Name.Value.ToLower().Contains(search.ToLower()));
 
         return await query.ToListAsync(cancellationToken);
     }

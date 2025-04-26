@@ -109,16 +109,14 @@ public class VenueController(IMapper mapper) : BaseController
         [FromQuery] double minLongitude,
         [FromQuery] double maxLatitude,
         [FromQuery] double maxLongitude,
-        [FromQuery] int zoom,
-        [FromQuery] string? search)
+        [FromQuery] int zoom)
     {
         var query = new GetVenueClustersInBoundsQuery(
             minLatitude,
             minLongitude,
             maxLatitude,
             maxLongitude,
-            zoom,
-            search);
+            zoom);
 
         var result = await Sender.Send(query);
 
