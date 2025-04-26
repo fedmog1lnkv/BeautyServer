@@ -12,6 +12,7 @@ public class RecordVm : IMapWith<Record>
     public RecordVmServiceLookupDto Service { get; set; }
     public RecordVmVenueLookupDto Venue { get; set; }
     public string Status { get; set; }
+    public ReviewVm? Review { get; set; }
     public DateTimeOffset StartTimestamp { get; set; }
     public DateTimeOffset EndTimestamp { get; set; }
 
@@ -24,6 +25,16 @@ public class RecordVm : IMapWith<Record>
             .ForMember(dest => dest.Service, opt => opt.MapFrom(src => src.Service))
             .ForMember(dest => dest.Venue, opt => opt.MapFrom(src => src.Venue))
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
+            .ForMember(
+                dest => dest.Review,
+                opt => opt.MapFrom(
+                    src => src.Review != null
+                        ? new ReviewVm
+                        {
+                            Rating = src.Review.Rating,
+                            Comment = src.Review.Comment
+                        }
+                        : null))
             .ForMember(dest => dest.StartTimestamp, opt => opt.MapFrom(src => src.StartTimestamp))
             .ForMember(dest => dest.EndTimestamp, opt => opt.MapFrom(src => src.EndTimestamp));
     }
@@ -52,6 +63,7 @@ public class RecordVmStaffLookupDto : IMapWith<Staff>
     public string Name { get; set; }
     public string PhoneNumber { get; set; }
     public string Photo { get; set; }
+    public double Rating { get; set; }
 
     public void Mapping(Profile profile)
     {
@@ -59,7 +71,8 @@ public class RecordVmStaffLookupDto : IMapWith<Staff>
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.Value))
             .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber.Value))
-            .ForMember(dest => dest.Photo, opt => opt.MapFrom(src => src.Photo.Value));
+            .ForMember(dest => dest.Photo, opt => opt.MapFrom(src => src.Photo.Value))
+            .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Rating.Value));
     }
 }
 
@@ -67,6 +80,7 @@ public class RecordVmServiceLookupDto : IMapWith<Service>
 {
     public Guid Id { get; set; }
     public string Name { get; set; }
+    public double Rating { get; set; }
     public string? Description { get; set; }
     public TimeSpan? Duration { get; set; }
     public double? Price { get; set; }
@@ -77,6 +91,7 @@ public class RecordVmServiceLookupDto : IMapWith<Service>
         profile.CreateMap<Service, RecordVmServiceLookupDto>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.Value))
+            .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Rating.Value))
             .ForMember(
                 dest => dest.Description,
                 opt => opt.MapFrom(src => src.Description != null ? src.Description.Value : null))
@@ -96,6 +111,7 @@ public class RecordVmVenueLookupDto : IMapWith<Domain.Entities.Venue>
     public Guid Id { get; set; }
     public required string Name { get; set; }
     public required string Address { get; set; }
+    public double Rating { get; set; }
     public string? Description { get; set; }
     public LocationVm Location { get; set; }
     public ThemeVm Theme { get; set; }
@@ -107,6 +123,7 @@ public class RecordVmVenueLookupDto : IMapWith<Domain.Entities.Venue>
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.Value))
             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description.Value))
             .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address.Value))
+            .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Rating.Value))
             .ForMember(
                 dest => dest.Location,
                 opt => opt.MapFrom(
@@ -136,4 +153,10 @@ public class ThemeVm
 {
     public string Color { get; set; } = string.Empty;
     public string? Photo { get; set; }
+}
+
+public class ReviewVm
+{
+    public int Rating { get; set; }
+    public string? Comment { get; set; }
 }
