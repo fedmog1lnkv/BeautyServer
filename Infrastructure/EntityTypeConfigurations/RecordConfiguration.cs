@@ -55,6 +55,16 @@ public class RecordConfiguration : IEntityTypeConfiguration<Record>
                     .IsRequired(false);
             });
         
+        builder.HasMany(r => r.StatusLogs)
+            .WithOne()
+            .HasForeignKey(sl => sl.RecordId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.HasMany(r => r.Messages)
+            .WithOne()
+            .HasForeignKey(m => m.RecordId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
         builder.Property(s => s.CreatedOnUtc)
             .IsRequired();
 

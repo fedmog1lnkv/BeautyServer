@@ -37,10 +37,7 @@ public class Staff : AggregateRoot, IAuditableEntity
     }
 
 #pragma warning disable CS8618
-    private Staff(StaffRating rating)
-    {
-        Rating = rating;
-    }
+    private Staff() { }
 #pragma warning restore CS8618
 
     public Guid OrganizationId { get; private set; }
@@ -83,7 +80,7 @@ public class Staff : AggregateRoot, IAuditableEntity
         var staffNameResult = StaffName.Create(name);
         if (staffNameResult.IsFailure)
             return Result.Failure<Staff>(staffNameResult.Error);
-        
+
         var createSettingsResult = StaffSettings.Create(null);
         if (createSettingsResult.IsFailure)
             return Result.Failure<Staff>(createSettingsResult.Error);
@@ -137,7 +134,7 @@ public class Staff : AggregateRoot, IAuditableEntity
         Role = role;
         return Result.Success();
     }
-    
+
     public Result SetRating(double rating)
     {
         var ratingResult = StaffRating.Create(rating);

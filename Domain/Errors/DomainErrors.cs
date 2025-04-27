@@ -465,4 +465,34 @@ public class DomainErrors
             "RecordReview.CommentLengthOutOfRange",
             $"Comment must be between {ValueObjects.RecordReview.MinLength} and {ValueObjects.RecordReview.MaxLength} characters long.");
     }
+    
+    public static class RecordStatusLogDescription
+    {
+        public static readonly Error Empty = Error.Validation(
+            "RecordStatusLogDescription.Empty", "Record status description is empty.");
+
+        public static readonly Error TooLong = Error.Validation(
+            "RecordStatusLogDescription.TooLong", "Record status description is too long.");
+
+        public static readonly Error TooShort = Error.Validation(
+            "RecordStatusLogDescription.TooShort", "Record status description is too short.");
+    }
+    
+    public static class RecordMessage
+    {
+        public static readonly Error Empty = Error.Validation(
+            "RecordMessage.Empty", "Message cannot be empty.");
+    
+        public static readonly Error TooLong = Error.Validation(
+            "RecordMessage.TooLong", "Message is too long.");
+    
+        public static readonly Error TooShort = Error.Validation(
+            "RecordMessage.TooShort", "Message is too short.");
+    
+        public static Error NotFound(Guid messageId) => Error.NotFound(
+            "RecordMessage.NotFound", $"Message with id {messageId} not found.");
+    
+        public static readonly Error CannotReadOwnMessage = Error.Validation(
+            "RecordMessage.CannotReadOwnMessage", "You cannot read your own message.");
+    }
 }

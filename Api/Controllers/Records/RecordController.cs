@@ -2,6 +2,7 @@ using Api.Controllers.Base;
 using Api.Controllers.Records.Models;
 using Api.Filters;
 using Api.Utils;
+using Application.Features.Records.Commands.AddMessage;
 using Application.Features.Records.Commands.CreateRecord;
 using Application.Features.Records.Queries.GetRecordById;
 using AutoMapper;
@@ -47,5 +48,25 @@ public class RecordController(IMapper mapper) : BaseController
         var record = mapper.Map<RecordVm>(result.Value);
 
         return Ok(record);
+    }
+    
+    [HttpPost("message")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [UserValidationFilter]
+    public async Task<IActionResult> SendMessage([FromBody] SendMessageDto request)
+    {
+        var userId = HttpContext.GetUserId();
+        if (userId == Guid.Empty)
+            return Unauthorized();
+
+        request.SenderId = userId;
+
+        var command = mapper.Map<AddMessageCommand>(request);
+
+        var result = await Sender.Send(command);
+
+        return result.IsFailure
+            ? HandleFailure(result)
+            : NoContent();
     }
 }

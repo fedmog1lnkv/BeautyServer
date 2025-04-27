@@ -10,4 +10,6 @@ public static class TableNames
     internal const string Staffs = nameof(Staffs);
     internal const string TimeSlots = nameof(TimeSlots);
     internal const string VenuePhotos = nameof(VenuePhotos);
+    internal const string RecordStatusLog = nameof(RecordStatusLog);
+    internal const string RecordMessages = nameof(RecordMessages);
 }

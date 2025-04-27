@@ -1,6 +1,9 @@
 using Api.BackgroundServices;
+using Api.Hubs.RecordChat;
 using Api.OptionsSetup;
 using Api.Storages;
+using Api.Utils;
+using Application.Abstractions;
 using Application.Common.Mappings;
 using Application.Configurations;
 using Domain.Entities;
@@ -24,6 +27,18 @@ builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
 builder.Services.Configure<TwoFaSettings>(builder.Configuration.GetSection("2fa"));
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddApplication();
+
+builder.Services.AddSignalR();
+foreach (var mapping in HubClientMapping.EventToHubClientMap)
+{
+    var eventType = mapping.Key;
+    var hubClientType = mapping.Value;
+
+    var interfaceType = typeof(IHubClient<>).MakeGenericType(eventType);
+    var implementationType = hubClientType;
+
+    builder.Services.AddScoped(interfaceType, implementationType);
+}
 
 builder.Services.AddSingleton<NotificationSchedulerStorage>();
 builder.Services.AddHostedService<RecordNotificationScheldueStorageBackgroundService>();
@@ -128,6 +143,8 @@ using (var scope = app.Services.CreateScope())
 
 #endregion
 
+
+
 //// Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
 //{
@@ -137,8 +154,13 @@ app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
+app.UseRouting();
 app.UseAuthorization();
-app.MapControllers();
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+    endpoints.MapHub<RecordChatHub>("/record_chat");
+});
 
 app.UseCors("AllowAll");
 

@@ -13,6 +13,9 @@ namespace Domain.Entities;
 
 public sealed class Record : AggregateRoot, IAuditableEntity
 {
+    private readonly List<RecordStatusLog> _statusLogs = [];
+    private readonly List<RecordMessage> _messages = [];
+
     private Record(
         Guid id,
         Guid userId,
@@ -35,6 +38,8 @@ public sealed class Record : AggregateRoot, IAuditableEntity
         EndTimestamp = endTimestamp;
 
         CreatedOnUtc = createdOnUtc;
+
+        AddStatusLog(RecordStatusChange.Created, "Услуга создана.");
     }
 
 #pragma warning disable CS8618
@@ -55,6 +60,8 @@ public sealed class Record : AggregateRoot, IAuditableEntity
     public Organization Organization { get; private set; } = null!;
     public Venue Venue { get; private set; } = null!;
     public Service Service { get; private set; } = null!;
+    public IReadOnlyCollection<RecordStatusLog> StatusLogs => _statusLogs.AsReadOnly();
+    public IReadOnlyCollection<RecordMessage> Messages => _messages.AsReadOnly();
 
     public DateTime CreatedOnUtc { get; set; }
     public DateTime? ModifiedOnUtc { get; set; }
@@ -131,6 +138,8 @@ public sealed class Record : AggregateRoot, IAuditableEntity
     {
         Status = RecordStatus.Approved;
 
+        AddStatusLog(RecordStatusChange.Approved, "Услуга одобрена.");
+
         return Result.Success();
     }
 
@@ -138,14 +147,33 @@ public sealed class Record : AggregateRoot, IAuditableEntity
     {
         Status = RecordStatus.Discarded;
 
+        AddStatusLog(RecordStatusChange.Discarded, "Услуга отменена.");
+
         return Result.Success();
     }
-    
+
     public Result Completed()
     {
         Status = RecordStatus.Completed;
 
+        AddStatusLog(RecordStatusChange.Completed, "Услуга выполнена.");
+
         return Result.Success();
+    }
+
+    private void AddStatusLog(RecordStatusChange statusChange, string description)
+    {
+        var createLogResult = RecordStatusLog.Create(
+            Guid.NewGuid(),
+            Id,
+            statusChange,
+            description,
+            DateTime.UtcNow);
+
+        if (createLogResult.IsFailure)
+            return;
+
+        _statusLogs.Add(createLogResult.Value);
     }
 
     public Result SetReview(byte rating, string? comment)
@@ -153,11 +181,14 @@ public sealed class Record : AggregateRoot, IAuditableEntity
         var reviewResult = RecordReview.Create(rating, comment);
         if (reviewResult.IsFailure)
             return reviewResult;
-        
+
         Review = reviewResult.Value;
+
+        AddStatusLog(RecordStatusChange.Review, $"Оставлен новый отзыв на {rating}\ud83c\udf1f");
+
         return Result.Success();
     }
-    
+
     public Result SetTime(DateTime newStartTimestamp, DateTime newEndTimestamp)
     {
         if (newStartTimestamp >= newEndTimestamp)
@@ -166,6 +197,36 @@ public sealed class Record : AggregateRoot, IAuditableEntity
         StartTimestamp = newStartTimestamp;
         EndTimestamp = newEndTimestamp;
         ModifiedOnUtc = DateTime.UtcNow;
+
+        AddStatusLog(RecordStatusChange.Moved, $"Услуга перенесена на {newStartTimestamp}.");
+
+        return Result.Success();
+    }
+    
+    public Result AddMessage(Guid senderId, string content)
+    {
+        var createMessageResult = RecordMessage.Create(Guid.NewGuid(), Id, senderId, content);
+    
+        if (createMessageResult.IsFailure)
+            return createMessageResult;
+
+        _messages.Add(createMessageResult.Value);
+
+        return Result.Success();
+    }
+    
+    public Result MarkMessageAsRead(Guid messageId, Guid readerId)
+    {
+        var message = _messages.FirstOrDefault(m => m.Id == messageId);
+        if (message == null)
+            return Result.Failure(DomainErrors.RecordMessage.NotFound(messageId));
+
+        if (message.SenderId == readerId)
+            return Result.Failure(DomainErrors.RecordMessage.CannotReadOwnMessage);
+
+        var result = message.MarkAsRead(DateTime.UtcNow);
+        if (result.IsFailure)
+            return result;
 
         return Result.Success();
     }

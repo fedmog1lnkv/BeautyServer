@@ -1,6 +1,8 @@
 using Amazon.Runtime;
 using Amazon.S3;
 using Application.Abstractions;
+using Domain.IntegrationEvents;
+using Domain.Primitives;
 using Domain.Repositories;
 using Domain.Repositories.Organizations;
 using Domain.Repositories.PhoneChallenges;
@@ -115,8 +117,11 @@ public static class DependencyInjection
         services.AddScoped<INotificationRepository, NotificationRepository>();
 
         services.AddSingleton<InMemoryDomainEventsQueue>();
+        services.AddSingleton<InMemoryIntegrationEventsQueue>();
         services.AddSingleton<IDomainEventBus, DomainEventBus>();
+        services.AddSingleton<IIntegrationEventBus, IntegrationEventBus>();
         services.AddHostedService<DomainEventQueueListener>();
+        services.AddHostedService<IntegrationEventQueueListener>();
 
         return services;
     }
