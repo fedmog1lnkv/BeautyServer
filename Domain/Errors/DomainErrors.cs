@@ -402,6 +402,9 @@ public class DomainErrors
         public static readonly Error Overlap = Error.Conflict(
             "TimeSlot.Overlap", "Time slot overlap.");
         
+        public static readonly Error OverlapVenue = Error.Conflict(
+            "TimeSlot.Overlap", "Time slot overlap with other time slot venue.");
+        
         public static readonly Error AlreadyExists = Error.Conflict(
             "TimeSlot.AlreadyExists", "Time slot already exists.");
         
@@ -494,5 +497,14 @@ public class DomainErrors
     
         public static readonly Error CannotReadOwnMessage = Error.Validation(
             "RecordMessage.CannotReadOwnMessage", "You cannot read your own message.");
+    }
+    
+    public static class RecordChat
+    {
+        public static Error NoAccess(Guid senderId) => Error.Conflict(
+            "RecordChat.Conflict", $"User with ID {senderId} does not have access to this record chat.");
+        
+        public static Error MessageNotFound(Guid senderId, Guid messageId) =>
+            Error.NotFound("RecordChat.MessageNotFound", $"Message from sender {senderId} with message id '{messageId}' was not found.");
     }
 }

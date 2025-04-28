@@ -89,6 +89,13 @@ public class RecordReadOnlyRepository(ApplicationDbContext dbContext) : IRecordR
             .AsSplitQuery()
             .FirstOrDefaultAsync(cancellationToken);
 
+    public async Task<Record?> GetByIdWithMessages(Guid id, CancellationToken cancellationToken = default) =>
+        await dbContext.Set<Record>()
+            .AsNoTracking()
+            .Where(r => r.Id == id)
+            .Include(r => r.Messages)
+            .FirstOrDefaultAsync(cancellationToken);
+
     public async Task<List<Record>> GetApprovedRecordsFromTime(
         DateTime dateTime,
         CancellationToken cancellationToken = default) =>

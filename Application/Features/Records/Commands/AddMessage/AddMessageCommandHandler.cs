@@ -16,7 +16,8 @@ public sealed class AddMessageCommandHandler(IRecordRepository recordRepository,
         if (record is null)
             return Result.Failure(DomainErrors.Venue.NotFound(request.RecordId));
 
-        // TODO : add checks for dostup
+        if (request.SenderId != record.StaffId && request.SenderId != record.UserId)
+            return Result.Failure(DomainErrors.RecordChat.NoAccess(request.SenderId));
 
         var addMessageResult = record.AddMessage(request.SenderId, request.Text);
         if (addMessageResult.IsFailure)

@@ -225,6 +225,19 @@ public sealed class Record : AggregateRoot, IAuditableEntity
         return Result.Success();
     }
     
+    public Result DeleteMessage(Guid senderId, Guid messageId)
+    {
+        var messageToDelete = _messages
+            .FirstOrDefault(m => m.SenderId == senderId && m.Id == messageId);
+
+        if (messageToDelete == null)
+            return Result.Failure(DomainErrors.RecordChat.MessageNotFound(senderId, messageId));
+
+        _messages.Remove(messageToDelete);
+
+        return Result.Success();
+    }
+    
     public Result MarkMessageAsRead(Guid messageId, Guid readerId)
     {
         var message = _messages.FirstOrDefault(m => m.Id == messageId);
