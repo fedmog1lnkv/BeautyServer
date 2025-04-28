@@ -32,18 +32,10 @@ public class StaffValidationFilter: ActionFilterAttribute
             {
                 isManagerBool = isManagerParsed;
             }
-            if (Guid.TryParse(staffId, out var staffGuid) && Guid.TryParse(organizationId, out var organizationGuid))
-            {
-                context.HttpContext.Items["staff_id"] = staffGuid;
-                context.HttpContext.Items["organization_id"] = organizationGuid;
-                context.HttpContext.Items["is_manager"] = isManagerBool;
-            }
-            else
-            {
-                context.Result =
-                    new UnauthorizedObjectResult(new { error = "Invalid token, missing or invalid claims." });
-                return;
-            }
+            
+            context.HttpContext.Items["staff_id"] = staffId;
+            context.HttpContext.Items["organization_id"] = organizationId;
+            context.HttpContext.Items["is_manager"] = isManagerBool;
         }
         catch (Exception ex)
         {

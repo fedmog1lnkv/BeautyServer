@@ -168,7 +168,7 @@ public class Staff : AggregateRoot, IAuditableEntity
         IVenueReadOnlyRepository venueReadOnlyRepository,
         CancellationToken cancellationToken)
     {
-        if (TimeSlots.Any(ts => ts.Id == id || ts.Date == date))
+        if (TimeSlots.Any(ts => ts.Id == id || ts.Date == date && ts.VenueId == venueId))
             return Result.Failure(DomainErrors.TimeSlot.Overlap);
 
         var createTimeSlotResult = await TimeSlot.CreateAsync(
@@ -189,6 +189,18 @@ public class Staff : AggregateRoot, IAuditableEntity
         return Result.Success();
     }
 
+    public Result DeleteTimeSlot(Guid timeSlotToRemove)
+    {
+        var timeSlot = _timeSlots.FirstOrDefault(ts => ts.Id == timeSlotToRemove);
+
+        if (timeSlot == null)
+            return Result.Success();
+
+        _timeSlots.Remove(timeSlot);
+
+        return Result.Success();
+    }
+
     public Result AddTimeSlotInterval(
         Guid timeSlotId,
         TimeSpan start,
@@ -198,6 +210,17 @@ public class Staff : AggregateRoot, IAuditableEntity
         if (timeSlot == null)
             return Result.Failure(DomainErrors.TimeSlot.NotFound(timeSlotId));
 
+        var newIntervalResult = Interval.Create(start, end);
+        if (newIntervalResult.IsFailure)
+            return newIntervalResult;
+
+        var checkOverlapResult = CheckTimeSlotIntervalsVenueOverlap(
+            timeSlot.VenueId,
+            timeSlot.Date,
+            [newIntervalResult.Value]);
+        if (checkOverlapResult.IsFailure)
+            return checkOverlapResult;
+
         var addIntervalResult = timeSlot.AddInterval(start, end);
         return addIntervalResult.IsFailure
             ? addIntervalResult
@@ -206,14 +229,38 @@ public class Staff : AggregateRoot, IAuditableEntity
 
     public Result UpdateTimeSlotIntervals(Guid timeSlotId, List<Interval> intervals)
     {
-        var index = _timeSlots.FindIndex(ts => ts.Id == timeSlotId);
-        if (index == -1)
+        var timeSlot = _timeSlots.FirstOrDefault(ts => ts.Id == timeSlotId);
+        if (timeSlot == null)
             return Result.Failure(DomainErrors.TimeSlot.NotFound(timeSlotId));
 
-        var updateIntervalsResult = _timeSlots[index].UpdateIntervals(intervals);
-        if (updateIntervalsResult.IsFailure)
-            return updateIntervalsResult;
+        var checkOverlapResult = CheckTimeSlotIntervalsVenueOverlap(timeSlot.VenueId, timeSlot.Date, intervals);
+        if (checkOverlapResult.IsFailure)
+            return checkOverlapResult;
 
+        var updateIntervalsResult = timeSlot.UpdateIntervals(intervals);
+        return updateIntervalsResult.IsFailure
+            ? updateIntervalsResult
+            : Result.Success();
+    }
+
+    private Result CheckTimeSlotIntervalsVenueOverlap(
+        Guid currentVenueId,
+        DateOnly day,
+        List<Interval> newIntervals)
+    {
+        var sameDayTimeSlots = _timeSlots.Where(ts => ts.Date == day && ts.VenueId != currentVenueId).ToList();
+
+        foreach (var newInterval in newIntervals)
+        {
+            foreach (var timeSlot in sameDayTimeSlots)
+            {
+                foreach (var interval in timeSlot.Intervals)
+                {
+                    if (interval.Overlaps(newInterval))
+                        return Result.Failure(DomainErrors.TimeSlot.OverlapVenue);
+                }
+            }
+        }
         return Result.Success();
     }
 

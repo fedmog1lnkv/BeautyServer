@@ -27,7 +27,7 @@ public class AddTimeSlotCommandHandler(
              initiatorStaff.Role != StaffRole.Manager))
             return Result.Failure(DomainErrors.Staff.StaffCannotUpdate);
         
-        var staffTimeSlot = staff.TimeSlots.FirstOrDefault(ts => ts.Date == request.Date);
+        var staffTimeSlot = staff.TimeSlots.FirstOrDefault(ts => ts.Date == request.Date && ts.VenueId == request.VenueId);
 
         if (staffTimeSlot is not null)
             return Result.Failure(DomainErrors.TimeSlot.AlreadyExists);

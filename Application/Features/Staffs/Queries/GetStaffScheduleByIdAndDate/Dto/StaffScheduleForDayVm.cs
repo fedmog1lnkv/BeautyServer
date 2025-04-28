@@ -1,8 +1,14 @@
 namespace Application.Features.Staffs.Queries.GetStaffScheduleByIdAndDate.Dto;
 
+public class StaffScheduleForTimeSlotVm
+{
+    public List<StaffScheduleForDayVm> TimeSlots { get; set; } = [];
+}
 public class StaffScheduleForDayVm
 {
-    public Guid? TimeSlotId { get; set; }
+    public Guid TimeSlotId { get; set; }
+    public Guid VenueId { get; set; }
+    public required string VenueName { get; set; }
     public List<WorkloadTimeSlotDto> Workload { get; set; } = [];
 }
 

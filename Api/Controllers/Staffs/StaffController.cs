@@ -1,5 +1,6 @@
 using Api.Controllers.Base;
 using Api.Controllers.Staffs.Models;
+using Api.Controllers.Venue.Models;
 using Api.Filters;
 using Api.Utils;
 using Application.Features.Records.Queries.GetRecordsByStaffId;
@@ -14,6 +15,7 @@ using Application.Features.Staffs.Queries.GetStaffScheduleByIdAndDate;
 using Application.Features.Staffs.Queries.GetStaffWithServicesById;
 using Application.Features.Staffs.Queries.GetStaffWithTimeSlotsByIdAndVenueId;
 using Application.Features.Staffs.Queries.GetStaffWorkloadById;
+using Application.Features.Venues.Queries.GetVenuesByStaffId;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
@@ -262,5 +264,26 @@ public class StaffController(IMapper mapper) : BaseController
         return result.IsFailure
             ? HandleFailure(result)
             : NoContent();
+    }
+    
+    [HttpGet("organization/venues")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    [StaffValidationFilter]
+    public async Task<IActionResult> GetByStaffId()
+    {
+        var id = HttpContext.GetStaffId();
+        if (id == Guid.Empty)
+            return Unauthorized();
+
+        var query = new GetVenuesByStaffIdQuery(id);
+
+        var result = await Sender.Send(query);
+        if (result.IsFailure)
+            return HandleFailure(result);
+
+        var staff = mapper.Map<List<VenueLookupDto>>(result.Value);
+
+        return Ok(staff);
     }
 }

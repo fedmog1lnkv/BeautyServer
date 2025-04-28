@@ -22,7 +22,7 @@ public interface IVenueReadOnlyRepository : IReadOnlyRepository<Venue>
         int offset,
         string? search,
         CancellationToken cancellationToken = default);
-    
+
     Task<List<Venue>> GetInBounds(
         double minLatitude,
         double minLongitude,
@@ -31,5 +31,6 @@ public interface IVenueReadOnlyRepository : IReadOnlyRepository<Venue>
         CancellationToken cancellationToken = default);
 
     Task<Venue?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<List<Venue>> GetByOrganizationId(Guid organizationId, CancellationToken cancellationToken = default);
     Task<Venue?> GetByIdWithServicesAsync(Guid id, CancellationToken cancellationToken = default);
 }

@@ -32,26 +32,24 @@ public sealed class UpdateTimeSlotCommandHandler(
         if (staffTimeSlot is null)
             return Result.Failure(DomainErrors.TimeSlot.NotFound(request.TimeSlotId));
 
-        var intervals = staffTimeSlot.Intervals;
-
         // Проверка на то, что новые интервалы не пересекаются с records
         var records = await recordReadOnlyRepository.GetRecordsWithVenueByStaffIdAndDate(
             staff.Id,
             staffTimeSlot.Date,
             cancellationToken);
 
-        var baseDate = staffTimeSlot.Date.ToDateTime(TimeOnly.MinValue);
         foreach (var interval in request.Intervals)
         {
             foreach (var record in records.Where(r => r.Status != RecordStatus.Discarded).ToList())
             {
-                var newStart = TimeZoneInfo.ConvertTimeFromUtc(baseDate + interval.StartTime, record.Venue.TimeZone);
-                var newEnd = TimeZoneInfo.ConvertTimeFromUtc(baseDate + interval.EndTime, record.Venue.TimeZone);
-                
-                var existingStart = TimeZoneInfo.ConvertTimeFromUtc(record.StartTimestamp.DateTime, record.Venue.TimeZone);
-                var existingEnd = TimeZoneInfo.ConvertTimeFromUtc(record.EndTimestamp.DateTime, record.Venue.TimeZone);
+                var existingStart = TimeZoneInfo.ConvertTimeFromUtc(
+                    record.StartTimestamp.DateTime,
+                    record.Venue.TimeZone);
+                var existingEnd = TimeZoneInfo.ConvertTimeFromUtc(
+                    record.EndTimestamp.DateTime,
+                    record.Venue.TimeZone);
 
-                if (newStart < existingEnd && newEnd > existingStart)
+                if (interval.StartTime < existingEnd.TimeOfDay && interval.EndTime > existingStart.TimeOfDay)
                     return Result.Failure(DomainErrors.TimeSlot.Overlap);
             }
         }
@@ -68,10 +66,46 @@ public sealed class UpdateTimeSlotCommandHandler(
             newIntervals.Add(createIntervalResult.Value);
         }
         
-        var updateStaffIntervalsResult = staff.UpdateTimeSlotIntervals(staffTimeSlot.Id, newIntervals);
-        if (updateStaffIntervalsResult.IsFailure)
-            return Result.Failure(updateStaffIntervalsResult.Error);
+        var mergedIntervalsResult = MergeIntervals(newIntervals);
+        if (mergedIntervalsResult.IsFailure)
+            return mergedIntervalsResult;
+
+        if (mergedIntervalsResult.Value.Count == 0 && records.Count == 0)
+        {
+            var deleteTimeSlotInterval = staff.DeleteTimeSlot(staffTimeSlot.Id);
+            if (deleteTimeSlotInterval.IsFailure)
+                return Result.Failure(deleteTimeSlotInterval.Error);
+        }
+        else
+        {
+            var updateStaffIntervalsResult = staff.UpdateTimeSlotIntervals(staffTimeSlot.Id, mergedIntervalsResult.Value);
+            if (updateStaffIntervalsResult.IsFailure)
+                return Result.Failure(updateStaffIntervalsResult.Error);
+        }
 
         return Result.Success();
+    }
+    
+    private Result<List<Interval>> MergeIntervals(List<Interval> oldIntervals)
+    {
+        var updatedIntervals = oldIntervals.ToList();
+
+        updatedIntervals = updatedIntervals.OrderBy(i => i.Start).ToList();
+
+        for (var i = 1; i < updatedIntervals.Count; i++)
+        {
+            if (updatedIntervals[i - 1].End >= updatedIntervals[i].Start)
+            {
+                var createIntervalResult = Interval.Create(updatedIntervals[i - 1].Start, updatedIntervals[i].End);
+                if (createIntervalResult.IsFailure)
+                    return Result.Failure<List<Interval>>(createIntervalResult.Error);
+
+                updatedIntervals.RemoveAt(i);
+                updatedIntervals[i - 1] = createIntervalResult.Value;
+                i--;
+            }
+        }
+
+        return updatedIntervals;
     }
 }

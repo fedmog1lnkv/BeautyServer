@@ -88,6 +88,12 @@ public class VenueReadOnlyRepository(ApplicationDbContext dbContext) : IVenueRea
             .Include(v => v.Photos)
             .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
 
+    public async Task<List<Venue>> GetByOrganizationId(Guid organizationId, CancellationToken cancellationToken = default) =>
+        await dbContext.Set<Venue>()
+            .AsNoTracking()
+            .Where(v => v.OrganizationId == organizationId)
+            .ToListAsync(cancellationToken);
+
     public async Task<Venue?> GetByIdWithServicesAsync(Guid id, CancellationToken cancellationToken = default) =>
         await dbContext.Set<Venue>()
             .AsNoTracking()

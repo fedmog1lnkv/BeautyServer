@@ -9,4 +9,4 @@ public record GetStaffScheduleByIdAndDateQuery(
     int Year,
     int Month,
     int Day) :
-    IQuery<Result<StaffScheduleForDayVm>>;
+    IQuery<Result<List<StaffScheduleForDayVm>>>;
