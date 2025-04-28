@@ -7,7 +7,7 @@ namespace Domain.ValueObjects;
 public sealed class RecordReview : ValueObject
 {
     public const int MaxLength = 2000;
-    public const int MinLength = 10;
+    public const int MinLength = 1;
 
     public const int MinRating = 1;
     public const int MaxRating = 10;
@@ -26,11 +26,9 @@ public sealed class RecordReview : ValueObject
         if (rating is < MinRating or > MaxRating)
             return Result.Failure<RecordReview>(DomainErrors.RecordReview.InvalidRating);
 
-        if (string.IsNullOrWhiteSpace(comment))
-            return Result.Failure<RecordReview>(DomainErrors.RecordReview.CommentEmpty);
 
-        comment = comment.Trim();
-        if (comment.Length is < MinLength or > MaxLength)
+        comment = comment?.Trim();
+        if (comment?.Length is < MinLength or > MaxLength)
             return Result.Failure<RecordReview>(DomainErrors.RecordReview.CommentLengthOutOfRange);
 
         return new RecordReview(rating, comment);

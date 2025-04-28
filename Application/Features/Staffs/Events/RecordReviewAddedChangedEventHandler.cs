@@ -1,13 +1,16 @@
 using Application.Abstractions;
 using Domain.DomainEvents.Organizations;
 using Domain.DomainEvents.Record;
+using Domain.Repositories;
 using Domain.Repositories.Records;
 using Domain.Repositories.Staffs;
 using Serilog;
 
 namespace Application.Features.Staffs.Events;
 
-public class RecordReviewAddedChangedEventHandler(IStaffRepository staffRepository, IRecordRepository recordRepository)
+public class RecordReviewAddedChangedEventHandler(
+    IStaffRepository staffRepository,
+    IRecordRepository recordRepository)
     : IDomainEventHandler<RecordReviewAddedChangedEvent>
 {
     public async Task Handle(RecordReviewAddedChangedEvent notification, CancellationToken cancellationToken)
@@ -26,9 +29,11 @@ public class RecordReviewAddedChangedEventHandler(IStaffRepository staffReposito
             0,
             cancellationToken);
 
-        var avgRating = records
-            .Where(r => r.Review != null)
-            .Average(r => r.Review?.Rating ?? 0);
+        var recordsWithReviews = records.Where(r => r.Review != null).ToList();
+        var avgRating = 0.0;
+
+        if (recordsWithReviews.Any())
+            avgRating = recordsWithReviews.Average(r => r.Review?.Rating ?? 0);
 
         avgRating = Math.Round((avgRating + notification.Rating) / 2, 2);
 

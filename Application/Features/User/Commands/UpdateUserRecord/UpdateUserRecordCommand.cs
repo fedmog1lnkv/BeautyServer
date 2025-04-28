@@ -1,3 +1,4 @@
+using Application.Features.User.Commands.UpdateUserRecord.Dto;
 using Application.Messaging.Command;
 using Domain.Shared;
 
@@ -7,6 +8,5 @@ public record UpdateUserRecordCommand(
     Guid UserId,
     Guid RecordId,
     string? Status,
-    byte? Rating,
-    string? Comment) :
+    RecordReviewDto? Review) :
     ICommand<Result>;

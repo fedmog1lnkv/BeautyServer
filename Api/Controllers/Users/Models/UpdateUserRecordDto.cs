@@ -1,5 +1,6 @@
 using Application.Common.Mappings;
 using Application.Features.User.Commands.UpdateUserRecord;
+using Application.Features.User.Commands.UpdateUserRecord.Dto;
 using AutoMapper;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -12,9 +13,12 @@ public class UpdateUserRecordDto : IMapWith<UpdateUserRecordCommand>
     public Guid RecordId { get; set; }
     public string? Status { get; set; }
 
+    public RecordReviewDto? Review { get; set; }
+
     public void Mapping(Profile profile) =>
         profile.CreateMap<UpdateUserRecordDto, UpdateUserRecordCommand>()
             .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
             .ForMember(dest => dest.RecordId, opt => opt.MapFrom(src => src.RecordId))
-            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+            .ForMember(dest => dest.Review, opt => opt.MapFrom(src => src.Review));
 }

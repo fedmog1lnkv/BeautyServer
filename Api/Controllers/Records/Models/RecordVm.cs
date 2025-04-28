@@ -11,7 +11,7 @@ public class RecordVm : IMapWith<Record>
     public RecordVmUserLookupDto User { get; set; }
     public RecordVmServiceLookupDto Service { get; set; }
     public RecordVmVenueLookupDto Venue { get; set; }
-    public string Status { get; set; }
+    public required string Status { get; set; }
     public ReviewVm? Review { get; set; }
     public DateTimeOffset StartTimestamp { get; set; }
     public DateTimeOffset EndTimestamp { get; set; }

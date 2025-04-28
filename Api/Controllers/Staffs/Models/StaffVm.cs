@@ -21,7 +21,7 @@ public class StaffVm : IMapWith<Staff>
             .ForMember(d => d.Name, opt => opt.MapFrom(s => s.Name.Value))
             .ForMember(d => d.PhoneNumber, opt => opt.MapFrom(s => s.PhoneNumber.Value))
             .ForMember(d => d.Role, opt => opt.MapFrom(s => s.Role.ToString()))
-            .ForMember(d => d.Rating, opt => opt.MapFrom(s => s.Rating))
+            .ForMember(d => d.Rating, opt => opt.MapFrom(s => s.Rating.Value))
             .ForMember(
                 d => d.Photo,
                 opt => opt.MapFrom(

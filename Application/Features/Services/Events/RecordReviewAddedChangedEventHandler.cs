@@ -1,6 +1,7 @@
 using Application.Abstractions;
 using Domain.DomainEvents.Organizations;
 using Domain.DomainEvents.Record;
+using Domain.Repositories;
 using Domain.Repositories.Records;
 using Domain.Repositories.Services;
 using Serilog;
@@ -28,9 +29,11 @@ public class RecordReviewAddedChangedEventHandler(
             0,
             cancellationToken);
 
-        var avgRating = records
-            .Where(r => r.Review != null)
-            .Average(r => r.Review?.Rating ?? 0);
+        var recordsWithReviews = records.Where(r => r.Review != null).ToList();
+        var avgRating = 0.0;
+
+        if (recordsWithReviews.Any())
+            avgRating = recordsWithReviews.Average(r => r.Review?.Rating ?? 0);
 
         avgRating = Math.Round((avgRating + notification.Rating) / 2, 2);
 

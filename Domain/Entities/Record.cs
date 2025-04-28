@@ -1,3 +1,4 @@
+using Domain.DomainEvents.Record;
 using Domain.Enums;
 using Domain.Errors;
 using Domain.Primitives;
@@ -185,6 +186,15 @@ public sealed class Record : AggregateRoot, IAuditableEntity
         Review = reviewResult.Value;
 
         AddStatusLog(RecordStatusChange.Review, $"Оставлен новый отзыв на {rating}\ud83c\udf1f");
+        
+        RaiseDomainEvent(
+            new RecordReviewAddedChangedEvent(
+                Guid.NewGuid(),
+                Id,
+                StaffId,
+                ServiceId,
+                VenueId,
+                Review.Rating));
 
         return Result.Success();
     }

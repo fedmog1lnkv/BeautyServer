@@ -1,6 +1,7 @@
 ﻿using Application.Abstractions;
 using Application.Common.Behaviors;
 using FluentValidation;
+using MediatR;
 using MediatR.NotificationPublishers;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
@@ -20,8 +21,8 @@ public static class DependencyInjection
             cfg.AddOpenBehavior(typeof(LoggingPipelineBehavior<,>));
             cfg.AddOpenBehavior(typeof(UnitOfWorkPipelineBehavior<,>));
 
-            cfg.NotificationPublisher = new TaskWhenAllPublisher();
-            cfg.NotificationPublisherType = typeof(TaskWhenAllPublisher);
+            cfg.NotificationPublisher = new ForeachAwaitPublisher();
+            cfg.NotificationPublisherType = typeof(ForeachAwaitPublisher);
         });
 
         services.AddValidatorsFromAssemblies(

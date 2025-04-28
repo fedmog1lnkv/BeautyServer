@@ -1,6 +1,5 @@
 using Application.Abstractions;
 using Application.Messaging.Command;
-using Domain.DomainEvents.Organizations;
 using Domain.DomainEvents.Record;
 using Domain.Entities;
 using Domain.Enums;
@@ -19,8 +18,7 @@ public sealed class UpdateUserRecordCommandHandler(
     IRecordRepository
         recordRepository,
     IVenueReadOnlyRepository venueReadOnlyRepository,
-    INotificationRepository notificationRepository,
-    IDomainEventBus eventBus) : ICommandHandler<UpdateUserRecordCommand, Result>
+    INotificationRepository notificationRepository) : ICommandHandler<UpdateUserRecordCommand, Result>
 {
     public async Task<Result> Handle(UpdateUserRecordCommand request, CancellationToken cancellationToken)
     {
@@ -28,25 +26,16 @@ public sealed class UpdateUserRecordCommandHandler(
         if (record is null)
             return Result.Failure(DomainErrors.Record.NotFound);
 
-        if (record.Status == RecordStatus.Completed || record.UserId != request.UserId)
+        if (record.UserId != request.UserId)
             return Result.Failure(DomainErrors.Record.CannotUpdate);
-
-        var initiatorStaff = await staffRepository.GetByIdAsync(record.StaffId, cancellationToken);
-        if (initiatorStaff is null)
-            return Result.Failure(DomainErrors.Staff.NotFound(record.StaffId));
 
         var staff = await staffRepository.GetByIdWithTimeSlotsAsync(record.StaffId, cancellationToken);
         if (staff is null)
             return Result.Failure(DomainErrors.Staff.NotFound(record.StaffId));
 
-        if (initiatorStaff.Id != staff.Id &&
-            (initiatorStaff.OrganizationId != staff.OrganizationId ||
-             initiatorStaff.Role != StaffRole.Manager))
-            return Result.Failure(DomainErrors.Record.CannotUpdate);
-
         var result = Result.Success();
 
-        if (request.Status is not null)
+        if (request.Status is not null && record.Status != RecordStatus.Completed)
         {
             var status = (RecordStatus)Enum.Parse(typeof(RecordStatus), request.Status, true);
 
@@ -64,7 +53,8 @@ public sealed class UpdateUserRecordCommandHandler(
                 if (staff.Settings.FirebaseToken != null)
                 {
                     var recordStartLocalTime = TimeZoneInfo.ConvertTimeFromUtc(
-                        record.StartTimestamp.DateTime, venue.TimeZone);
+                        record.StartTimestamp.DateTime,
+                        venue.TimeZone);
                     await notificationRepository.SendOrderNotificationAsync(
                         record.Id,
                         staff.Settings.FirebaseToken,
@@ -78,20 +68,11 @@ public sealed class UpdateUserRecordCommandHandler(
             }
         }
 
-        if (record.Status == RecordStatus.Completed && request.Rating.HasValue)
+        if (record.Status == RecordStatus.Completed && request.Review is not null)
         {
-            result = record.SetReview(request.Rating.Value, request.Comment);
+            result = record.SetReview((byte)request.Review.Rating, request.Review.Comment);
             if (result.IsFailure)
                 return result;
-
-            await eventBus.SendAsync(
-                new RecordReviewAddedChangedEvent(
-                    Guid.NewGuid(),
-                    record.StaffId,
-                    record.ServiceId,
-                    record.VenueId,
-                    request.Rating.Value),
-                cancellationToken);
 
             if (staff.Settings.FirebaseToken != null)
             {
@@ -99,7 +80,8 @@ public sealed class UpdateUserRecordCommandHandler(
                 if (venue is not null)
                 {
                     var recordStartLocalTime = TimeZoneInfo.ConvertTimeFromUtc(
-                        record.StartTimestamp.DateTime, venue.TimeZone);
+                        record.StartTimestamp.DateTime,
+                        venue.TimeZone);
                     await notificationRepository.SendOrderNotificationAsync(
                         record.Id,
                         staff.Settings.FirebaseToken,
@@ -108,7 +90,6 @@ public sealed class UpdateUserRecordCommandHandler(
                 }
             }
         }
-
 
         return Result.Success();
     }

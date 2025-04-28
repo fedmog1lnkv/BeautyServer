@@ -152,6 +152,8 @@ app.UseSwagger();
 app.UseSwaggerUI();
 //}
 
+app.UseCors("AllowAll");
+
 app.UseHttpsRedirection();
 
 app.UseRouting();
@@ -161,7 +163,5 @@ app.UseEndpoints(endpoints =>
     endpoints.MapControllers();
     endpoints.MapHub<RecordChatHub>("/record_chat");
 });
-
-app.UseCors("AllowAll");
 
 app.Run();

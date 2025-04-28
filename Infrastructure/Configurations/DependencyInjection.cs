@@ -1,8 +1,7 @@
+using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
 using Application.Abstractions;
-using Domain.IntegrationEvents;
-using Domain.Primitives;
 using Domain.Repositories;
 using Domain.Repositories.Organizations;
 using Domain.Repositories.PhoneChallenges;
@@ -49,37 +48,39 @@ public static class DependencyInjection
                 if (environment.IsDevelopment())
                     options.EnableSensitiveDataLogging();
             });
-        
-        services.AddSingleton<IAmazonS3>(sp =>
-        {
-            var accessKey = configuration["AWS:AccessKey"];
-            var secretKey = configuration["AWS:SecretKey"];
-            var region = Amazon.RegionEndpoint.GetBySystemName(configuration["AWS:Region"]);
-            var endpointUrl = configuration["AWS:EndpointUrl"];
 
-            var s3Config = new AmazonS3Config
+        services.AddSingleton<IAmazonS3>(
+            _ =>
             {
-                RegionEndpoint = region,
-                ServiceURL = endpointUrl,
-                ForcePathStyle = true
-            };
+                var accessKey = configuration["AWS:AccessKey"];
+                var secretKey = configuration["AWS:SecretKey"];
+                var region = RegionEndpoint.GetBySystemName(configuration["AWS:Region"]);
+                var endpointUrl = configuration["AWS:EndpointUrl"];
 
-            var credentials = new BasicAWSCredentials(accessKey, secretKey);
+                var s3Config = new AmazonS3Config
+                {
+                    RegionEndpoint = region,
+                    ServiceURL = endpointUrl,
+                    ForcePathStyle = true
+                };
 
-            return new AmazonS3Client(credentials, s3Config);
-        });
-        
+                var credentials = new BasicAWSCredentials(accessKey, secretKey);
+
+                return new AmazonS3Client(credentials, s3Config);
+            });
+
         services.AddScoped<S3StorageUtils>();
-        
+
         var firebaseConfigJson = configuration.GetSection("Firebase").GetChildren()
             .ToDictionary(x => x.Key, x => x.Value);
-        
+
         var firebaseConfigJsonString = JsonConvert.SerializeObject(firebaseConfigJson);
 
-        FirebaseApp.Create(new AppOptions
-        {
-            Credential = GoogleCredential.FromJson(firebaseConfigJsonString)
-        });
+        FirebaseApp.Create(
+            new AppOptions
+            {
+                Credential = GoogleCredential.FromJson(firebaseConfigJsonString)
+            });
 
         services.AddTransient<IUserJwtProvider, UserJwtProvider>();
         services.AddTransient<IStaffJwtProvider, StaffJwtProvider>();
@@ -111,15 +112,17 @@ public static class DependencyInjection
         // Record
         services.AddScoped<IRecordRepository, RecordRepository>();
         services.AddScoped<IRecordReadOnlyRepository, RecordReadOnlyRepository>();
-        
+
         // Utils
         services.AddScoped<ILocationRepository, LocationRepository>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
 
         services.AddSingleton<InMemoryDomainEventsQueue>();
         services.AddSingleton<InMemoryIntegrationEventsQueue>();
+        
         services.AddSingleton<IDomainEventBus, DomainEventBus>();
         services.AddSingleton<IIntegrationEventBus, IntegrationEventBus>();
+        
         services.AddHostedService<DomainEventQueueListener>();
         services.AddHostedService<IntegrationEventQueueListener>();
 
