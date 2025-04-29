@@ -16,4 +16,9 @@ public abstract class HubClientBase<THub, TIntegrationEvent>(IHubContext<THub> h
             $"Receive{typeof(TIntegrationEvent).Name}",
             integrationEvent,
             cancellationToken);
+
+    public abstract Task SendToRecordGroupAsync(
+        Guid recordId,
+        TIntegrationEvent integrationEvent,
+        CancellationToken cancellationToken = default);
 }

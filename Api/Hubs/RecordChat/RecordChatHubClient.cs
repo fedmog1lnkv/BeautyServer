@@ -3,12 +3,19 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Api.Hubs.RecordChat;
 
-public sealed class RecordChatHubClient<TIntegrationEvent>
-    : HubClientBase<RecordChatHub, TIntegrationEvent>
+public sealed class RecordChatHubClient<TIntegrationEvent>(IHubContext<RecordChatHub> hubContext)
+    : HubClientBase<RecordChatHub, TIntegrationEvent>(hubContext)
     where TIntegrationEvent : IIntegrationEvent
 {
-    public RecordChatHubClient(IHubContext<RecordChatHub> hubContext)
-        : base(hubContext)
+    private readonly IHubContext<RecordChatHub> _hubContext = hubContext;
+
+    public override Task SendToRecordGroupAsync(
+        Guid recordId,
+        TIntegrationEvent integrationEvent,
+        CancellationToken cancellationToken = default)
     {
+        var groupName = $"Record_{recordId}";
+        return _hubContext.Clients.Group(groupName)
+            .SendAsync($"Receive{typeof(TIntegrationEvent).Name}", integrationEvent, cancellationToken);
     }
 }

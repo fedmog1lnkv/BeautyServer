@@ -8,4 +8,9 @@ public interface IHubClient<TIntegrationEvent>
     Task SendEventAsync(
         TIntegrationEvent integrationEvent,
         CancellationToken cancellationToken);
+
+    Task SendToRecordGroupAsync(
+        Guid recordId,
+        TIntegrationEvent integrationEvent,
+        CancellationToken cancellationToken = default);
 }

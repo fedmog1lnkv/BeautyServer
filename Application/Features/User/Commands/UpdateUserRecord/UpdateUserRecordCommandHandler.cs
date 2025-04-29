@@ -4,6 +4,7 @@ using Domain.DomainEvents.Record;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Errors;
+using Domain.IntegrationEvents.Record;
 using Domain.Repositories.Records;
 using Domain.Repositories.Staffs;
 using Domain.Repositories.Utils;
@@ -18,6 +19,7 @@ public sealed class UpdateUserRecordCommandHandler(
     IRecordRepository
         recordRepository,
     IVenueReadOnlyRepository venueReadOnlyRepository,
+    IIntegrationEventBus eventBus,
     INotificationRepository notificationRepository) : ICommandHandler<UpdateUserRecordCommand, Result>
 {
     public async Task<Result> Handle(UpdateUserRecordCommand request, CancellationToken cancellationToken)
@@ -32,6 +34,8 @@ public sealed class UpdateUserRecordCommandHandler(
         var staff = await staffRepository.GetByIdWithTimeSlotsAsync(record.StaffId, cancellationToken);
         if (staff is null)
             return Result.Failure(DomainErrors.Staff.NotFound(record.StaffId));
+
+        var lastRecordStatusLog = record.StatusLogs.Last();
 
         var result = Result.Success();
 
@@ -87,6 +91,30 @@ public sealed class UpdateUserRecordCommandHandler(
                         staff.Settings.FirebaseToken,
                         "Новый отзыв!",
                         $"Клиент оставил отзыв по услуге «{record.Service.Name.Value}», которая была запланирована на {recordStartLocalTime:dd.MM.yyyy 'в' HH:mm}.");
+                }
+            }
+        }
+        
+        if (lastRecordStatusLog != record.StatusLogs.Last())
+        {
+            var allLogs = record.StatusLogs.ToList();
+            var lastIndex = allLogs.IndexOf(lastRecordStatusLog);
+
+            if (lastIndex != -1 && lastIndex < allLogs.Count - 1)
+            {
+                var logsToSend = allLogs.Skip(lastIndex + 1).ToList();
+
+                foreach (var log in logsToSend)
+                {
+                    await eventBus.SendAsync(
+                        new RecordStatusLogEvent(
+                            Guid.NewGuid(),
+                            log.RecordId,
+                            log.Id,
+                            log.StatusChange.ToString(),
+                            log.Description.Value,
+                            log.Timestamp),
+                        cancellationToken);
                 }
             }
         }

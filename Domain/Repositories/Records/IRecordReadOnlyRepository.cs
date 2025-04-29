@@ -35,7 +35,7 @@ public interface IRecordReadOnlyRepository : IReadOnlyRepository<Record>
         Guid id,
         CancellationToken cancellationToken = default);
     
-    Task<Record?> GetByIdWithMessages(
+    Task<Record?> GetByIdWithMessagesAndStatusLog(
         Guid id,
         CancellationToken cancellationToken = default);
 

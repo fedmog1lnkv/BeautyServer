@@ -23,9 +23,11 @@ public class RecordReadOnlyRepository(ApplicationDbContext dbContext) : IRecordR
             .Include(r => r.Service)
             .Include(r => r.Venue)
             .Include(r => r.Organization)
+            .Include(r => r.Messages)
             .OrderBy(r => r.StartTimestamp)
             .Skip(offset)
             .Take(limit)
+            .AsSplitQuery()
             .ToListAsync(cancellationToken);
     }
 
@@ -71,9 +73,11 @@ public class RecordReadOnlyRepository(ApplicationDbContext dbContext) : IRecordR
             .Include(r => r.Staff)
             .Include(r => r.Service)
             .Include(r => r.Venue)
+            .Include(r => r.Messages)
             .OrderByDescending(r => r.CreatedOnUtc)
             .Skip(offset)
             .Take(limit)
+            .AsSplitQuery()
             .ToListAsync(cancellationToken);
 
     public async Task<Record?> GetRecordById(
@@ -86,14 +90,16 @@ public class RecordReadOnlyRepository(ApplicationDbContext dbContext) : IRecordR
             .Include(r => r.Staff)
             .Include(r => r.Service)
             .Include(r => r.Venue)
+            .Include(r => r.Messages)
             .AsSplitQuery()
             .FirstOrDefaultAsync(cancellationToken);
 
-    public async Task<Record?> GetByIdWithMessages(Guid id, CancellationToken cancellationToken = default) =>
+    public async Task<Record?> GetByIdWithMessagesAndStatusLog(Guid id, CancellationToken cancellationToken = default) =>
         await dbContext.Set<Record>()
             .AsNoTracking()
             .Where(r => r.Id == id)
             .Include(r => r.Messages)
+            .Include(r => r.StatusLogs)
             .FirstOrDefaultAsync(cancellationToken);
 
     public async Task<List<Record>> GetApprovedRecordsFromTime(

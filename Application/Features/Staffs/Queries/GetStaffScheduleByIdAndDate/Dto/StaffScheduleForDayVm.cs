@@ -23,6 +23,7 @@ public class RecordInfo
 {
     public Guid Id { get; set; }
     public required string Status { get; set; }
+    public required int UnreadMessageCount { get; set; }
     public required string ClientName { get; set; }
     public required string ServiceName { get; set; }
 }

@@ -71,6 +71,7 @@ public class GetStaffScheduleByIdAndDateQueryHandler(
                     {
                         Id = record.Id,
                         Status = record.Status.ToString(),
+                        UnreadMessageCount = record.UnreadMessageCountStaff,
                         ClientName = record.User.Name.Value,
                         ServiceName = record.Service.Name.Value
                     },

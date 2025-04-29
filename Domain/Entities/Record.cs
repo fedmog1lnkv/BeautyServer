@@ -186,7 +186,7 @@ public sealed class Record : AggregateRoot, IAuditableEntity
         Review = reviewResult.Value;
 
         AddStatusLog(RecordStatusChange.Review, $"Оставлен новый отзыв на {rating}\ud83c\udf1f");
-        
+
         RaiseDomainEvent(
             new RecordReviewAddedChangedEvent(
                 Guid.NewGuid(),
@@ -212,11 +212,18 @@ public sealed class Record : AggregateRoot, IAuditableEntity
 
         return Result.Success();
     }
-    
-    public Result AddMessage(Guid senderId, string content)
+
+    public Result AddMessage(
+        Guid senderId,
+        string content,
+        Guid? messageId)
     {
-        var createMessageResult = RecordMessage.Create(Guid.NewGuid(), Id, senderId, content);
-    
+        var validMessageId = messageId.HasValue && messageId.Value != Guid.Empty
+            ? messageId.Value
+            : Guid.NewGuid();
+
+        var createMessageResult = RecordMessage.Create(validMessageId, Id, senderId, content);
+
         if (createMessageResult.IsFailure)
             return createMessageResult;
 
@@ -224,7 +231,7 @@ public sealed class Record : AggregateRoot, IAuditableEntity
 
         return Result.Success();
     }
-    
+
     public Result DeleteMessage(Guid senderId, Guid messageId)
     {
         var messageToDelete = _messages
@@ -237,12 +244,15 @@ public sealed class Record : AggregateRoot, IAuditableEntity
 
         return Result.Success();
     }
-    
+
     public Result MarkMessageAsRead(Guid messageId, Guid readerId)
     {
         var message = _messages.FirstOrDefault(m => m.Id == messageId);
         if (message == null)
             return Result.Failure(DomainErrors.RecordMessage.NotFound(messageId));
+
+        if (message.IsRead)
+            return Result.Success();
 
         if (message.SenderId == readerId)
             return Result.Failure(DomainErrors.RecordMessage.CannotReadOwnMessage);
@@ -253,4 +263,7 @@ public sealed class Record : AggregateRoot, IAuditableEntity
 
         return Result.Success();
     }
+
+    public int UnreadMessageCountStaff => _messages.Count(m => !m.IsRead && m.SenderId != StaffId);
+    public int UnreadMessageCountUser => _messages.Count(m => !m.IsRead && m.SenderId != UserId);
 }

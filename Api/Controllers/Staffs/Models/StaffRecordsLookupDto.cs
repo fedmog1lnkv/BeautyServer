@@ -12,6 +12,7 @@ public class StaffRecordsLookupDto : IMapWith<Record>
     public StaffRecordsServiceLookupDto Service { get; set; }
     public StaffRecordsVenueLookupDto Venue { get; set; }
     public string Status { get; set; }
+    public int UnreadMessageCount { get; set; }
     public ReviewVm Review { get; set; }
     public DateTimeOffset StartTimestamp { get; set; }
     public DateTimeOffset EndTimestamp { get; set; }
@@ -25,6 +26,7 @@ public class StaffRecordsLookupDto : IMapWith<Record>
             .ForMember(dest => dest.Service, opt => opt.MapFrom(src => src.Service))
             .ForMember(dest => dest.Venue, opt => opt.MapFrom(src => src.Venue))
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
+            .ForMember(dest => dest.UnreadMessageCount, opt => opt.MapFrom(src => src.UnreadMessageCountStaff))
             .ForMember(
                 dest => dest.Review,
                 opt => opt.MapFrom(

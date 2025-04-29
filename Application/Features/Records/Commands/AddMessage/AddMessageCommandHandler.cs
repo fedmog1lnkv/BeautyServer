@@ -19,14 +19,16 @@ public sealed class AddMessageCommandHandler(IRecordRepository recordRepository,
         if (request.SenderId != record.StaffId && request.SenderId != record.UserId)
             return Result.Failure(DomainErrors.RecordChat.NoAccess(request.SenderId));
 
-        var addMessageResult = record.AddMessage(request.SenderId, request.Text);
+        var addMessageResult = record.AddMessage(request.SenderId, request.Text, request.Id);
         if (addMessageResult.IsFailure)
             return addMessageResult;
 
         await eventBus.SendAsync(
             new RecordAddMessageEvent(
                 Guid.NewGuid(),
+                record.Id,
                 request.SenderId,
+                record.Messages.Last().Id,
                 record.Messages.Last().Message.Value,
                 record.Messages.Last().CreatedAt),
             cancellationToken);

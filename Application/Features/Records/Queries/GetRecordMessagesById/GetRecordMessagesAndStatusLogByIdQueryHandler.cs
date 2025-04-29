@@ -6,16 +6,16 @@ using Domain.Shared;
 
 namespace Application.Features.Records.Queries.GetRecordMessagesById;
 
-public class GetRecordMessagesByIdQueryHandler(IRecordReadOnlyRepository repository)
-    : IQueryHandler<GetRecordMessagesByIdQuery,
+public class GetRecordMessagesAndStatusLogByIdQueryHandler(IRecordReadOnlyRepository repository)
+    : IQueryHandler<GetRecordMessagesAndStatusLogByIdQuery,
         Result<Record>>
 {
     public async Task<Result<Record>> Handle(
-        GetRecordMessagesByIdQuery request,
+        GetRecordMessagesAndStatusLogByIdQuery request,
         CancellationToken cancellationToken)
     {
         var record =
-            await repository.GetByIdWithMessages(
+            await repository.GetByIdWithMessagesAndStatusLog(
                 request.Id,
                 cancellationToken);
 

@@ -29,6 +29,7 @@ public sealed class DeleteMessageCommandHandler(IRecordRepository recordReposito
         await eventBus.SendAsync(
             new RecordDeleteMessageEvent(
                 Guid.NewGuid(),
+                record.Id,
                 request.MessageId),
             cancellationToken);
 

@@ -5,6 +5,7 @@ using Api.Utils;
 using Application.Features.Records.Commands.AddMessage;
 using Application.Features.Records.Commands.CreateRecord;
 using Application.Features.Records.Commands.DeleteMessage;
+using Application.Features.Records.Commands.MarkAsReadMessage;
 using Application.Features.Records.Queries.GetRecordById;
 using Application.Features.Records.Queries.GetRecordMessagesById;
 using AutoMapper;
@@ -39,8 +40,16 @@ public class RecordController(IMapper mapper) : BaseController
     }
 
     [HttpGet("{id}")]
+    [UserValidationFilter]
+    [StaffValidationFilter]
     public async Task<IActionResult> GetById(Guid id)
     {
+        var userId = HttpContext.GetUserId();
+        var staffId = HttpContext.GetStaffId();
+        if (userId == Guid.Empty && staffId == Guid.Empty)
+            return Unauthorized();
+
+        var initiatorId = userId == Guid.Empty ? staffId : userId;
         var query = new GetRecordByIdQuery(id);
 
         var result = await Sender.Send(query);
@@ -48,15 +57,15 @@ public class RecordController(IMapper mapper) : BaseController
             return HandleFailure(result);
 
         var record = mapper.Map<RecordVm>(result.Value);
-
+        record.UnreadMessageCount = result.Value.Messages.Count(m => !m.IsRead && m.SenderId != initiatorId);
         return Ok(record);
     }
 
-    [HttpPost("message")]
+    [HttpPost("{recordId}/message")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [UserValidationFilter]
     [StaffValidationFilter]
-    public async Task<IActionResult> SendMessage([FromBody] SendMessageDto request)
+    public async Task<IActionResult> SendMessage(Guid recordId, [FromBody] SendMessageDto request)
     {
         var userId = HttpContext.GetUserId();
         var staffId = HttpContext.GetStaffId();
@@ -64,6 +73,7 @@ public class RecordController(IMapper mapper) : BaseController
             return Unauthorized();
 
         request.SenderId = userId == Guid.Empty ? staffId : userId;
+        request.RecordId = recordId;
 
         var command = mapper.Map<AddMessageCommand>(request);
 
@@ -87,14 +97,19 @@ public class RecordController(IMapper mapper) : BaseController
 
         var initiatorId = userId == Guid.Empty ? staffId : userId;
 
-        var query = new GetRecordMessagesByIdQuery(id, initiatorId);
+        var query = new GetRecordMessagesAndStatusLogByIdQuery(id, initiatorId);
         var result = await Sender.Send(query);
+        if (result.IsFailure)
+            return HandleFailure(result);
 
-        return result.IsFailure
-            ? HandleFailure(result)
-            : NoContent();
+        var messages = mapper.Map<List<ChatItem>>(result.Value.Messages);
+        var statusLogs = mapper.Map<List<ChatItem>>(result.Value.StatusLogs);
+        messages.AddRange(statusLogs);
+        messages = messages.OrderByDescending(m => m.CreatedAt).ToList();
+
+        return Ok(messages);
     }
-    
+
     [HttpDelete("{recordId}/message/{messageId}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [UserValidationFilter]
@@ -109,6 +124,29 @@ public class RecordController(IMapper mapper) : BaseController
         var initiatorId = userId == Guid.Empty ? staffId : userId;
 
         var command = new DeleteMessageCommand(initiatorId, recordId, messageId);
+
+        var result = await Sender.Send(command);
+
+        return result.IsFailure
+            ? HandleFailure(result)
+            : NoContent();
+    }
+
+    [HttpPatch("{recordId}/messages/")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [UserValidationFilter]
+    [StaffValidationFilter]
+    public async Task<IActionResult> MarkAsRead(Guid recordId, [FromBody] MessagesDto request)
+    {
+        var userId = HttpContext.GetUserId();
+        var staffId = HttpContext.GetStaffId();
+        if (userId == Guid.Empty && staffId == Guid.Empty)
+            return Unauthorized();
+
+        request.ReaderId = userId == Guid.Empty ? staffId : userId;
+        request.RecordId = recordId;
+
+        var command = mapper.Map<MarkAsReadMessageCommand>(request);
 
         var result = await Sender.Send(command);
 

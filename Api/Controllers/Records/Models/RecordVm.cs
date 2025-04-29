@@ -12,6 +12,7 @@ public class RecordVm : IMapWith<Record>
     public RecordVmServiceLookupDto Service { get; set; }
     public RecordVmVenueLookupDto Venue { get; set; }
     public required string Status { get; set; }
+    public int UnreadMessageCount { get; set; }
     public ReviewVm? Review { get; set; }
     public DateTimeOffset StartTimestamp { get; set; }
     public DateTimeOffset EndTimestamp { get; set; }
@@ -25,6 +26,7 @@ public class RecordVm : IMapWith<Record>
             .ForMember(dest => dest.Service, opt => opt.MapFrom(src => src.Service))
             .ForMember(dest => dest.Venue, opt => opt.MapFrom(src => src.Venue))
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
+            .ForMember(dest => dest.UnreadMessageCount, opt => opt.MapFrom(src => src.Messages.Count(m => !m.IsRead)))
             .ForMember(
                 dest => dest.Review,
                 opt => opt.MapFrom(

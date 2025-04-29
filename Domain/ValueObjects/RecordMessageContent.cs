@@ -7,7 +7,7 @@ namespace Domain.ValueObjects;
 public class RecordMessageContent : ValueObject
 {
     public const int MaxLength = 500;
-    public const int MinLength = 3;
+    public const int MinLength = 1;
 
     private RecordMessageContent(string value) =>
         Value = value;
