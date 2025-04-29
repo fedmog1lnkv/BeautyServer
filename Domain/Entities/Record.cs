@@ -208,7 +208,7 @@ public sealed class Record : AggregateRoot, IAuditableEntity
         EndTimestamp = newEndTimestamp;
         ModifiedOnUtc = DateTime.UtcNow;
 
-        AddStatusLog(RecordStatusChange.Moved, $"Услуга перенесена на {newStartTimestamp}.");
+        AddStatusLog(RecordStatusChange.Moved, "Услуга перенесена");
 
         return Result.Success();
     }
