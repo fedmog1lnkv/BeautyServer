@@ -41,7 +41,7 @@ namespace Infrastructure.Migrations
                 oldMaxLength: 150,
                 oldNullable: true);
 
-            migrationBuilder.AddColumn<byte>(
+            migrationBuilder.AddColumn<int>(
                 name: "Rating",
                 table: "Record",
                 type: "integer",

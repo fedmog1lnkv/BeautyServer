@@ -449,8 +449,8 @@ namespace Infrastructure.Migrations
                                 .HasColumnType("text")
                                 .HasColumnName("Comment");
 
-                            b1.Property<byte>("Rating")
-                                .HasColumnType("smallint")
+                            b1.Property<int>("Rating")
+                                .HasColumnType("integer")
                                 .HasColumnName("Rating");
 
                             b1.HasKey("RecordId");
