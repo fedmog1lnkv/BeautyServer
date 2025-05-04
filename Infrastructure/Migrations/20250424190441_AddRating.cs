@@ -44,7 +44,7 @@ namespace Infrastructure.Migrations
             migrationBuilder.AddColumn<byte>(
                 name: "Rating",
                 table: "Record",
-                type: "smallint",
+                type: "integer",
                 nullable: true);
         }
 

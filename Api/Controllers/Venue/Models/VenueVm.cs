@@ -12,7 +12,7 @@ public class VenueVm : IMapWith<Domain.Entities.Venue>
     public string? Description { get; set; }
     public ThemeVm Theme { get; set; } = new ThemeVm();
     public LocationVm Location { get; set; } = new LocationVm();
-    public List<string> Photos { get; set; }
+    public required List<string> Photos { get; set; }
 
     public void Mapping(Profile profile)
     {

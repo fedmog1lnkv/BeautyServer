@@ -2,13 +2,18 @@ using Api.Controllers.Base;
 using Api.Controllers.Records.Models;
 using Api.Filters;
 using Api.Utils;
+using Application.Features.Dto;
 using Application.Features.Records.Commands.AddMessage;
 using Application.Features.Records.Commands.CreateRecord;
 using Application.Features.Records.Commands.DeleteMessage;
 using Application.Features.Records.Commands.MarkAsReadMessage;
 using Application.Features.Records.Queries.GetRecordById;
+using Application.Features.Records.Queries.GetRecordCommentsByEntityId;
 using Application.Features.Records.Queries.GetRecordMessagesById;
+using Application.Features.Records.Queries.GetRecordsByEntityId;
 using AutoMapper;
+using Domain.Entities;
+using Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers.Records;
@@ -153,5 +158,59 @@ public class RecordController(IMapper mapper) : BaseController
         return result.IsFailure
             ? HandleFailure(result)
             : NoContent();
+    }
+
+    [HttpGet("comments/by-entity/{entityType}/{entityId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [UserValidationFilter]
+    [StaffValidationFilter]
+    public async Task<IActionResult> GetRecordsMessagesByEntityId(
+        [FromRoute] EntityType entityType,
+        [FromRoute] Guid entityId,
+        [FromQuery] int page = 0,
+        [FromQuery] int pageSize = 10)
+    {
+        var userId = HttpContext.GetUserId();
+        var staffId = HttpContext.GetStaffId();
+
+        if (userId == Guid.Empty && staffId == Guid.Empty)
+            return Unauthorized();
+
+        var query = new GetRecordCommentsByEntityIdQuery(entityType, entityId, page, pageSize);
+        var result = await Sender.Send(query);
+        return result.IsFailure
+            ? HandleFailure(result)
+            : Ok(result.Value);
+    }
+
+    [HttpGet("/by-entity/{entityType}/{entityId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [UserValidationFilter]
+    [StaffValidationFilter]
+    public async Task<IActionResult> GetRecordsByEntityId(
+        [FromRoute] EntityType entityType,
+        [FromRoute] Guid entityId,
+        [FromQuery] int page = 0,
+        [FromQuery] int pageSize = 10)
+    {
+        var userId = HttpContext.GetUserId();
+        var staffId = HttpContext.GetStaffId();
+
+        if (userId == Guid.Empty && staffId == Guid.Empty)
+            return Unauthorized();
+
+        var query = new GetRecordsByEntityIdQuery(entityType, entityId, page, pageSize);
+        var result = await Sender.Send(query);
+        if (result.IsFailure)
+            return HandleFailure(result);
+
+        var response = new PaginatedVm<RecordVm>
+        {
+            Data = mapper.Map<List<RecordVm>>(result.Value.Data),
+            TotalCount = result.Value.TotalCount,
+            PageNumber = result.Value.PageNumber,
+            PageSize = result.Value.PageSize,
+        };
+        return Ok(response);
     }
 }

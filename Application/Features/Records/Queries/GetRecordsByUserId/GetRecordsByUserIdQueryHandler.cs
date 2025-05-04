@@ -15,11 +15,10 @@ public class GetRecordsByUserIdQueryHandler(IRecordReadOnlyRepository repository
         CancellationToken cancellationToken)
     {
         var records =
-            await repository.GetByUserIdAsync(
+            await repository.GetByUserId(
                 request.UserId,
                 request.Limit,
                 request.Offset,
-                request.IsPending,
                 cancellationToken);
 
         return Result.Success(records);

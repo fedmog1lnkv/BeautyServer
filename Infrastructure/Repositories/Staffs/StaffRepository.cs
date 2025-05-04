@@ -40,4 +40,10 @@ public class StaffRepository(ApplicationDbContext dbContext, S3StorageUtils s3St
     
     public async Task<bool> DeletePhoto(string photoUrl) =>
         await s3StorageUtils.DeletePhoto(photoUrl, "staffs");
+    
+    public async Task<List<Staff>> GetByOrganizationId(Guid organizationId, CancellationToken cancellationToken = 
+        default) =>
+        await dbContext.Set<Staff>()
+            .Where(s => s.OrganizationId == organizationId)
+            .ToListAsync(cancellationToken);
 }

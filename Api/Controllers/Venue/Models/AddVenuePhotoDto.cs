@@ -10,7 +10,7 @@ public class AddVenuePhotoDto : IMapWith<AddVenuePhotoCommand>
     [SwaggerIgnore]
     public Guid StaffId { get; set; }
     public Guid VenueId { get; set; }
-    public string Photo { get; set; }
+    public required string Photo { get; set; }
 
     public void Mapping(Profile profile) =>
         profile.CreateMap<AddVenuePhotoDto, AddVenuePhotoCommand>()

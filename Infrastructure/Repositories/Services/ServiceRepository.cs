@@ -9,6 +9,9 @@ public class ServiceRepository(ApplicationDbContext dbContext, S3StorageUtils s3
 {
     public async Task<Service?> GetById(Guid serviceId, CancellationToken cancellationToken = default) =>
         await dbContext.Set<Service>()
+            .Include(s => s.Staffs)
+            .Include(s => s.Venues)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(s => s.Id == serviceId, cancellationToken);
 
     public async Task<List<Service>> GetByOrganizationId(

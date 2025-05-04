@@ -7,6 +7,7 @@ using Domain.Repositories.Users;
 using Domain.Shared;
 using Domain.ValueObjects;
 using Microsoft.Extensions.Configuration;
+using System.Text.RegularExpressions;
 
 namespace Application.Features.User.Commands.Auth;
 
@@ -36,13 +37,12 @@ public class AuthCommandHandler(
             return Result.Failure<AuthVm>(DomainErrors.PhoneChallenge.Expired);
         }
 
-        if (request.Code != phoneChallenge.VerificationCode)
-        {
+        var code = Regex.Replace(request.Code, @"\D", "");
+        if (code != phoneChallenge.VerificationCode)
             return Result.Failure<AuthVm>(DomainErrors.PhoneChallenge.InvalidCode);
-        }
 
         var user = await userRepository.GetByPhoneNumberAsync(userPhoneNumber, cancellationToken);
-        if (user == null)
+        if (user is null)
         {
             return Result.Failure<AuthVm>(DomainErrors.User.NotFoundByPhone(userPhoneNumber));
         }

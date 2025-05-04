@@ -4,6 +4,7 @@ using Domain.Shared;
 namespace Application.Features.Venues.Commands.UpdateVenue;
 
 public record UpdateVenueCommand(
+    Guid InitiatorId,
     Guid Id,
     string? Name,
     string? Description,

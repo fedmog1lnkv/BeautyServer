@@ -161,4 +161,28 @@ public class Service : AggregateRoot, IAuditableEntity
         Photo = photoResult.Value;
         return Result.Success();
     }
+    
+    public Result SetVenue(IEnumerable<Venue> venues)
+    {
+        var validVenues = venues.Where(v => v.OrganizationId == OrganizationId)
+            .DistinctBy(v => v.Id)
+            .ToList();
+
+        _venues.Clear();
+        _venues.AddRange(validVenues);
+
+        return Result.Success();
+    }
+    
+    public Result SetStaff(IEnumerable<Staff> staffs)
+    {
+        var validStaffs = staffs.Where(s => s.OrganizationId == OrganizationId)
+            .DistinctBy(s => s.Id)
+            .ToList();
+
+        _staffs.Clear();
+        _staffs.AddRange(validStaffs);
+
+        return Result.Success();
+    }
 }

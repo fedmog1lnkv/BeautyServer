@@ -12,16 +12,16 @@ public sealed class RecordReview : ValueObject
     public const int MinRating = 1;
     public const int MaxRating = 10;
 
-    private RecordReview(byte rating, string? comment)
+    private RecordReview(int rating, string? comment)
     {
         Rating = rating;
         Comment = comment;
     }
 
-    public byte Rating { get; }
+    public int Rating { get; }
     public string? Comment { get; }
 
-    public static Result<RecordReview> Create(byte rating, string? comment)
+    public static Result<RecordReview> Create(int rating, string? comment)
     {
         if (rating is < MinRating or > MaxRating)
             return Result.Failure<RecordReview>(DomainErrors.RecordReview.InvalidRating);

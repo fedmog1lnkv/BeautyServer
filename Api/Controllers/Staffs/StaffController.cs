@@ -1,8 +1,10 @@
 using Api.Controllers.Base;
+using Api.Controllers.Organization.Models;
 using Api.Controllers.Staffs.Models;
 using Api.Controllers.Venue.Models;
 using Api.Filters;
 using Api.Utils;
+using Application.Features.Organizations.Queries.GetOrganiazationById;
 using Application.Features.Records.Queries.GetRecordsByStaffId;
 using Application.Features.Staffs.Commands.AddTimeSlot;
 using Application.Features.Staffs.Commands.Auth;
@@ -285,5 +287,19 @@ public class StaffController(IMapper mapper) : BaseController
         var staff = mapper.Map<List<VenueLookupDto>>(result.Value);
 
         return Ok(staff);
+    }
+    
+    [HttpGet("organization")]
+    [StaffValidationFilter]
+    public async Task<IActionResult> GetByOrganization()
+    {
+        var query = new GetOrganizationByIdQuery(HttpContext.GetStaffOrganizationId());
+        var result = await Sender.Send(query);
+
+        if (result.IsFailure)
+            return HandleFailure(result);
+
+        var venueDto = mapper.Map<OrganizationVm>(result.Value);
+        return Ok(venueDto);
     }
 }

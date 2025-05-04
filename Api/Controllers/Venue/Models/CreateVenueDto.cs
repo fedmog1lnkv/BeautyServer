@@ -1,11 +1,13 @@
 using Application.Common.Mappings;
 using Application.Features.Venues.Commands.CreateVenue;
 using AutoMapper;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Api.Controllers.Venue.Models;
 
 public class CreateVenueDto : IMapWith<CreateVenueCommand>
 {
+    [SwaggerIgnore]
     public Guid OrganizationId { get; set; }
     public required string Name { get; set; }
     public required string Address { get; set; }

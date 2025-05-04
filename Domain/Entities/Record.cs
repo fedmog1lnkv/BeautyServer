@@ -177,7 +177,7 @@ public sealed class Record : AggregateRoot, IAuditableEntity
         _statusLogs.Add(createLogResult.Value);
     }
 
-    public Result SetReview(byte rating, string? comment)
+    public Result SetReview(int rating, string? comment)
     {
         var reviewResult = RecordReview.Create(rating, comment);
         if (reviewResult.IsFailure)

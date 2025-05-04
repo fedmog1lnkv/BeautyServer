@@ -1,11 +1,16 @@
 using Api.Controllers.Base;
 using Api.Controllers.Organization.Models;
+using Api.Controllers.Venue.Models;
 using Api.Filters;
+using Api.Utils;
 using Application.Features.Organizations.Commands.CreateOrganization;
 using Application.Features.Organizations.Commands.DeleteOrganization;
 using Application.Features.Organizations.Commands.UpdateOrganization;
 using Application.Features.Organizations.Queries.GetAllOrganizations;
 using Application.Features.Organizations.Queries.GetOrganiazationById;
+using Application.Features.Organizations.Queries.GetOrganiazationVenuesById;
+using Application.Features.Organizations.Queries.GetOrganizationServicesById;
+using Application.Features.Organizations.Queries.GetOrganizationStatisticById;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,11 +35,14 @@ public class OrganizationController(IMapper mapper) : BaseController
 
     [HttpPatch]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [StaffValidationFilter]
     [UserValidationFilter]
     public async Task<IActionResult> Update([FromBody] UpdateOrganizationDto request)
     {
-        var isAdmin = HttpContext.Items["is_admin"] as string;
-        if (isAdmin != "True")
+        if (!HttpContext.IsManager() && !HttpContext.IsAdmin())
+            return Unauthorized();
+
+        if (HttpContext.IsAdmin())
             request.Subscription = null;
 
         var command = mapper.Map<UpdateOrganizationCommand>(request);
@@ -76,7 +84,7 @@ public class OrganizationController(IMapper mapper) : BaseController
 
         return Ok(organizations);
     }
-    
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(Guid id)
     {
@@ -88,5 +96,61 @@ public class OrganizationController(IMapper mapper) : BaseController
 
         var venueDto = mapper.Map<OrganizationVm>(result.Value);
         return Ok(venueDto);
+    }
+
+    [HttpGet("statistic")]
+    [StaffValidationFilter]
+    public async Task<IActionResult> GetStatisticForOrganization()
+    {
+        if (!HttpContext.IsManager() && !HttpContext.IsAdmin())
+            return Unauthorized();
+
+        var query = new GetOrganizationStatisticByIdQuery(HttpContext.GetStaffOrganizationId());
+        var result = await Sender.Send(query);
+
+        return result.IsFailure
+            ? HandleFailure(result)
+            : Ok(result.Value);
+    }
+
+    [HttpGet("venues")]
+    [StaffValidationFilter]
+    public async Task<IActionResult> GetOrganizationVenues()
+    {
+        if (!HttpContext.IsManager() && !HttpContext.IsAdmin())
+            return Unauthorized();
+
+        var query = new GetOrganizationVenuesByIdQuery(HttpContext.GetStaffOrganizationId());
+        var result = await Sender.Send(query);
+
+        if (result.IsFailure)
+            return HandleFailure(result);
+
+        var response = mapper.Map<List<VenueLookupDto>>(result.Value);
+
+        return result.IsFailure
+            ? HandleFailure(result)
+            : Ok(result.Value);
+    }
+
+    [HttpGet("services")]
+    [StaffValidationFilter]
+    public async Task<IActionResult> GetOrganizationServices(
+        [FromQuery] string? search,
+        [FromQuery] int page = 0,
+        [FromQuery] int pageSize = 10)
+    {
+        if (!HttpContext.IsManager() && !HttpContext.IsAdmin())
+            return Unauthorized();
+
+        var organizationId = HttpContext.GetStaffOrganizationId();
+        
+        var query = new GetOrganizationServicesByIdQuery(organizationId, search, page, pageSize);
+        var result = await Sender.Send(query);
+
+        if (result.IsFailure)
+            return HandleFailure(result);
+
+        return Ok(result.Value);
     }
 }

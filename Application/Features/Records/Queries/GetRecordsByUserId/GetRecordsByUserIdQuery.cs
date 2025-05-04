@@ -4,4 +4,4 @@ using Domain.Shared;
 
 namespace Application.Features.Records.Queries.GetRecordsByUserId;
 
-public record GetRecordsByUserIdQuery(Guid UserId, int Limit, int Offset, bool IsPending) : IQuery<Result<List<Record>>>;
+public record GetRecordsByUserIdQuery(Guid UserId, int Limit, int Offset) : IQuery<Result<List<Record>>>;

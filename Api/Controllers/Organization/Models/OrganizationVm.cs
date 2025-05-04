@@ -6,10 +6,10 @@ namespace Api.Controllers.Organization.Models;
 public class OrganizationVm : IMapWith<Domain.Entities.Organization>
 {
     public Guid Id { get; set; }
-    public string Name { get; set; } = string.Empty;
+    public required string Name { get; set; }
     public string? Description { get; set; }
-    public string Subscription { get; set; } = string.Empty;
-    public ThemeVm Theme { get; set; } = new ThemeVm();
+    public required string Subscription { get; set; } 
+    public ThemeVm Theme { get; set; } = new();
 
     public void Mapping(Profile profile)
     {

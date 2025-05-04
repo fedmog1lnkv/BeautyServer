@@ -97,14 +97,13 @@ public class UserController(IMapper mapper) : BaseController
     [UserValidationFilter]
     public async Task<IActionResult> GetRecords(
         [FromQuery] int limit,
-        [FromQuery] int offset,
-        [FromQuery] bool isPending)
+        [FromQuery] int offset)
     {
         if (limit <= 0 || offset < 0)
             return BadRequest("Limit must be greater than zero, and offset cannot be negative.");
 
         var userId = HttpContext.GetUserId();
-        var query = new GetRecordsByUserIdQuery(userId, limit, offset, isPending);
+        var query = new GetRecordsByUserIdQuery(userId, limit, offset);
 
         var result = await Sender.Send(query);
         if (result.IsFailure)

@@ -6,4 +6,4 @@ public record RecordReviewAddedChangedEvent(
     Guid StaffId,
     Guid ServiceId,
     Guid VenueId,
-    byte Rating) : DomainEvent(Id);
+    int Rating) : DomainEvent(Id);

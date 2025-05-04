@@ -7,7 +7,7 @@ namespace Api.Controllers.Services.Models;
 public class CreateServiceDto : IMapWith<CreateServiceCommand>
 {
     public Guid OrganizationId { get; set; }
-    public string Name { get; set; } = string.Empty;
+    public required string Name { get; set; }
     public string? Description { get; set; }
     public int? Duration { get; set; }
     public double? Price { get; set; }

@@ -12,6 +12,9 @@ public class UpdateServiceDto : IMapWith<UpdateServiceCommand>
     public int? Duration { get; set; }
     public double? Price { get; set; }
     public string? Photo { get; set; }
+    public List<Guid>? VenueIds { get; set; }
+    public List<Guid>? StaffIds { get; set; }
+
 
     public void Mapping(Profile profile)
     {
@@ -21,6 +24,8 @@ public class UpdateServiceDto : IMapWith<UpdateServiceCommand>
             .ForMember(d => d.Description, opt => opt.MapFrom(s => s.Description))
             .ForMember(d => d.Duration, opt => opt.MapFrom(s => s.Duration))
             .ForMember(d => d.Price, opt => opt.MapFrom(s => s.Price))
-            .ForMember(d => d.Photo, opt => opt.MapFrom(s => s.Photo));
+            .ForMember(d => d.Photo, opt => opt.MapFrom(s => s.Photo))
+            .ForMember(d => d.VenueIds, opt => opt.MapFrom(s => s.VenueIds))
+            .ForMember(d => d.StaffIds, opt => opt.MapFrom(s => s.StaffIds));
     }
 }

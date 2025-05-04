@@ -2,6 +2,7 @@ using Application.Messaging.Command;
 using Domain.Entities;
 using Domain.Errors;
 using Domain.Repositories.Services;
+using Domain.Repositories.Staffs;
 using Domain.Repositories.Venues;
 using Domain.Shared;
 
@@ -9,7 +10,8 @@ namespace Application.Features.Venues.Commands.UpdateVenue;
 
 public class UpdateVenueCommandHandler(
     IVenueRepository venueRepository,
-    IServiceRepository serviceRepository) : ICommandHandler<UpdateVenueCommand,
+    IServiceRepository serviceRepository,
+    IStaffReadOnlyRepository staffReadOnlyRepository) : ICommandHandler<UpdateVenueCommand,
     Result>
 {
     public async Task<Result> Handle(UpdateVenueCommand request, CancellationToken cancellationToken)
@@ -17,6 +19,13 @@ public class UpdateVenueCommandHandler(
         var venue = await venueRepository.GetByIdWithServicesAndPhotosAsync(request.Id, cancellationToken);
         if (venue is null)
             return Result.Failure(DomainErrors.Venue.NotFound(request.Id));
+
+        var staff = await staffReadOnlyRepository.GetByIdAsync(request.InitiatorId, cancellationToken);
+        if (staff is null)
+            return Result.Failure(DomainErrors.Staff.NotFound(request.InitiatorId));
+        
+        if (venue.OrganizationId != staff.OrganizationId)
+            return Result.Failure(DomainErrors.Staff.CannotUpdate);
 
         if (!string.IsNullOrWhiteSpace(request.Name))
         {
@@ -48,9 +57,7 @@ public class UpdateVenueCommandHandler(
 
         if (!string.IsNullOrWhiteSpace(request.Photo))
         {
-            var isBase64 = request.Photo.Length % 4 == 0 &&
-                           request.Photo.Replace(" ", "").Replace("\n", "").Replace("\r", "").All(
-                               c => char.IsLetterOrDigit(c) || c == '+' || c == '/' || c == '=');
+            var isBase64 = Utils.IsBase64String(request.Photo);
 
             var photoUrl = isBase64
                 ? await venueRepository.UploadPhotoAsync(request.Photo, venue.Id.ToString())

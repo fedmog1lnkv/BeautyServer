@@ -1,13 +1,15 @@
 using Application.Common.Mappings;
 using Application.Features.Venues.Commands.UpdateVenue;
 using AutoMapper;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Api.Controllers.Venue.Models;
 
 public class UpdateVenueDto : IMapWith<UpdateVenueCommand>
 {
+    [SwaggerIgnore]
+    public Guid InitiatorId { get; set; }
     public Guid Id { get; set; }
-    public Guid OrganizationId { get; set; }
     public string? Name { get; set; }
     public string? Description { get; set; }
     public string? Address { get; set; }
@@ -21,6 +23,7 @@ public class UpdateVenueDto : IMapWith<UpdateVenueCommand>
     public void Mapping(Profile profile) =>
         profile.CreateMap<UpdateVenueDto, UpdateVenueCommand>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.InitiatorId, opt => opt.MapFrom(src => src.InitiatorId))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
             .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))

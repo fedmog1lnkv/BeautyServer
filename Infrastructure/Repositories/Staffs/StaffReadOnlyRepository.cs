@@ -63,4 +63,11 @@ public class StaffReadOnlyRepository(ApplicationDbContext dbContext) : IStaffRea
                 s => s.TimeSlots.Where(
                     ts => ts.VenueId == venueId && ts.Date >= DateOnly.FromDateTime(DateTime.UtcNow.AddHours(2))))
             .FirstOrDefaultAsync(s => s.Id == id, cancellationToken: cancellationToken);
+
+    public async Task<List<Staff>> GetByOrganizationId(Guid organizationId, CancellationToken cancellationToken = 
+            default) =>
+        await dbContext.Set<Staff>()
+            .AsNoTracking()
+            .Where(s => s.OrganizationId == organizationId)
+            .ToListAsync(cancellationToken);
 }

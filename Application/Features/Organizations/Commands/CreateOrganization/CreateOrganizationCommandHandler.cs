@@ -36,9 +36,7 @@ internal sealed class CreateOrganizationCommandHandler(IOrganizationRepository o
 
         if (request.Photo is not null)
         {
-            var isBase64 = request.Photo.Length % 4 == 0 &&
-                           request.Photo.Replace(" ", "").Replace("\n", "").Replace("\r", "").All(
-                               c => char.IsLetterOrDigit(c) || c == '+' || c == '/' || c == '=');
+            var isBase64 = Utils.IsBase64String(request.Photo);
 
             var oldPhotoUrl = organization.Theme.Photo;
             var photoId = Guid.NewGuid();

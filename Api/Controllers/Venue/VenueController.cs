@@ -24,13 +24,10 @@ public class VenueController(IMapper mapper) : BaseController
     [StaffValidationFilter]
     public async Task<IActionResult> Create([FromBody] CreateVenueDto request)
     {
-        var staffOrganizationId = HttpContext.Items["organization_id"] as Guid?;
-        if (staffOrganizationId != request.OrganizationId)
-            return Unauthorized("staffOrganizationId != request.OrganizationId");
-
-        var isManager = HttpContext.Items["is_manager"] as bool?;
-        if (!isManager!.Value)
-            return Unauthorized("Not manager");
+        if (!HttpContext.IsManager() && !HttpContext.IsAdmin())
+            return Unauthorized();
+        
+        request.OrganizationId = HttpContext.GetStaffOrganizationId();
 
         var command = mapper.Map<CreateVenueCommand>(request);
 
@@ -87,8 +84,7 @@ public class VenueController(IMapper mapper) : BaseController
     [StaffValidationFilter]
     public async Task<IActionResult> AddPhoto([FromBody] AddVenuePhotoDto request)
     {
-        var isManager = HttpContext.Items["is_manager"] as bool?;
-        if (!isManager!.Value)
+        if (!HttpContext.IsManager())
             return Unauthorized();
 
         request.StaffId = HttpContext.GetStaffId();
@@ -138,8 +134,7 @@ public class VenueController(IMapper mapper) : BaseController
     [StaffValidationFilter]
     public async Task<IActionResult> RemovePhoto(Guid id, Guid photoId)
     {
-        var isManager = HttpContext.Items["is_manager"] as bool?;
-        if (!isManager!.Value)
+        if (!HttpContext.IsManager() && !HttpContext.IsAdmin())
             return Unauthorized();
 
         var command = new RemoveVenuePhotoCommand(HttpContext.GetStaffId(), id, photoId);
@@ -186,14 +181,10 @@ public class VenueController(IMapper mapper) : BaseController
     [StaffValidationFilter]
     public async Task<IActionResult> Update([FromBody] UpdateVenueDto request)
     {
-        var staffOrganizationId = HttpContext.Items["organization_id"] as Guid?;
-        if (staffOrganizationId != request.OrganizationId)
+        if (!HttpContext.IsManager() && !HttpContext.IsAdmin())
             return Unauthorized();
 
-        var isManager = HttpContext.Items["is_manager"] as bool?;
-        if (!isManager!.Value)
-            return Unauthorized();
-
+        request.InitiatorId = HttpContext.GetStaffId();
         var command = mapper.Map<UpdateVenueCommand>(request);
         var result = await Sender.Send(command);
 

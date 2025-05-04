@@ -10,9 +10,9 @@ public class UserRecordsLookupDto : IMapWith<Record>
     public UserRecordsStaffLookupDto Staff { get; set; }
     public UserRecordsServiceLookupDto Service { get; set; }
     public UserRecordsVenueLookupDto Venue { get; set; }
-    public string Status { get; set; }
+    public required string Status { get; set; }
     public int UnreadMessageCount { get; set; }
-    public ReviewVm Review { get; set; }
+    public ReviewVm? Review { get; set; }
     public DateTimeOffset StartTimestamp { get; set; }
     public DateTimeOffset EndTimestamp { get; set; }
 

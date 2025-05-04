@@ -74,7 +74,7 @@ public sealed class UpdateUserRecordCommandHandler(
 
         if (record.Status == RecordStatus.Completed && request.Review is not null)
         {
-            result = record.SetReview((byte)request.Review.Rating, request.Review.Comment);
+            result = record.SetReview(request.Review.Rating, request.Review.Comment);
             if (result.IsFailure)
                 return result;
 

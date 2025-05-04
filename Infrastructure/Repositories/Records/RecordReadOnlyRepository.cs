@@ -61,11 +61,108 @@ public class RecordReadOnlyRepository(ApplicationDbContext dbContext) : IRecordR
             .Include(r => r.Venue)
             .ToListAsync(cancellationToken: cancellationToken);
 
-    public async Task<List<Record>> GetByUserIdAsync(
+    public async Task<List<Record>> GetRecordsByEntityId(
+        EntityType entityType,
+        Guid entityId,
+        int limit,
+        int offset,
+        CancellationToken cancellationToken = default)
+    {
+        var query = dbContext.Set<Record>().AsNoTracking();
+
+        query = entityType switch
+        {
+            EntityType.User => query.Where(r => r.UserId == entityId),
+            EntityType.Staff => query.Where(r => r.StaffId == entityId),
+            EntityType.Service => query.Where(r => r.ServiceId == entityId),
+            EntityType.Venue => query.Where(r => r.VenueId == entityId),
+            _ => throw new ArgumentOutOfRangeException(nameof(entityType), entityType, null)
+        };
+
+        query = query.Include(r => r.User)
+            .Include(r => r.Staff)
+            .Include(r => r.Service)
+            .Include(r => r.Venue)
+            .Include(r => r.Messages)
+            .OrderBy(r => r.StartTimestamp)
+            .Skip(offset)
+            .Take(limit)
+            .AsSplitQuery();
+
+        return await query.ToListAsync(cancellationToken);
+    }
+
+    public async Task<int> GetTotalCountByEntityIdWithReviews(
+        EntityType entityType,
+        Guid entityId,
+        CancellationToken cancellationToken = default)
+    {
+        IQueryable<Record> query = dbContext.Set<Record>()
+            .AsNoTracking()
+            .Where(r => r.Review != null);
+
+        query = entityType switch
+        {
+            EntityType.User => query.Where(r => r.UserId == entityId),
+            EntityType.Staff => query.Where(r => r.StaffId == entityId),
+            EntityType.Service => query.Where(r => r.ServiceId == entityId),
+            EntityType.Venue => query.Where(r => r.VenueId == entityId),
+            _ => throw new ArgumentOutOfRangeException(nameof(entityType), entityType, null)
+        };
+
+        return await query.CountAsync(cancellationToken);
+    }
+
+    public async Task<List<Record>> GetRecordsByEntityIdWithReviews(
+        EntityType entityType,
+        Guid entityId,
+        int limit,
+        int offset,
+        CancellationToken cancellationToken = default)
+    {
+        var query = dbContext.Set<Record>()
+            .AsNoTracking()
+            .Where(r => r.Review != null)
+            .AsQueryable();
+
+        query = entityType switch
+        {
+            EntityType.User => query.Where(r => r.UserId == entityId),
+            EntityType.Staff => query.Where(r => r.StaffId == entityId),
+            EntityType.Service => query.Where(r => r.ServiceId == entityId),
+            EntityType.Venue => query.Where(r => r.VenueId == entityId),
+            _ => throw new ArgumentOutOfRangeException(nameof(entityType), entityType, null)
+        };
+
+        return await query
+            .Skip(offset)
+            .Take(limit)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<int> GetTotalCountByEntityId(
+        EntityType entityType,
+        Guid entityId,
+        CancellationToken cancellationToken = default)
+    {
+        IQueryable<Record> query = dbContext.Set<Record>().AsNoTracking();
+
+        query = entityType switch
+        {
+            EntityType.User => query.Where(r => r.UserId == entityId),
+            EntityType.Staff => query.Where(r => r.StaffId == entityId),
+            EntityType.Service => query.Where(r => r.ServiceId == entityId),
+            EntityType.Venue => query.Where(r => r.VenueId == entityId),
+            _ => throw new ArgumentOutOfRangeException(nameof(entityType), entityType, null)
+        };
+
+        return await query.CountAsync(cancellationToken);
+    }
+
+    public async Task<List<Record>> GetByUserId(
         Guid userId,
         int limit,
         int offset,
-        bool isPending,
         CancellationToken cancellationToken = default) =>
         await dbContext.Set<Record>()
             .AsNoTracking()
@@ -94,13 +191,24 @@ public class RecordReadOnlyRepository(ApplicationDbContext dbContext) : IRecordR
             .AsSplitQuery()
             .FirstOrDefaultAsync(cancellationToken);
 
-    public async Task<Record?> GetByIdWithMessagesAndStatusLog(Guid id, CancellationToken cancellationToken = default) =>
+    public async Task<Record?> GetByIdWithMessagesAndStatusLog(
+        Guid id,
+        CancellationToken cancellationToken = default) =>
         await dbContext.Set<Record>()
             .AsNoTracking()
             .Where(r => r.Id == id)
             .Include(r => r.Messages)
             .Include(r => r.StatusLogs)
             .FirstOrDefaultAsync(cancellationToken);
+
+    public async Task<List<Record>> GetByOrganizationIdAsync(
+        Guid organizationId,
+        CancellationToken cancellationToken = default) =>
+        await dbContext.Set<Record>()
+            .AsNoTracking()
+            .Where(r => r.OrganizationId == organizationId)
+            .Include(r => r.Service)
+            .ToListAsync(cancellationToken);
 
     public async Task<List<Record>> GetApprovedRecordsFromTime(
         DateTime dateTime,
