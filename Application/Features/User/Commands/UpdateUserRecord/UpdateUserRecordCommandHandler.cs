@@ -35,7 +35,7 @@ public sealed class UpdateUserRecordCommandHandler(
         if (staff is null)
             return Result.Failure(DomainErrors.Staff.NotFound(record.StaffId));
 
-        var lastRecordStatusLog = record.StatusLogs.Last();
+        var lastRecordStatusLog = record.StatusLogs.LastOrDefault();
 
         var result = Result.Success();
 
@@ -94,28 +94,27 @@ public sealed class UpdateUserRecordCommandHandler(
                 }
             }
         }
-        
-        if (lastRecordStatusLog != record.StatusLogs.Last())
+
+        if (lastRecordStatusLog is null || lastRecordStatusLog != record.StatusLogs.Last())
         {
             var allLogs = record.StatusLogs.ToList();
-            var lastIndex = allLogs.IndexOf(lastRecordStatusLog);
+            var startIndex = lastRecordStatusLog is null
+                ? 0
+                : allLogs.IndexOf(lastRecordStatusLog) + 1;
 
-            if (lastIndex != -1 && lastIndex < allLogs.Count - 1)
+            var logsToSend = allLogs.Skip(startIndex).ToList();
+
+            foreach (var log in logsToSend)
             {
-                var logsToSend = allLogs.Skip(lastIndex + 1).ToList();
-
-                foreach (var log in logsToSend)
-                {
-                    await eventBus.SendAsync(
-                        new RecordStatusLogEvent(
-                            Guid.NewGuid(),
-                            log.RecordId,
-                            log.Id,
-                            log.StatusChange.ToString(),
-                            log.Description.Value,
-                            log.Timestamp),
-                        cancellationToken);
-                }
+                await eventBus.SendAsync(
+                    new RecordStatusLogEvent(
+                        Guid.NewGuid(),
+                        log.RecordId,
+                        log.Id,
+                        log.StatusChange.ToString(),
+                        log.Description.Value,
+                        log.Timestamp),
+                    cancellationToken);
             }
         }
 
