@@ -14,4 +14,5 @@ public interface IStaffRepository : IRepository<Staff>
     void Add(Staff staff);
     Task<string?> UploadPhotoAsync(string base64Photo, string fileName);
     Task<bool> DeletePhoto(string photoUrl);
+    void Remove(Staff staff);
 }

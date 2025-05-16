@@ -23,7 +23,7 @@ public class RemoveVenuePhotoCommandHandler(
             return Result.Failure(DomainErrors.Venue.NotFound(request.VenueId));
         
         if (staff.Role != StaffRole.Manager || staff.OrganizationId != venue.OrganizationId)
-            return Result.Failure(DomainErrors.Staff.CannotUpdate);
+            return Result.Failure(DomainErrors.Staff.StaffCannotUpdate);
 
         var photo = venue.Photos.FirstOrDefault(p => p.Id == request.PhotoId);
         if (photo is null)

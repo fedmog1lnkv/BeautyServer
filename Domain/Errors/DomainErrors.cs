@@ -339,8 +339,8 @@ public class DomainErrors
         public static readonly Error StaffCannotUpdate = Error.Failure(
             "Staff.StaffCannotUpdate", "You do not have permission to update this staff member's data.");
         
-        public static readonly Error CannotUpdate = Error.Failure(
-            "Staff.StaffCannotUpdate", "You do not have permission to update this data.");
+        public static readonly Error StaffCannotDelete = Error.Failure(
+            "Staff.StaffCannotUpdate", "You do not have permission to delete staff.");
         
         public static readonly Error RejectAuthRequest = Error.Failure(
             "User.RejectAuthRequest", "User rejected auth request..");
@@ -370,6 +370,12 @@ public class DomainErrors
 
         public static readonly Error TooShort = Error.Validation(
             "StaffName.TooShort", "Staff name is too short.");
+    }
+    
+    public static class StaffRole
+    {
+        public static Error NotFound(string value) => Error.NotFound(
+            "StaffRole.NotFound", $"Invalid role value {value}.");
     }
     
     public static class StaffPhoneNumber

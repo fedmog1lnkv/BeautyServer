@@ -8,6 +8,7 @@ public record UpdateStaffCommand(
         InitiatorId, // Тот кто инициировал запрос на обновление данных о персонале (может делать либо менеджер, либо сам персонал)
     Guid StaffId,
     string? Name,
+    string? Role,
     string? Photo,
     string? FirebaseToken,
     List<Guid>? ServiceIds) : ICommand<Result>;

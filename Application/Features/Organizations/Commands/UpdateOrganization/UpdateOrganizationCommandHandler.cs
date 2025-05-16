@@ -37,7 +37,7 @@ public sealed class UpdateOrganizationCommandHandler(IOrganizationRepository org
 
         if (!string.IsNullOrEmpty(request.Subscription))
         {
-            var subscriptionResult = request.Subscription.ToEnum();
+            var subscriptionResult = OrganizationSubscriptionExtensions.ToEnum(request.Subscription);
             if (subscriptionResult.IsFailure)
                 return subscriptionResult;
 

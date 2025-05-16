@@ -17,6 +17,6 @@ public class StaffFirebaseTokenDto : IMapWith<UpdateStaffCommand>
             .ForMember(x => x.InitiatorId, opt => opt.MapFrom(y => y.Id))
             .ForMember(x => x.StaffId, opt => opt.MapFrom(y => y.Id))
             .ForMember(x => x.FirebaseToken, opt => opt.MapFrom(y => y.Token))
-            .ConstructUsing(src => new UpdateStaffCommand(src.Id, src.Id, null, null, src.Token, null));
+            .ConstructUsing(src => new UpdateStaffCommand(src.Id, src.Id, null, null, null, src.Token, null));
     }
 }

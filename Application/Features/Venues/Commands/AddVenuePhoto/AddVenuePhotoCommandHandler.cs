@@ -23,7 +23,7 @@ public class AddVenuePhotoCommandHandler(
             return Result.Failure(DomainErrors.Venue.NotFound(request.VenueId));
         
         if (staff.Role != StaffRole.Manager || staff.OrganizationId != venue.OrganizationId)
-            return Result.Failure(DomainErrors.Staff.CannotUpdate);
+            return Result.Failure(DomainErrors.Staff.StaffCannotUpdate);
 
         var photoId = Guid.NewGuid();
 

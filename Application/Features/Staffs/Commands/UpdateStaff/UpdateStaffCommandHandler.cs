@@ -2,6 +2,7 @@ using Application.Messaging.Command;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Errors;
+using Domain.Extensions;
 using Domain.Repositories.Services;
 using Domain.Repositories.Staffs;
 using Domain.Shared;
@@ -38,6 +39,17 @@ public sealed class UpdateStaffCommandHandler(
                 return result;
         }
 
+        if (!string.IsNullOrEmpty(request.Role) && initiatorStaff.Role == StaffRole.Manager)
+        {
+            var roleResult = StaffRoleExtension.ToEnum(request.Role);
+            if (roleResult.IsFailure)
+                return roleResult;
+
+            result = staff.SetRole(roleResult.Value);
+            if (result.IsFailure)
+                return result;
+        }
+
         if (request.ServiceIds is not null)
         {
             var availableServices =
@@ -48,7 +60,8 @@ public sealed class UpdateStaffCommandHandler(
             foreach (var serviceId in request.ServiceIds)
             {
                 if (!serviceDict.TryGetValue(serviceId, out var service))
-                    return Result.Failure(DomainErrors.Staff.ServiceNotFoundInOrganization(staff.OrganizationId, serviceId));
+                    return Result.Failure(
+                        DomainErrors.Staff.ServiceNotFoundInOrganization(staff.OrganizationId, serviceId));
 
                 newServices.Add(service);
             }
@@ -70,11 +83,11 @@ public sealed class UpdateStaffCommandHandler(
             var setPhotoResult = staff.SetPhoto(photoUrl);
             if (setPhotoResult.IsFailure)
                 return setPhotoResult;
-            
+
             if (oldPhotoUrl is not null)
                 await staffRepository.DeletePhoto(oldPhotoUrl);
         }
-        
+
         if (request.FirebaseToken != null)
         {
             result = staff.SetFirebaseToken(request.FirebaseToken);

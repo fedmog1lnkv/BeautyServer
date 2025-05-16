@@ -11,6 +11,7 @@ public class UpdateStaffDto : IMapWith<UpdateStaffCommand>
     public Guid InitiatorId { get; set; }
     public required Guid StaffId { get; set; }
     public string? Name { get; set; }
+    public string? Role { get; set; }
     public string? Photo { get; set; }
     public List<Guid>? ServiceIds { get; set; }
 
@@ -20,7 +21,16 @@ public class UpdateStaffDto : IMapWith<UpdateStaffCommand>
             .ForMember(x => x.InitiatorId, opt => opt.MapFrom(y => y.InitiatorId))
             .ForMember(x => x.StaffId, opt => opt.MapFrom(y => y.StaffId))
             .ForMember(x => x.Name, opt => opt.MapFrom(y => y.Name))
+            .ForMember(x => x.Role, opt => opt.MapFrom(y => y.Role))
             .ForMember(x => x.Photo, opt => opt.MapFrom(y => y.Photo))
             .ForMember(dest => dest.ServiceIds, opt => opt.MapFrom(src => src.ServiceIds))
-            .ConstructUsing(src => new UpdateStaffCommand(src.InitiatorId, src.StaffId, src.Name, src.Photo, null, src.ServiceIds));
+            .ConstructUsing(
+                src => new UpdateStaffCommand(
+                    src.InitiatorId,
+                    src.StaffId,
+                    src.Name,
+                    src.Role,
+                    src.Photo,
+                    null,
+                    src.ServiceIds));
 }

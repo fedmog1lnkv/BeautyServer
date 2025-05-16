@@ -8,6 +8,7 @@ using Application.Features.Organizations.Queries.GetOrganiazationById;
 using Application.Features.Records.Queries.GetRecordsByStaffId;
 using Application.Features.Staffs.Commands.AddTimeSlot;
 using Application.Features.Staffs.Commands.Auth;
+using Application.Features.Staffs.Commands.DeleteStaff;
 using Application.Features.Staffs.Commands.GeneratePhoneChallenge;
 using Application.Features.Staffs.Commands.RefreshToken;
 using Application.Features.Staffs.Commands.UpdateStaff;
@@ -67,7 +68,7 @@ public class StaffController(IMapper mapper) : BaseController
             ? HandleFailure(result)
             : Ok(result.Value);
     }
-    
+
     [HttpPost("firebase_token")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [StaffValidationFilter]
@@ -99,7 +100,7 @@ public class StaffController(IMapper mapper) : BaseController
             ? HandleFailure(result)
             : Ok();
     }
-    
+
     [HttpPatch("schedule")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
@@ -129,17 +130,20 @@ public class StaffController(IMapper mapper) : BaseController
         var timeSlots = mapper.Map<List<TimeSlotsVm>>(result.Value.TimeSlots);
         return Ok(timeSlots);
     }
-    
+
     [HttpGet("schedule/workload/{year}/{month}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [StaffValidationFilter]
-    public async Task<IActionResult> GetStaffWorkload(int year, int month, [FromQuery] Guid? staffId)
+    public async Task<IActionResult> GetStaffWorkload(
+        int year,
+        int month,
+        [FromQuery] Guid? staffId)
     {
         if (staffId is not null && !HttpContext.IsManager())
             return Unauthorized();
-        
+
         staffId ??= HttpContext.GetStaffId();
-        
+
         var query = new GetStaffWorkloadByIdQuery(staffId.Value, year, month);
 
         var result = await Sender.Send(query);
@@ -148,17 +152,21 @@ public class StaffController(IMapper mapper) : BaseController
 
         return Ok(result.Value.Days);
     }
-    
+
     [HttpGet("schedule/workload/{year}/{month}/{day}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [StaffValidationFilter]
-    public async Task<IActionResult> GetStaffScheduleByDate(int year, int month, int day, [FromQuery] Guid? staffId)
+    public async Task<IActionResult> GetStaffScheduleByDate(
+        int year,
+        int month,
+        int day,
+        [FromQuery] Guid? staffId)
     {
         if (staffId is not null && !HttpContext.IsManager())
             return Unauthorized();
-        
+
         staffId ??= HttpContext.GetStaffId();
-        
+
         var query = new GetStaffScheduleByIdAndDateQuery(staffId.Value, year, month, day);
 
         var result = await Sender.Send(query);
@@ -197,7 +205,7 @@ public class StaffController(IMapper mapper) : BaseController
 
         return Ok(records);
     }
-    
+
     [HttpPatch("record")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [StaffValidationFilter]
@@ -231,7 +239,7 @@ public class StaffController(IMapper mapper) : BaseController
 
         return Ok(staff);
     }
-    
+
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
@@ -253,6 +261,22 @@ public class StaffController(IMapper mapper) : BaseController
         return Ok(staff);
     }
 
+    [HttpDelete]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [StaffValidationFilter]
+    public async Task<IActionResult> Delete([FromQuery] Guid? id)
+    {
+        id ??= HttpContext.GetStaffId();
+        if (id == Guid.Empty)
+            return BadRequest();
+
+        var command = new DeleteStaffCommand(HttpContext.GetStaffId(), id.Value);
+        var result = await Sender.Send(command);
+        return result.IsFailure
+            ? HandleFailure(result)
+            : NoContent();
+    }
+
     [HttpPatch]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [StaffValidationFilter]
@@ -267,7 +291,7 @@ public class StaffController(IMapper mapper) : BaseController
             ? HandleFailure(result)
             : NoContent();
     }
-    
+
     [HttpGet("organization/venues")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
@@ -288,7 +312,7 @@ public class StaffController(IMapper mapper) : BaseController
 
         return Ok(staff);
     }
-    
+
     [HttpGet("organization")]
     [StaffValidationFilter]
     public async Task<IActionResult> GetByOrganization()

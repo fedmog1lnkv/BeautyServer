@@ -25,7 +25,7 @@ public class UpdateVenueCommandHandler(
             return Result.Failure(DomainErrors.Staff.NotFound(request.InitiatorId));
         
         if (venue.OrganizationId != staff.OrganizationId)
-            return Result.Failure(DomainErrors.Staff.CannotUpdate);
+            return Result.Failure(DomainErrors.Staff.StaffCannotUpdate);
 
         if (!string.IsNullOrWhiteSpace(request.Name))
         {

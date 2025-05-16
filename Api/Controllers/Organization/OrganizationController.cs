@@ -10,6 +10,7 @@ using Application.Features.Organizations.Queries.GetAllOrganizations;
 using Application.Features.Organizations.Queries.GetOrganiazationById;
 using Application.Features.Organizations.Queries.GetOrganiazationVenuesById;
 using Application.Features.Organizations.Queries.GetOrganizationServicesById;
+using Application.Features.Organizations.Queries.GetOrganizationStaffsById;
 using Application.Features.Organizations.Queries.GetOrganizationStatisticById;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
@@ -146,6 +147,27 @@ public class OrganizationController(IMapper mapper) : BaseController
         var organizationId = HttpContext.GetStaffOrganizationId();
         
         var query = new GetOrganizationServicesByIdQuery(organizationId, search, page, pageSize);
+        var result = await Sender.Send(query);
+
+        if (result.IsFailure)
+            return HandleFailure(result);
+
+        return Ok(result.Value);
+    }
+    
+    [HttpGet("staffs")]
+    [StaffValidationFilter]
+    public async Task<IActionResult> GetOrganizationStaffs(
+        [FromQuery] string? search,
+        [FromQuery] int page = 0,
+        [FromQuery] int pageSize = 10)
+    {
+        if (!HttpContext.IsManager() && !HttpContext.IsAdmin())
+            return Unauthorized();
+
+        var organizationId = HttpContext.GetStaffOrganizationId();
+        
+        var query = new GetOrganizationStaffsByIdQuery(organizationId, search, page, pageSize);
         var result = await Sender.Send(query);
 
         if (result.IsFailure)
