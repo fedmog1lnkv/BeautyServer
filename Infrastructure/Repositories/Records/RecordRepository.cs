@@ -1,10 +1,11 @@
 using Domain.Entities;
 using Domain.Repositories.Records;
+using Infrastructure.Utils;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories.Records;
 
-public class RecordRepository(ApplicationDbContext dbContext) : IRecordRepository
+public class RecordRepository(ApplicationDbContext dbContext, S3StorageUtils s3StorageUtils) : IRecordRepository
 {
     public async Task<Record?> GetRecordById(
         Guid id,
@@ -62,6 +63,9 @@ public class RecordRepository(ApplicationDbContext dbContext) : IRecordRepositor
             .Skip(offset)
             .Take(limit)
             .ToListAsync(cancellationToken);
+
+    public async Task<string?> UploadMessagePhotoAsync(string base64Photo, string fileName) =>
+        await s3StorageUtils.UploadPhotoAsync(base64Photo, fileName, "messages");
 
     public void Add(Record record) =>
         dbContext.Set<Record>().Add(record);

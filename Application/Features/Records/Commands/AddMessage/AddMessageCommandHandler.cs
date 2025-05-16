@@ -19,7 +19,20 @@ public sealed class AddMessageCommandHandler(IRecordRepository recordRepository,
         if (request.SenderId != record.StaffId && request.SenderId != record.UserId)
             return Result.Failure(DomainErrors.RecordChat.NoAccess(request.SenderId));
 
-        var addMessageResult = record.AddMessage(request.SenderId, request.Text, request.Id);
+        var messageText = request.Text;
+
+        var isBase64 = Utils.IsBase64String(request.Text);
+        if (isBase64)
+        {
+            var photoUrl = await recordRepository.UploadMessagePhotoAsync(request.Text, Guid.NewGuid().ToString());
+
+            if (string.IsNullOrEmpty(photoUrl))
+                return Result.Failure(DomainErrors.RecordMessage.PhotoUploadFailed);
+
+            messageText = photoUrl;
+        }
+
+        var addMessageResult = record.AddMessage(request.SenderId, messageText, request.Id);
         if (addMessageResult.IsFailure)
             return addMessageResult;
 
@@ -32,7 +45,7 @@ public sealed class AddMessageCommandHandler(IRecordRepository recordRepository,
                 record.Messages.Last().Message.Value,
                 record.Messages.Last().CreatedAt),
             cancellationToken);
-        
+
         return Result.Success();
     }
 }

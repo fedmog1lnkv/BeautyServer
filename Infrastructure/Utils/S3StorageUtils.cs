@@ -17,7 +17,7 @@ public sealed class S3StorageUtils(IAmazonS3 s3Client, IConfiguration configurat
 {
     private readonly string _bucketName = configuration["AWS:BucketName"]!;
 
-    public async Task<string?> UploadPhotoAsync(
+    public async Task<string?> UploadPhotosAsync(
         string base64Photo,
         string fileName,
         string folder = "photos")
@@ -52,6 +52,32 @@ public sealed class S3StorageUtils(IAmazonS3 s3Client, IConfiguration configurat
         }
     }
 
+    public async Task<string?> UploadPhotoAsync(
+        string base64Photo,
+        string fileName,
+        string folder = "photos")
+    {
+        try
+        {
+            var photoBytes = Convert.FromBase64String(base64Photo);
+            var contentType = GetContentType(photoBytes);
+            var fileExtension = GetFileExtension(contentType);
+
+            var originalFilePath = $"{folder}/{fileName}.{fileExtension}";
+            var originalUploadResult = await UploadSinglePhotoToS3(photoBytes, originalFilePath, contentType);
+
+            if (originalUploadResult == null)
+                return null;
+
+            return originalUploadResult;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при загрузке фотографии: {ex.Message}");
+            return null;
+        }
+    }
+
     private async Task<string?> UploadSinglePhotoToS3(
         byte[] photoBytes,
         string filePath,
@@ -82,7 +108,7 @@ public sealed class S3StorageUtils(IAmazonS3 s3Client, IConfiguration configurat
                 return false;
 
             var deletedAny = false;
-            
+
             var nameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
             var fileKeys = new[]
             {

@@ -29,7 +29,7 @@ internal sealed class UserRepository(ApplicationDbContext dbContext, S3StorageUt
         dbContext.Set<User>().Remove(user);
 
     public async Task<string?> UploadPhotoAsync(string base64Photo, string fileName) =>
-        await s3StorageUtils.UploadPhotoAsync(base64Photo, fileName, "users");
+        await s3StorageUtils.UploadPhotosAsync(base64Photo, fileName, "users");
     
     public async Task<bool> DeletePhoto(string photoUrl) =>
         await s3StorageUtils.DeletePhoto(photoUrl, "users");

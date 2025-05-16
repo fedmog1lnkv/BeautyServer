@@ -511,6 +511,9 @@ public class DomainErrors
     
         public static readonly Error CannotReadOwnMessage = Error.Validation(
             "RecordMessage.CannotReadOwnMessage", "You cannot read your own message.");
+        
+        public static readonly Error PhotoUploadFailed = Error.Failure(
+            "RecordMessage.PhotoUploadFailed", "Failed to upload photo.");
     }
     
     public static class RecordChat

@@ -30,6 +30,8 @@ public interface IRecordRepository : IRepository<Record>
         int limit,
         int offset,
         CancellationToken cancellationToken = default);
+    
+    Task<string?> UploadMessagePhotoAsync(string base64Photo, string fileName);
 
     void Add(Record record);
 }

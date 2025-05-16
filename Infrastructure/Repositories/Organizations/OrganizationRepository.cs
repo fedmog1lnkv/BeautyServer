@@ -21,7 +21,7 @@ public class OrganizationRepository(
         dbContext.Set<Organization>().Remove(organization);
 
     public async Task<string?> UploadPhotoAsync(string base64Photo, string fileName) =>
-        await s3StorageUtils.UploadPhotoAsync(base64Photo, fileName, "organizations");
+        await s3StorageUtils.UploadPhotosAsync(base64Photo, fileName, "organizations");
     
     public async Task<bool> DeletePhoto(string photoUrl) =>
         await s3StorageUtils.DeletePhoto(photoUrl, "organizations");
