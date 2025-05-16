@@ -5,5 +5,6 @@ public enum RecordStatus
     Discarded = -1,
     Pending = 0,
     Approved = 1,
-    Completed = 2
+    Completed = 2,
+    UserPending = 3
 }

@@ -209,6 +209,7 @@ public sealed class Record : AggregateRoot, IAuditableEntity
         ModifiedOnUtc = DateTime.UtcNow;
 
         AddStatusLog(RecordStatusChange.Moved, "Услуга перенесена");
+        Status = RecordStatus.UserPending;
 
         return Result.Success();
     }

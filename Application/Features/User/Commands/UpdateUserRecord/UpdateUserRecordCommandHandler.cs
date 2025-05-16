@@ -1,6 +1,5 @@
 using Application.Abstractions;
 using Application.Messaging.Command;
-using Domain.DomainEvents.Record;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Errors;
@@ -42,6 +41,8 @@ public sealed class UpdateUserRecordCommandHandler(
         if (request.Status is not null && record.Status != RecordStatus.Completed)
         {
             var status = (RecordStatus)Enum.Parse(typeof(RecordStatus), request.Status, true);
+            if (status == RecordStatus.Approved)
+                record.Approve();
 
             if (status == RecordStatus.Discarded)
             {
