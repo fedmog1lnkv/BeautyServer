@@ -10,6 +10,7 @@ public class VenueVm : IMapWith<Domain.Entities.Venue>
     public required string Name { get; set; }
     public required string Address { get; set; }
     public string? Description { get; set; }
+    public double Rating { get; set; }
     public ThemeVm Theme { get; set; } = new ThemeVm();
     public LocationVm Location { get; set; } = new LocationVm();
     public required List<string> Photos { get; set; }
@@ -23,6 +24,7 @@ public class VenueVm : IMapWith<Domain.Entities.Venue>
             .ForMember(
                 dest => dest.Description,
                 opt => opt.MapFrom(src => src.Description != null ? src.Description.Value : null))
+            .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Rating.Value))
             .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address.Value))
             .ForMember(
                 dest => dest.Theme,

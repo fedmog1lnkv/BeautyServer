@@ -13,6 +13,7 @@ public class VenueServiceVm : IMapWith<Service>
     public TimeSpan? Duration { get; set; }
     public decimal? Price { get; set; }
     public string Photo { get; set; }
+    public double Rating { get; set; }
 
     public void Mapping(Profile profile)
     {
@@ -25,6 +26,7 @@ public class VenueServiceVm : IMapWith<Service>
                 opt => opt.MapFrom(s => s.Description.Value))
             .ForMember(d => d.Duration, opt => opt.MapFrom(s => s.Duration))
             .ForMember(d => d.Price, opt => opt.MapFrom(s => s.Price.Value))
-            .ForMember(d => d.Photo, opt => opt.MapFrom(s => s.Photo.Value));
+            .ForMember(d => d.Photo, opt => opt.MapFrom(s => s.Photo.Value))
+            .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Rating.Value));
     }
 }
