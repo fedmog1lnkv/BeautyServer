@@ -35,6 +35,28 @@ public class RecordConfiguration : IEntityTypeConfiguration<Record>
             .HasForeignKey(r => r.ServiceId)
             .OnDelete(DeleteBehavior.SetNull);
 
+        builder.HasOne(r => r.Coupon)
+            .WithMany()
+            .HasForeignKey(r => r.CouponId)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        builder.Property(r => r.OriginalAmount)
+            .HasConversion(
+                v => v == null ? (decimal?)null : v.Value,     
+                v => v == null ? null : RecordAmount.Create(v.Value).Value 
+            )
+            .HasColumnType("decimal(18,2)")
+            .IsRequired(false);
+        
+        builder.Property(r => r.DiscountedAmount)
+            .HasConversion(
+                v => v == null ? (decimal?)null : v.Value,     
+                v => v == null ? null : RecordAmount.Create(v.Value).Value 
+            )
+            .HasColumnType("decimal(18,2)")
+            .IsRequired(false);
+
         builder.Property(r => r.Status)
             .HasConversion(
                 v => v.ToString(),

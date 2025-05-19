@@ -10,6 +10,7 @@ public class Service : AggregateRoot, IAuditableEntity
 {
     private readonly List<Staff> _staffs = [];
     private readonly List<Venue> _venues = [];
+    private readonly List<Coupon> _coupons = [];
 
     private Service(
         Guid id,
@@ -49,6 +50,7 @@ public class Service : AggregateRoot, IAuditableEntity
 
     public IReadOnlyCollection<Staff> Staffs => _staffs.AsReadOnly();
     public IReadOnlyCollection<Venue> Venues => _venues.AsReadOnly();
+    public IReadOnlyCollection<Coupon> Coupons => _coupons.AsReadOnly();
 
     public static async Task<Result<Service>> Create(
         Guid id,

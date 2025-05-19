@@ -13,6 +13,13 @@ internal sealed class UserRepository(ApplicationDbContext dbContext, S3StorageUt
         return await dbContext.Set<User>()
             .FirstOrDefaultAsync(user => user.Id == id, cancellationToken);
     }
+    
+    public async Task<User?> GetByIdWithCouponsAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Set<User>()
+            .Include(u => u.Coupons)
+            .FirstOrDefaultAsync(user => user.Id == id, cancellationToken);
+    }
 
     public async Task<User?> GetByPhoneNumberAsync(
         UserPhoneNumber phoneNumber,

@@ -8,6 +8,7 @@ namespace Domain.Entities;
 public sealed class Organization : AggregateRoot, IAuditableEntity
 {
     private readonly List<Venue> _venues = [];
+    private readonly List<Coupon> _coupons = [];
 
     private Organization(
         Guid id,
@@ -34,6 +35,7 @@ public sealed class Organization : AggregateRoot, IAuditableEntity
     public OrganizationSubscription Subscription { get; private set; }
     public OrganizationTheme Theme { get; private set; }
     public IReadOnlyCollection<Venue> Venues => _venues.AsReadOnly();
+    public IReadOnlyCollection<Coupon> Coupons => _coupons.AsReadOnly();
     
     public DateTime CreatedOnUtc { get; set; }
     public DateTime? ModifiedOnUtc { get; set; }

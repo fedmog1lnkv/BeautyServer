@@ -3,12 +3,14 @@ using Api.Controllers.Users.Models;
 using Api.Filters;
 using Api.Utils;
 using Application.Features.Records.Queries.GetRecordsByUserId;
+using Application.Features.User.Commands.AddCouponToUser;
 using Application.Features.User.Commands.Auth;
 using Application.Features.User.Commands.GeneratePhoneChallenge;
 using Application.Features.User.Commands.RefreshToken;
 using Application.Features.User.Commands.UpdateUser;
 using Application.Features.User.Commands.UpdateUserRecord;
 using Application.Features.User.Queries.GetUserById;
+using Application.Features.User.Queries.GetUserCouponsById;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
@@ -143,5 +145,36 @@ public class UserController(IMapper mapper) : BaseController
         return result.IsFailure
             ? HandleFailure(result)
             : NoContent();
+    }
+    
+    [HttpPost("coupons")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [UserValidationFilter]
+    public async Task<IActionResult> AddCouponToUser([FromBody] AddCouponToUserDto request)
+    {
+        request.UserId = HttpContext.GetUserId();
+
+        var command = mapper.Map<AddCouponToUserCommand>(request);
+        var result = await Sender.Send(command);
+
+        return result.IsFailure
+            ? HandleFailure(result)
+            : NoContent();
+    }
+    
+    [HttpGet("coupons")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [UserValidationFilter]
+    public async Task<IActionResult> GetUserCoupons(
+        [FromQuery] string? search,
+        [FromQuery] int page = 0,
+        [FromQuery] int pageSize = 10)
+    {
+        var query = new GetUserCouponsByIdQuery(HttpContext.GetUserId(), search, page, pageSize);
+        var result = await Sender.Send(query);
+
+        return result.IsFailure
+            ? HandleFailure(result)
+            : Ok(result.Value);
     }
 }

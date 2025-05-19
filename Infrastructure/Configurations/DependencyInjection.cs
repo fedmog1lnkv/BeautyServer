@@ -3,6 +3,7 @@ using Amazon.Runtime;
 using Amazon.S3;
 using Application.Abstractions;
 using Domain.Repositories;
+using Domain.Repositories.Coupons;
 using Domain.Repositories.Organizations;
 using Domain.Repositories.PhoneChallenges;
 using Domain.Repositories.Records;
@@ -15,6 +16,7 @@ using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using Infrastructure.Authentication.Staff;
 using Infrastructure.Authentication.User;
+using Infrastructure.Repositories.Coupons;
 using Infrastructure.Repositories.Organizations;
 using Infrastructure.Repositories.PhoneChallenges;
 using Infrastructure.Repositories.Records;
@@ -112,6 +114,10 @@ public static class DependencyInjection
         // Record
         services.AddScoped<IRecordRepository, RecordRepository>();
         services.AddScoped<IRecordReadOnlyRepository, RecordReadOnlyRepository>();
+        
+        // Coupon
+        services.AddScoped<ICouponRepository, CouponRepository>();
+        services.AddScoped<ICouponReadOnlyRepository, CouponReadOnlyRepository>();
 
         // Utils
         services.AddScoped<ILocationRepository, LocationRepository>();

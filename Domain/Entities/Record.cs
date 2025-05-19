@@ -24,6 +24,9 @@ public sealed class Record : AggregateRoot, IAuditableEntity
         Guid organizationId,
         Guid venueId,
         Guid serviceId,
+        Guid? couponId,
+        RecordAmount? originalAmount,
+        RecordAmount? discountedAmount,
         RecordStatus status,
         DateTime startTimestamp,
         DateTime endTimestamp,
@@ -34,6 +37,9 @@ public sealed class Record : AggregateRoot, IAuditableEntity
         OrganizationId = organizationId;
         VenueId = venueId;
         ServiceId = serviceId;
+        CouponId = couponId;
+        OriginalAmount = originalAmount;
+        DiscountedAmount = discountedAmount;
         Status = status;
         StartTimestamp = startTimestamp;
         EndTimestamp = endTimestamp;
@@ -51,6 +57,9 @@ public sealed class Record : AggregateRoot, IAuditableEntity
     public Guid OrganizationId { get; private set; }
     public Guid VenueId { get; private set; }
     public Guid ServiceId { get; private set; }
+    public Guid? CouponId { get; private set; }
+    public RecordAmount? OriginalAmount { get; private set; }
+    public RecordAmount? DiscountedAmount { get; private set; }
     public RecordStatus Status { get; private set; }
     public RecordReview? Review { get; private set; }
     public DateTimeOffset StartTimestamp { get; private set; }
@@ -61,6 +70,7 @@ public sealed class Record : AggregateRoot, IAuditableEntity
     public Organization Organization { get; private set; } = null!;
     public Venue Venue { get; private set; } = null!;
     public Service Service { get; private set; } = null!;
+    public Coupon? Coupon { get; private set; }
     public IReadOnlyCollection<RecordStatusLog> StatusLogs => _statusLogs.AsReadOnly();
     public IReadOnlyCollection<RecordMessage> Messages => _messages.AsReadOnly();
 
@@ -74,6 +84,9 @@ public sealed class Record : AggregateRoot, IAuditableEntity
         Guid organizationId,
         Guid venueId,
         Guid serviceId,
+        Guid? couponId,
+        decimal? originalPrice,
+        decimal? discountedPrice,
         RecordStatus status,
         DateTime startTimestamp,
         DateTime endTimestamp,
@@ -99,6 +112,26 @@ public sealed class Record : AggregateRoot, IAuditableEntity
 
         if (serviceId == Guid.Empty)
             return Result.Failure<Record>(DomainErrors.Record.ServiceIdEmpty);
+
+        if (couponId == Guid.Empty)
+            return Result.Failure<Record>(DomainErrors.Record.CouponIdEmpty);
+
+        Result<RecordAmount>? originalAmountResult = null;
+        Result<RecordAmount>? discountedAmountResult = null;
+
+        if (originalPrice.HasValue)
+        {
+            originalAmountResult = RecordAmount.Create(originalPrice.Value);
+            if (originalAmountResult.IsFailure)
+                return Result.Failure<Record>(originalAmountResult.Error);
+        }
+
+        if (discountedPrice.HasValue)
+        {
+            discountedAmountResult = RecordAmount.Create(discountedPrice.Value);
+            if (discountedAmountResult.IsFailure)
+                return Result.Failure<Record>(discountedAmountResult.Error);
+        }
 
         var userExists = await userRepository.ExistsAsync(userId, cancellationToken);
         if (!userExists)
@@ -127,6 +160,9 @@ public sealed class Record : AggregateRoot, IAuditableEntity
             organizationId,
             venueId,
             serviceId,
+            couponId,
+            originalAmountResult?.Value,
+            discountedAmountResult?.Value,
             status,
             startTimestamp,
             endTimestamp,

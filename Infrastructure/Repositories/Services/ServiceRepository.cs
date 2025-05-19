@@ -14,6 +14,16 @@ public class ServiceRepository(ApplicationDbContext dbContext, S3StorageUtils s3
             .AsSplitQuery()
             .FirstOrDefaultAsync(s => s.Id == serviceId, cancellationToken);
 
+    public async Task<List<Service>> GetByIdsAsync(
+        IEnumerable<Guid> serviceIds,
+        CancellationToken cancellationToken = default) =>
+        await dbContext.Set<Service>()
+            .Where(s => serviceIds.Contains(s.Id))
+            .Include(s => s.Staffs)
+            .Include(s => s.Venues)
+            .AsSplitQuery()
+            .ToListAsync(cancellationToken);
+
     public async Task<List<Service>> GetByOrganizationId(
         Guid organizationId,
         CancellationToken cancellationToken = default) =>
@@ -29,7 +39,7 @@ public class ServiceRepository(ApplicationDbContext dbContext, S3StorageUtils s3
 
     public async Task<string?> UploadPhotoAsync(string base64Photo, string fileName) =>
         await s3StorageUtils.UploadPhotosAsync(base64Photo, fileName, "services");
-    
+
     public async Task<bool> DeletePhoto(string photoUrl) =>
         await s3StorageUtils.DeletePhoto(photoUrl, "services");
 }

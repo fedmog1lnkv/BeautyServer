@@ -10,6 +10,7 @@ public class StaffRepository(ApplicationDbContext dbContext, S3StorageUtils s3St
 {
     public async Task<Staff?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
         await dbContext.Set<Staff>()
+            .AsSplitQuery()
             .Include(s => s.Services)
             .Include(s => s.TimeSlots)
             .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);

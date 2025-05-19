@@ -9,6 +9,7 @@ using Application.Features.Organizations.Commands.UpdateOrganization;
 using Application.Features.Organizations.Queries.GetAllOrganizations;
 using Application.Features.Organizations.Queries.GetOrganiazationById;
 using Application.Features.Organizations.Queries.GetOrganiazationVenuesById;
+using Application.Features.Organizations.Queries.GetOrganizationCouponsById;
 using Application.Features.Organizations.Queries.GetOrganizationServicesById;
 using Application.Features.Organizations.Queries.GetOrganizationStaffsById;
 using Application.Features.Organizations.Queries.GetOrganizationStatisticById;
@@ -145,7 +146,7 @@ public class OrganizationController(IMapper mapper) : BaseController
             return Unauthorized();
 
         var organizationId = HttpContext.GetStaffOrganizationId();
-        
+
         var query = new GetOrganizationServicesByIdQuery(organizationId, search, page, pageSize);
         var result = await Sender.Send(query);
 
@@ -154,7 +155,7 @@ public class OrganizationController(IMapper mapper) : BaseController
 
         return Ok(result.Value);
     }
-    
+
     [HttpGet("staffs")]
     [StaffValidationFilter]
     public async Task<IActionResult> GetOrganizationStaffs(
@@ -166,7 +167,7 @@ public class OrganizationController(IMapper mapper) : BaseController
             return Unauthorized();
 
         var organizationId = HttpContext.GetStaffOrganizationId();
-        
+
         var query = new GetOrganizationStaffsByIdQuery(organizationId, search, page, pageSize);
         var result = await Sender.Send(query);
 
@@ -174,5 +175,25 @@ public class OrganizationController(IMapper mapper) : BaseController
             return HandleFailure(result);
 
         return Ok(result.Value);
+    }
+
+    [HttpGet("coupons")]
+    [StaffValidationFilter]
+    public async Task<IActionResult> GetOrganizationCoupons(
+        [FromQuery] string? search,
+        [FromQuery] int page = 0,
+        [FromQuery] int pageSize = 10)
+    {
+        if (!HttpContext.IsManager() && !HttpContext.IsAdmin())
+            return Unauthorized();
+
+        var organizationId = HttpContext.GetStaffOrganizationId();
+
+        var query = new GetOrganizationCouponsByIdQuery(organizationId, search, page, pageSize);
+        var result = await Sender.Send(query);
+
+        return result.IsFailure
+            ? HandleFailure(result)
+            : Ok(result.Value);
     }
 }

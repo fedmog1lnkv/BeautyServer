@@ -27,6 +27,10 @@ public class DomainErrors
         public static readonly Error NotAuthorizeInTelegram = Error.Failure(
             "User.NotAuthorizeInTelegram",
             "User is not authorized in the Telegram bot.");
+        
+        public static readonly Error CouponDuplicate = Error.Failure(
+            "User.CouponDuplicate",
+            "The coupon has already been added to the user.");
     }
     
     public static class PhoneChallenge
@@ -342,6 +346,10 @@ public class DomainErrors
         public static readonly Error StaffCannotDelete = Error.Failure(
             "Staff.StaffCannotUpdate", "You do not have permission to delete staff.");
         
+        public static readonly Error NoPermissionToManageOrganization = Error.Failure(
+            "Organization.NoPermissionToManage",
+            "You do not have permission to manage this organization.");
+        
         public static readonly Error RejectAuthRequest = Error.Failure(
             "User.RejectAuthRequest", "User rejected auth request..");
         
@@ -449,6 +457,9 @@ public class DomainErrors
         public static readonly Error ServiceIdEmpty = Error.Validation(
             "Record.ServiceIdEmpty", "Service ID cannot be empty.");
         
+        public static readonly Error CouponIdEmpty = Error.Validation(
+            "Record.CouponIdEmpty", "Coupon ID cannot be empty.");
+        
         public static readonly Error NotFound = Error.NotFound(
             "Record.NotFound", "Record not found by id.");
         
@@ -523,5 +534,82 @@ public class DomainErrors
         
         public static Error MessageNotFound(Guid senderId, Guid messageId) =>
             Error.NotFound("RecordChat.MessageNotFound", $"Message from sender {senderId} with message id '{messageId}' was not found.");
+    }
+    
+    public static class RecordAmount
+    {
+        public static Error InvalidOriginalPrice => Error.Validation(
+            "RecordAmount.InvalidOriginalPrice",
+            "Original price must be non-negative.");
+
+        public static Error InvalidDiscountedPrice => Error.Validation(
+            "RecordAmount.InvalidDiscountedPrice",
+            "Discounted price must be non-negative and less than or equal to the original price.");
+    }
+    
+    public static class Coupon
+    {
+        public static readonly Error DateRangeInvalid = Error.Validation(
+            "Coupon.DateRangeInvalid", "The start date cannot be later than the end date.");
+        
+        public static readonly Error NoRemainingUses = Error.Failure(
+            "Coupon.NoRemainingUses", "This coupon has no remaining uses.");
+        
+        public static readonly Error NotActive = Error.Failure(
+            "Coupon.NotActive", "The coupon is not active.");
+        
+        public static Error NotFound(Guid id) => Error.NotFound(
+            "Coupon.NotFound", $"Coupon with ID '{id}' was not found.");
+
+        public static Error NotFoundByCode(string code) => Error.NotFound(
+            "Coupon.NotFoundByCode", $"Coupon with code '{code}' was not found.");
+    }
+    
+    public static class CouponName
+    {
+        public static readonly Error Empty = Error.Validation(
+            "CouponName.Empty", "Coupon name is empty.");
+
+        public static readonly Error TooLong = Error.Validation(
+            "CouponName.TooLong", "Coupon name is too long.");
+
+        public static readonly Error TooShort = Error.Validation(
+            "CouponName.TooShort", "Coupon name is too short.");
+    }
+    
+    public static class CouponDescription
+    {
+        public static readonly Error Empty = Error.Validation(
+            "CouponDescription.Empty", "Coupon description is empty.");
+
+        public static readonly Error TooLong = Error.Validation(
+            "CouponDescription.TooLong", "Coupon description is too long.");
+
+        public static readonly Error TooShort = Error.Validation(
+            "CouponDescription.TooShort", "Coupon description is too short.");
+    }
+    
+    public static class CouponCode
+    {
+        public static readonly Error Empty = Error.Validation(
+            "CouponCode.Empty", "Coupon code is empty.");
+
+        public static readonly Error InvalidLength = Error.Validation(
+            "CouponCode.TooShort", "Coupon code invalid length.");
+    }
+    
+    public static class CouponDiscountValue
+    {
+        public static Error MustBeGreaterThanZero => Error.Validation(
+            "CouponDiscountValue.MustBeGreaterThanZero", "The discount must be more than zero.");
+    }
+    
+    public static class CouponUsageLimit
+    {
+        public static Error InvalidUsageLimit => Error.Validation(
+            "CouponUsageLimit.InvalidUsageLimit", "The usage limit must be non-negative.");
+        
+        public static Error NoRemainingUses => Error.Conflict(
+            "CouponUsageLimit.NoRemainingUses", "No remaining uses left for this coupon.");
     }
 }

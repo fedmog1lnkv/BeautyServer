@@ -8,6 +8,7 @@ namespace Domain.Entities;
 
 public sealed class User : AggregateRoot, IAuditableEntity
 {
+    private readonly List<Coupon> _coupons = [];
     private User(
         Guid id,
         UserName name,
@@ -34,6 +35,8 @@ public sealed class User : AggregateRoot, IAuditableEntity
     public UserSettings Settings { get; private set; }
     public DateTime CreatedOnUtc { get; set; }
     public DateTime? ModifiedOnUtc { get; set; }
+    
+    public IReadOnlyCollection<Coupon> Coupons => _coupons.AsReadOnly();
 
     public static async Task<Result<User>> CreateAsync(
         Guid id,
@@ -144,6 +147,16 @@ public sealed class User : AggregateRoot, IAuditableEntity
             return Result.Success();
 
         Photo = photoResult.Value;
+        return Result.Success();
+    }
+    
+    public Result AddCoupon(Coupon coupon)
+    {
+        if (_coupons.Any(c => c.Id == coupon.Id))
+            return Result.Failure(DomainErrors.User.CouponDuplicate);
+
+        _coupons.Add(coupon);
+
         return Result.Success();
     }
 }

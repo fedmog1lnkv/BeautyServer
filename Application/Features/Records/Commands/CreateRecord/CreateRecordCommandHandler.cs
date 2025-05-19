@@ -2,6 +2,7 @@ using Application.Messaging.Command;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Errors;
+using Domain.Repositories.Coupons;
 using Domain.Repositories.Organizations;
 using Domain.Repositories.Records;
 using Domain.Repositories.Services;
@@ -22,6 +23,7 @@ public class CreateRecordCommandHandler(
     IVenueReadOnlyRepository venueReadOnlyRepository,
     IServiceReadOnlyRepository serviceReadOnlyRepository,
     IRecordRepository recordRepository,
+    ICouponRepository couponRepository,
     INotificationRepository notificationRepository) : ICommandHandler<CreateRecordCommand, Result>
 {
     public async Task<Result> Handle(CreateRecordCommand request, CancellationToken cancellationToken)
@@ -84,10 +86,30 @@ public class CreateRecordCommandHandler(
         var updateStaffIntervalsResult = staff.UpdateTimeSlotIntervals(timeSlot.Id, updatedIntervals);
         if (updateStaffIntervalsResult.IsFailure)
             return Result.Failure(updateStaffIntervalsResult.Error);
-        
+
         var venue = await venueReadOnlyRepository.GetByIdAsync(timeSlot.VenueId, cancellationToken);
         if (venue is null)
             return Result.Failure(DomainErrors.Venue.NotFound(timeSlot.VenueId));
+
+        var price = (decimal?)service.Price?.Value;
+        var discountPrice = price;
+
+        Coupon? coupon = null;
+
+        var hasCoupon = request.CouponId.HasValue && request.CouponId != Guid.Empty;
+
+        if (price.HasValue && hasCoupon)
+        {
+            coupon = await couponRepository.GetByIdAsync(request.CouponId!.Value, cancellationToken);
+
+            if (coupon is null)
+                return Result.Failure(DomainErrors.Coupon.NotFound(request.CouponId.Value));
+
+            if (coupon.UsageLimit.Remaining == 0)
+                return Result.Failure(DomainErrors.Coupon.NoRemainingUses);
+
+            discountPrice = coupon.ApplyDiscount(price.Value);
+        }
 
         var createRecordResult = await Record.CreateAsync(
             Guid.NewGuid(),
@@ -96,6 +118,9 @@ public class CreateRecordCommandHandler(
             staff.OrganizationId,
             timeSlot.VenueId,
             service.Id,
+            request.CouponId,
+            price,
+            discountPrice,
             RecordStatus.Pending,
             TimeZoneInfo.ConvertTimeToUtc(request.StartTimestamp, venue.TimeZone),
             TimeZoneInfo.ConvertTimeToUtc(endTimeStamp, venue.TimeZone),
@@ -111,7 +136,14 @@ public class CreateRecordCommandHandler(
             return createRecordResult;
 
         recordRepository.Add(createRecordResult.Value);
-        
+
+        if (coupon is not null)
+        {
+            var useResult = coupon.UseOnce();
+            if (useResult.IsFailure)
+                return useResult;
+        }
+
         var record = createRecordResult.Value;
         if (record.Staff.Settings.FirebaseToken != null)
         {

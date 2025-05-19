@@ -7,5 +7,6 @@ public record CreateRecordCommand(
     Guid UserId,
     Guid StaffId,
     Guid ServiceId,
+    Guid? CouponId,
     DateTime StartTimestamp,
     DateTime? EndTimeStamp) : ICommand<Result>;
