@@ -11,6 +11,7 @@ public sealed class CouponLookupDto
     public required decimal DiscountValue { get; init; }
     public required bool IsPublic { get; init; }
     public required int UsageLimit { get; init; }
+    public required int UsageLimitRemaining { get; init; }
     public required DateOnly StartDate { get; init; }
     public required DateOnly EndDate { get; init; }
 }

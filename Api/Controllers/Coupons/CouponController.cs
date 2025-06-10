@@ -20,6 +20,9 @@ public class CouponController(IMapper mapper) : BaseController
         if (!HttpContext.IsManager() && !HttpContext.IsAdmin())
             return Unauthorized();
 
+        if (request.OrganizationId == Guid.Empty)
+            request.OrganizationId = HttpContext.GetStaffOrganizationId();
+
         request.InitiatorId = HttpContext.GetStaffId();
 
         var command = mapper.Map<CreateCouponCommand>(request);

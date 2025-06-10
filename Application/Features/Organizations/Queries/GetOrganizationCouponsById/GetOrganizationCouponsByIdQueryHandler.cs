@@ -35,6 +35,7 @@ public class GetOrganizationCouponsByIdQueryHandler(ICouponReadOnlyRepository co
             DiscountValue = s.DiscountValue.Value,
             IsPublic = s.IsPublic,
             UsageLimit = s.UsageLimit.Total,
+            UsageLimitRemaining = s.UsageLimit.Remaining,
             StartDate = s.StartDate,
             EndDate = s.EndDate,
         }).ToList();
